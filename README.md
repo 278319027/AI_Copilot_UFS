@@ -27,34 +27,49 @@ zsf/
 ├── docs/                        # 项目事实与设计信息（不保存 AI 规则）
 │   ├── README.md
 │   ├── SAD/                    # 软件架构设计
-│   ├── SDD/                    # 模块设计文档
+│   ├── SDD/                    # 模块设计文档（含 CodeGraph 影响分析章节）
 │   ├── ICD/                    # 接口控制文档
 │   └── TEST/                   # 测试设计文档
+│       ├── TEST_template.md
+│       └── metrics_template.md # 效果度量模板
 │
 ├── .opencode/                   # OpenCode Agent 配置
+│   ├── opencode.json            # MCP 服务器配置（ops-codegraph）
 │   ├── memory/                 # 项目规则与约束
-│   │   ├── architecture.md     # 分层规则 + CodeGraph 查询规则
-│   │   ├── coding_style.md     # 编码风格
+│   │   ├── architecture.md      # 分层规则 + CodeGraph 查询规则
+│   │   ├── coding_style.md      # 编码风格
+│   │   ├── concurrency_rules.md # 并发安全规则 ← ✨新增
 │   │   ├── design_rules.md    # 设计规则（状态机/Context/资源管理）
 │   │   ├── review_rules.md    # Review 检查项
 │   │   └── testing_rules.md   # 测试规则
+│   ├── knowledge/              # 硬件知识库 ← ✨新增
+│   │   ├── README.md           # 知识库说明和使用原则
+│   │   ├── nand_controller/    # NAND 控制器知识
+│   │   │   ├── registers.md    # 寄存器定义和配置顺序
+│   │   │   ├── operations.md   # 操作序列和命令码
+│   │   │   └── constraints.md  # 时序约束和并发约束
+│   │   ├── nvme_spec/          # NVMe 规约知识
+│   │   │   └── admin_commands.md # Admin 命令集和数据结构
+│   │   └── platform/           # 平台相关知识
+│   │       └── memory_map.md   # 内存映射、中断分配、时钟树
 │   └── skills/                 # 可复用工作流
-│       ├── development/        # 开发 Skill（含 CodeGraph 查询步骤）
-│       ├── review/             # Review Skill（含 CodeGraph 验证步骤）
-│       └── drawio-flowchart/  # 流程图生成 Skill
+│       ├── development/         # 开发 Skill（含 CodeGraph 查询步骤）
+│       ├── review/              # Review Skill（含 CodeGraph 验证步骤）
+│       └── drawio-flowchart/   # 流程图生成 Skill
 │
 ├── .codegraph/                 # CodeGraph 配置（纳入版本控制）
+│   ├── README.md               # 配置说明
 │   ├── config.json             # ops-codegraph 排除目录配置
 │   └── Doxyfile                # Doxygen 配置（含 SSD 固件宏预定义）
 │
 ├── scripts/                    # 工具脚本
 │   ├── install_codegraph.sh    # 一键安装 CodeGraph 工具链
 │   ├── init_codegraph.sh       # 项目初始化（构建索引）
-│   └── install_git_hook.sh     # Git Hook 安装（提交后自动更新索引）
+│   └── install_git_hook.sh    # Git Hook 安装（提交后自动更新索引）
 │
 └── templates/                  # 模板和提示词库
     ├── README.md
-    └── prompt_library.md
+    └── prompt_library.md       # 含 CodeGraph 查询提示词
 ```
 
 ## 推荐阅读顺序
