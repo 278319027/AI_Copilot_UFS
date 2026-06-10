@@ -78,7 +78,45 @@
 ## 建议后续工作
 
 1. 选一个真实 SSD 固件模块，按模板补齐 `SDD`
-2. 用 `development skill` 跑一次“文档 -> 方案 -> 代码”闭环
+2. 用 `development skill` 跑一次"文档 -> 方案 -> 代码"闭环
 3. 用 `review skill` 跑一次 diff 审查
-4. 补一份团队专用的 `CodeGraph` 生成和维护规范
+
+## CodeGraph 快速入门
+
+### 工具组成
+
+| 工具 | 用途 | 安装 |
+|------|------|------|
+| **ops-codegraph** | 主工具：调用图/依赖图/影响分析，30+ MCP 工具 | `npm install -g @optave/codegraph` |
+| **ctags + cscope** | 补充工具：函数指针/宏查询（tree-sitter 盲区） | `apt install universal-ctags cscope` |
+| **Doxygen** | 可视化：交互式 HTML 文档+图（按需） | `apt install doxygen graphviz` |
+
+### 一键安装
+
+```bash
+bash scripts/install_codegraph.sh
+```
+
+### 项目初始化
+
+```bash
+cd /path/to/ssd_firmware
+bash scripts/init_codegraph.sh
+```
+
+### 常用查询
+
+```bash
+# ops-codegraph
+codegraph find nand_read_page       # 搜索符号
+codegraph callers nand_read_page    # 谁调用了
+codegraph callees nand_read_page    # 调用了谁
+codegraph impact source/driver/nand/nand_io.c  # 影响分析
+
+# cscope（补充函数指针和宏）
+cscope -d -L2 "func_ptr_name"      # 函数指针调用者
+cscope -d -L4 "MACRO_NAME"         # 宏使用位置
+```
+
+详细教程见 [CodeGraph部署与使用教程.md](./CodeGraph部署与使用教程.md)
 

@@ -1,0 +1,28 @@
+# CodeGraph 生成文件（索引数据库，不纳入版本控制）
+.codegraph/graph.db
+.codegraph/graph.db-*
+.codegraph/ctags_index.json
+.codegraph/cscope.files
+.codegraph/doxygen/
+cscope.out
+cscope.in.out
+cscope.po.out
+tags
+
+# 但保留配置文件
+!.codegraph/config.json
+!.codegraph/Doxyfile
+
+# Node modules（opencode 用）
+node_modules/
+
+# OS 生成文件
+.DS_Store
+Thumbs.db
+
+# 编辑器生成文件
+*.swp
+*.swo
+*~
+.vscode/
+.idea/

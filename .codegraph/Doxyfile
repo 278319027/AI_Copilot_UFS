@@ -1,0 +1,89 @@
+# Doxyfile — SSD 固件项目 Doxygen 配置
+# 用法: cd /path/to/ssd_firmware && doxygen .codegraph/Doxyfile
+
+#============================================================================
+# 项目信息
+#============================================================================
+PROJECT_NAME           = "SSD Firmware"
+PROJECT_NUMBER         = "1.0"
+OUTPUT_DIRECTORY       = .codegraph/doxygen
+
+#============================================================================
+# 输入源
+#============================================================================
+INPUT                  = source
+FILE_PATTERNS          = *.c *.h
+RECURSIVE              = YES
+EXCLUDE_PATTERNS       = */test/* */tests/* */vendor/* */third_party/* */_build/* */build/*
+
+#============================================================================
+# 提取选项 — 即使没有文档注释也提取
+#============================================================================
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+
+#============================================================================
+# 图生成 — 核心功能
+#============================================================================
+HAVE_DOT               = YES
+CALL_GRAPH             = YES
+CALLER_GRAPH           = YES
+REFERENCED_BY_RELATION = YES
+REFERENCES_RELATION     = YES
+INCLUDE_GRAPH           = YES
+INCLUDED_BY_GRAPH       = YES
+COLLABORATION_GRAPH     = YES
+GRAPHICAL_HIERARCHY    = YES
+DOT_GRAPH_MAX_NODES    = 50
+MAX_DOT_GRAPH_DEPTH    = 5
+DOT_IMAGE_FORMAT       = svg
+INTERACTIVE_SVG        = YES
+
+#============================================================================
+# 输出格式
+#============================================================================
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+HTML_OUTPUT            = html
+SEARCHENGINE           = YES
+
+#============================================================================
+# 源代码浏览
+#============================================================================
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+STRIP_CODE_COMMENTS    = NO
+REFERENCED_BY_RELATION = YES
+REFERENCES_RELATION    = YES
+
+#============================================================================
+# 预处理 — SSD 固件常见宏
+#============================================================================
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+PREDEFINED             = ARM_MATH_CM4 \
+                         __STATIC_INLINE=static inline \
+                         __ALIGNED(x)= \
+                         __PACKED_STRUCT=struct __attribute__((packed)) \
+                         _IRQHANDLER= \
+                         __IO=volatile \
+                         __I=volatile const \
+                         __O=volatile
+
+#============================================================================
+# C 语言特定配置
+#============================================================================
+OPTIMIZE_OUTPUT_FOR_C  = YES
+TYPEDEF_HIDES_STRUCT   = YES
+TAB_SIZE               = 4
+
+#============================================================================
+# 其他
+#============================================================================
+QUIET                  = YES
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = NO
+WARN_IF_DOC_ERROR      = NO

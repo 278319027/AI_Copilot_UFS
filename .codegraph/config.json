@@ -1,0 +1,13 @@
+{
+  "exclude": [
+    "third_party/**",
+    "vendor/**",
+    "test/**",
+    "tests/**",
+    "_build/**",
+    "out/**",
+    "build/**",
+    ".git/**",
+    "node_modules/**"
+  ]
+}
