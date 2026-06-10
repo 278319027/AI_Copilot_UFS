@@ -173,11 +173,29 @@ AI 应能回答：
 - 改这个接口会影响哪些模块
 - 状态机入口在哪里
 
+#### 工具实现
+
+CodeGraph 通过以下工具组合实现：
+
+| 工具 | 用途 | 覆盖场景 | 安装 |
+|------|------|----------|------|
+| **ops-codegraph** | 主工具：调用图/依赖图/影响分析，30+ MCP 工具 | ~80% | `npm install -g @optave/codegraph` |
+| **ctags + cscope** | 补充工具：函数指针/宏查询（tree-sitter 盲区） | ~15% | `apt install universal-ctags cscope` |
+| **Doxygen** | 可视化：交互式 HTML 文档+图（按需） | ~5% | `apt install doxygen graphviz` |
+
+ops-codegraph 通过 MCP 协议与 OpenCode Agent 集成，AI 可直接调用 `get_callers`、`get_callees`、`impact` 等 30+ 工具。
+
+C 语言特殊限制：tree-sitter 无法解析函数指针调用和宏展开，这些场景必须用 cscope 补充。
+
 #### 建设顺序
 
-1. Call Graph
-2. Struct Graph
-3. Dependency Graph
+1. Call Graph（ops-codegraph 自动构建）
+2. Struct Graph（ctags 索引）
+3. Dependency Graph（ops-codegraph 自动构建）
+
+#### 安装与配置
+
+详见 [CodeGraph 部署与使用教程](./CodeGraph_Setup.md)。
 
 ### 4.3 Docs 体系
 
@@ -285,6 +303,40 @@ Memory 保存项目规则，不保存项目设计本身。
 - 单元测试要求
 - 覆盖率要求
 - Mock 规范
+
+## 4.5 硬件知识库
+
+> 新增。来源：《固件AI辅助编程探索》第 7.1.2 节 P0 建议。
+
+硬件知识库存储 AI 无法从代码推断的隐性知识，包括寄存器地址、配置顺序、时序约束等。
+
+推荐目录：
+
+```text
+.opencode/knowledge/
+  nand_controller/
+    registers.md          # NAND 控制器寄存器定义和配置顺序
+    operations.md         # NAND 操作序列和命令码
+    constraints.md        # 时序约束、并发约束、错误恢复
+  nvme_spec/
+    admin_commands.md     # NVMe Admin 命令集和数据结构
+    io_commands.md        # NVMe I/O 命令集
+  platform/
+    memory_map.md         # 系统内存映射、中断分配、时钟树
+    power_states.md       # 电源状态转换
+```
+
+#### 知识库原则
+
+1. **只包含隐性知识**：寄存器地址、配置顺序、时序参数 ✅；函数签名、数据结构定义 ❌
+2. **每个文件不超过 2000 行**：控制 token 开销
+3. **按 Skill 粒度拆分**：按需注入而非全量注入
+4. **版本绑定**：知识文件必须标注适用的芯片型号和固件版本
+
+#### 填写说明
+
+每个模板文件包含填写说明和占位符，使用时需替换为实际芯片的值。
+不同芯片型号有不同的填写文件。
 
 ## 5. Skills 体系
 
@@ -442,87 +494,87 @@ Project/
     ICD/
     TEST/
   templates/
-  .codegraph/
+  scripts/                     # 工具脚本
+    install_codegraph.sh       # 一键安装 CodeGraph 工具链
+    init_codegraph.sh          # 项目初始化（构建索引）
+    install_git_hook.sh        # Git Hook 安装
+  .codegraph/                  # CodeGraph 配置
+    config.json                # ops-codegraph 排除目录配置
+    Doxyfile                   # Doxygen 配置
   .opencode/
+    opencode.json              # OpenCode + MCP 配置
     memory/
+      architecture.md          # 分层规则 + CodeGraph 查询规则
+      coding_style.md
+      concurrency_rules.md     # 并发安全规则 ✨新增
+      design_rules.md
+      review_rules.md
+      testing_rules.md
+    knowledge/                 # 硬件知识库 ✨新增
+      nand_controller/
+        registers.md
+        operations.md
+        constraints.md
+      nvme_spec/
+        admin_commands.md
+      platform/
+        memory_map.md
     skills/
       development/
       review/
-    hooks/
+      drawio-flowchart/
 ```
 
 ## 9. 实施路线图
 
-### Phase 1: 建立理解能力
+### Phase 1：建立理解能力 + CodeGraph + 硬件知识库（1-2 周） ✅ 已完成
 
-周期：1~2 周
+| 任务 | 状态 | 产出 |
+|------|------|------|
+| 部署 CodeGraph | ✅ 完成 | ops-codegraph + ctags + cscope + Doxygen |
+| 建立 Call Graph | ✅ 完成 | `codegraph build` 自动构建 |
+| 建立 Struct Graph | ✅ 完成 | ctags 自动索引 |
+| 建立 Dependency Graph | ✅ 完成 | ops-codegraph 自动构建 |
+| ✅ 接入交叉编译 Hook | 🔲 待做 | 见《可行性报告》P0 建议 |
+| ✅ 建立硬件知识库 | ✅ 完成 | NAND/NVMe/Platform 知识模板 |
+| ✅ 增强并发安全规则 | ✅ 完成 | concurrency_rules.md |
+| 让 OpenCode 能访问源码 | ✅ 完成 | MCP 服务器配置 |
 
-目标：
+### Phase 2：建立规则体系 + 度量体系（3-4 周）
 
-- 部署 CodeGraph
-- 建立调用图
-- 让 OpenCode 能访问源码
+| 任务 | 状态 | 产出 |
+|------|------|------|
+| ✅ 编写 Memory V1 | ✅ 完成 | coding_style + design_rules + review_rules + testing_rules + concurrency_rules |
+| 拆分领域 Skill | 🔲 待做 | NAND_driver/NVMe_cmd/buffer_management 等 |
+| ✅ 建立效果度量 | 🔲 待做 | 度量指标定义和收集 |
+| 模型对比测试 | 🔲 待做 | Qwen 27B vs 更大模型对比 |
 
-输出：
+### Phase 3：建设 Skills + RAG（5-6 周）
 
-- AI 能理解工程结构
+| 任务 | 状态 | 产出 |
+|------|------|------|
+| development Skill V1 | ✅ 完成 | 含 CodeGraph 查询步骤 |
+| review Skill V1 | ✅ 完成 | 含 CodeGraph 验证步骤 |
+| ✅ RAG 知识库建设 | 🔲 待做 | 文档+代码向量化检索 |
+| 编译-修复闭环 | 🔲 待做 | 自动编译→错误反馈→AI 修复 |
 
-### Phase 2: 建立规则体系
+### Phase 4：试点实战（7-10 周）
 
-周期：3~4 周
+| 任务 | 状态 | 产出 |
+|------|------|------|
+| 选择 3-5 个真实需求 | 🔲 待做 | 优先选择接口层/命令处理类需求 |
+| ✅ 模拟器验证集成 | 🔲 待做 | QEMU NVMe 模拟或 Test Harness |
+| 完整闭环跑通 | 🔲 待做 | CodeGraph + Development + Review + 编译闭环 + 模拟验证 |
+| 收集度量数据 | 🔲 待做 | 开发时间、Review 时间、问题数量 |
 
-目标：
+### Phase 5：持续优化（长期）
 
-- 编写 Memory
-- 建立 coding style
-- 建立 review rules
-
-输出：
-
-- Memory V1
-
-### Phase 3: 建立 Skills
-
-周期：5~6 周
-
-目标：
-
-- development skill
-- review skill
-
-输出：
-
-- Skill V1
-
-### Phase 4: 试点实战
-
-周期：7~10 周
-
-目标：
-
-- 选择 3~5 个真实需求
-- 完整跑通开发闭环
-
-流程：
-
-```text
-CodeGraph + Development + Review
-```
-
-统计：
-
-- 开发时间
-- Review 时间
-- 问题数量
-
-### Phase 5: 持续优化
-
-长期动作：
-
-- 模板库
-- Hooks
-- 自动化测试
-- 规则迭代
+| 任务 | 状态 | 产出 |
+|------|------|------|
+| 模板库积累 | 🔲 待做 | 常见模式的模板和范例 |
+| ✅ Hooks 自动化增强 | 🔲 待做 | clang-format + cppcheck + 编译 + 测试 |
+| ✅ 规则迭代 | 🔲 待做 | 根据实战结果更新 Memory 和 Skill |
+| QLoRA 微调评估 | 🔲 待做 | 在内部数据上评估微调可行性 |
 
 ## 10. 成功指标
 
