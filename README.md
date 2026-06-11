@@ -34,7 +34,7 @@ zsf/
 │       └── metrics_template.md # 效果度量模板
 │
 ├── .opencode/                   # OpenCode Agent 配置
-│   ├── opencode.json            # MCP 服务器配置（ops-codegraph）
+│   ├── bak_opencode.json        # MCP 服务器配置参考（ops-codegraph）
 │   ├── memory/                 # 项目规则与约束
 │   │   ├── architecture.md      # 分层规则 + CodeGraph 查询规则
 │   │   ├── coding_style.md      # 编码风格
@@ -167,7 +167,7 @@ cscope -d -L8 "nand_ctx.h"       # 谁包含了这个头文件
 
 ### MCP 集成（OpenCode Agent）
 
-在 `.opencode/opencode.json` 中添加：
+在 `.opencode/bak_opencode.json` 中添加（参考配置，实际配置由 opencode 管理）：
 
 ```json
 {

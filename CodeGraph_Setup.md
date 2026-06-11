@@ -361,7 +361,7 @@ Doxygen 构建耗时较长，**不需要每次提交都更新**：
 
 ### 5.1 MCP 服务器配置
 
-编辑 `.opencode/opencode.json`，添加 ops-codegraph MCP 服务器：
+编辑 `.opencode/bak_opencode.json`（参考配置，实际配置由 opencode 管理），添加 ops-codegraph MCP 服务器：
 
 ```json
 {
@@ -784,7 +784,7 @@ fi
 │   □ 2.4 配置 Doxyfile（按需）                                    │
 │                                                                   │
 │ □ 3. OpenCode 集成                                                │
-│   □ 3.1 配置 .opencode/opencode.json（MCP 服务器）               │
+│   □ 3.1 配置 .opencode/bak_opencode.json（MCP 服务器参考）         │
 │   □ 3.2 更新 .opencode/skills/development/skill.md              │
 │   □ 3.3 更新 .opencode/skills/review/skill.md                   │
 │   □ 3.4 更新 .opencode/memory/architecture.md                    │

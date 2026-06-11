@@ -10,10 +10,10 @@
 │   └── constraints.md    # 时序约束、并发约束、错误恢复
 ├── nvme_spec/
 │   ├── admin_commands.md # NVMe Admin 命令集和数据结构
-│   └── io_commands.md   # NVMe I/O 命令集（待补充）
+│   └── io_commands.md   # NVMe I/O 命令集（Write/Read/WriteZeroes/DSM/Flush）
 └── platform/
     ├── memory_map.md     # 系统内存映射、中断分配、时钟树
-    └── power_states.md  # 电源状态转换（待补充）
+    └── power_states.md  # 电源状态转换和约束
 ```
 
 ## 使用原则
