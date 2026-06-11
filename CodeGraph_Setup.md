@@ -361,18 +361,25 @@ Doxygen 构建耗时较长，**不需要每次提交都更新**：
 
 ### 5.1 MCP 服务器配置
 
-编辑 `.opencode/bak_opencode.json`（参考配置，实际配置由 opencode 管理），添加 ops-codegraph MCP 服务器：
+编辑项目根目录 `opencode.json`，或在 `~/.config/opencode/opencode.json` 中全局配置，添加 ops-codegraph MCP 服务器：
+
+> 也可以使用命令：`opencode mcp add codegraph`
 
 ```json
 {
-  "mcpServers": {
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
     "codegraph": {
-      "command": "codegraph",
-      "args": ["mcp"],
+      "type": "local",
+      "command": ["codegraph", "mcp"],
+      "enabled": true,
       "env": {}
     }
   }
 }
+```
+
+> **重要**：opencode 的配置键是 `mcp`（不是 `mcpServers`），`command` 是字符串数组（不是 `command`+`args`）。修改后需重启 opencode。
 ```
 
 **就这样。** 不需要额外配置，`codegraph mcp` 会自动：
@@ -784,7 +791,7 @@ fi
 │   □ 2.4 配置 Doxyfile（按需）                                    │
 │                                                                   │
 │ □ 3. OpenCode 集成                                                │
-│   □ 3.1 配置 .opencode/bak_opencode.json（MCP 服务器参考）         │
+│   □ 3.1 配置项目根目录 opencode.json（mcp 服务器，type: local）   │
 │   □ 3.2 更新 .opencode/skills/development/skill.md              │
 │   □ 3.3 更新 .opencode/skills/review/skill.md                   │
 │   □ 3.4 更新 .opencode/memory/architecture.md                    │

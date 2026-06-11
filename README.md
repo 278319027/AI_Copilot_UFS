@@ -34,7 +34,7 @@ zsf/
 │       └── metrics_template.md # 效果度量模板
 │
 ├── .opencode/                   # OpenCode Agent 配置
-│   ├── bak_opencode.json        # MCP 服务器配置参考（ops-codegraph）
+│   ├── opencode.json             # opencode MCP 配置（ops-codegraph）
 │   ├── memory/                 # 项目规则与约束
 │   │   ├── architecture.md      # 分层规则 + CodeGraph 查询规则
 │   │   ├── coding_style.md      # 编码风格
@@ -176,19 +176,23 @@ cscope -d -L8 "nand_ctx.h"       # 谁包含了这个头文件
 
 ### MCP 集成（OpenCode Agent）
 
-在 `.opencode/bak_opencode.json` 中添加（参考配置，实际配置由 opencode 管理）：
+在项目根目录 `opencode.json` 中添加（使用 `opencode mcp add codegraph` 或手动编辑）：
 
 ```json
 {
-  "mcpServers": {
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
     "codegraph": {
-      "command": "codegraph",
-      "args": ["mcp"],
+      "type": "local",
+      "command": ["codegraph", "mcp"],
+      "enabled": true,
       "env": {}
     }
   }
 }
 ```
+
+> 注意：opencode 配置键是 `mcp` 而非 `mcpServers`，`command` 是数组而非字符串。修改后需重启 opencode。
 
 > 详细教程见 [CodeGraph 部署与使用教程](./CodeGraph_Setup.md)
 

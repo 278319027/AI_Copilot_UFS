@@ -503,7 +503,7 @@ Project/
     config.json                # ops-codegraph 排除目录配置
     Doxyfile                   # Doxygen 配置
   .opencode/
-    bak_opencode.json          # OpenCode + MCP 配置参考
+    opencode.json                   # opencode MCP 配置（项目根目录）
     memory/
       architecture.md          # 分层规则 + CodeGraph 查询规则
       coding_style.md
