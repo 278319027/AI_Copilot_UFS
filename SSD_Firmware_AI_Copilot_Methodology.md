@@ -498,6 +498,7 @@ Project/
     install_codegraph.sh       # 一键安装 CodeGraph 工具链
     init_codegraph.sh          # 项目初始化（构建索引）
     install_git_hook.sh        # Git Hook 安装
+    update_codegraph.sh        # 增量更新索引（--full 全量更新）
   .codegraph/                  # CodeGraph 配置
     config.json                # ops-codegraph 排除目录配置
     Doxyfile                   # Doxygen 配置
@@ -515,10 +516,14 @@ Project/
         registers.md
         operations.md
         constraints.md
+        ecc.md                # ECC 纠错与坏块管理
       nvme_spec/
         admin_commands.md
+        io_commands.md        # I/O 命令集
+        error_handling.md     # 错误处理与状态码体系
       platform/
         memory_map.md
+        power_states.md       # 电源状态转换与约束
     skills/
       development/
       review/

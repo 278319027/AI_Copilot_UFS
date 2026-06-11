@@ -7,13 +7,15 @@
 ├── nand_controller/
 │   ├── registers.md     # NAND 控制器寄存器定义和配置顺序
 │   ├── operations.md     # NAND 操作序列和命令码
-│   └── constraints.md    # 时序约束、并发约束、错误恢复
+│   ├── constraints.md    # 时序约束、并发约束、错误恢复
+│   └── ecc.md           # ECC 纠错算法和坏块管理
 ├── nvme_spec/
 │   ├── admin_commands.md # NVMe Admin 命令集和数据结构
-│   └── io_commands.md   # NVMe I/O 命令集（Write/Read/WriteZeroes/DSM/Flush）
+│   ├── io_commands.md   # NVMe I/O 命令集（Write/Read/WriteZeroes/DSM/Flush）
+│   └── error_handling.md # NVMe 错误处理和状态码体系
 └── platform/
     ├── memory_map.md     # 系统内存映射、中断分配、时钟树
-    └── power_states.md  # 电源状态转换和约束
+    └── power_states.md  # 电源状态转换和硬件约束
 ```
 
 ## 使用原则
@@ -22,6 +24,8 @@
    - 寄存器地址、配置顺序、时序参数 ✅
    - 命令码、操作序列约束 ✅
    - 中断优先级、时钟配置顺序 ✅
+   - ECC 能力、坏块管理策略 ✅
+   - 错误码语义、恢复策略优先级 ✅
    - 函数签名、数据结构定义 ❌（代码可推断）
 
 2. **每个文件不超过 2000 行**（控制 token 开销）。
@@ -30,6 +34,7 @@
    - 处理 NAND 驱动代码时，注入 `nand_controller/` 目录的知识。
    - 处理 NVMe 命令处理代码时，注入 `nvme_spec/` 目录的知识。
    - 处理平台相关代码时，注入 `platform/` 目录的知识。
+   - 处理错误恢复代码时，注入 `nvme_spec/error_handling.md` 和 `nand_controller/ecc.md`。
 
 4. **每个文件模板化**，包含填写说明：
    - 模板中标注了需要替换为实际芯片值的占位符。

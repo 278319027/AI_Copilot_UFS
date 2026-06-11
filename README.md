@@ -47,11 +47,15 @@ zsf/
 │   │   ├── nand_controller/    # NAND 控制器知识
 │   │   │   ├── registers.md    # 寄存器定义和配置顺序
 │   │   │   ├── operations.md   # 操作序列和命令码
-│   │   │   └── constraints.md  # 时序约束和并发约束
+│   │   │   ├── constraints.md  # 时序约束和并发约束
+│   │   │   └── ecc.md          # ECC 纠错与坏块管理 ← ✨新增
 │   │   ├── nvme_spec/          # NVMe 规约知识
-│   │   │   └── admin_commands.md # Admin 命令集和数据结构
+│   │   │   ├── admin_commands.md # Admin 命令集和数据结构
+│   │   │   ├── io_commands.md   # I/O 命令集 ← ✨新增
+│   │   │   └── error_handling.md # 错误处理与状态码 ← ✨新增
 │   │   └── platform/           # 平台相关知识
-│   │       └── memory_map.md   # 内存映射、中断分配、时钟树
+│   │       ├── memory_map.md   # 内存映射、中断分配、时钟树
+│   │       └── power_states.md # 电源状态转换与约束 ← ✨新增
 │   └── skills/                 # 可复用工作流
 │       ├── development/         # 开发 Skill（含 CodeGraph 查询步骤）
 │       ├── review/              # Review Skill（含 CodeGraph 验证步骤）
@@ -65,7 +69,8 @@ zsf/
 ├── scripts/                    # 工具脚本
 │   ├── install_codegraph.sh    # 一键安装 CodeGraph 工具链
 │   ├── init_codegraph.sh       # 项目初始化（构建索引）
-│   └── install_git_hook.sh    # Git Hook 安装（提交后自动更新索引）
+│   ├── install_git_hook.sh    # Git Hook 安装（提交后自动更新索引）
+│   └── update_codegraph.sh    # 增量更新索引（--full 全量更新） ← ✨新增
 │
 └── templates/                  # 模板和提示词库
     ├── README.md
@@ -80,9 +85,13 @@ zsf/
 | 2 | [可行性研究报告](./explore_ai_coding.md) | 行业实证、场景可行性矩阵、优化建议 |
 | 3 | [CodeGraph 教程](./CodeGraph_Setup.md) | 工具选型、安装部署、MCP 集成、日常使用 |
 | 4 | [Architecture 规则](./.opencode/memory/architecture.md) | 分层规则 + CodeGraph 查询规则 |
-| 5 | [Development Skill](./.opencode/skills/development/skill.md) | 开发流程 + CodeGraph 查询步骤 |
-| 6 | [Review Skill](./.opencode/skills/review/skill.md) | Review 流程 + CodeGraph 验证步骤 |
-| 7 | [提示词库](./templates/prompt_library.md) | 需求理解/设计方案/编码/Review/测试 |
+| 5 | [Concurrency 规则](./.opencode/memory/concurrency_rules.md) | 并发安全：volatile/ISR/锁/DMA/原子/多核 |
+| 6 | [Design 规则](./.opencode/memory/design_rules.md) | 状态机/Context/资源管理/错误处理 |
+| 7 | [Review 规则](./.opencode/memory/review_rules.md) | Review 检查项 + SSD 固件专项 |
+| 8 | [NAND ECC 知识](./.opencode/knowledge/nand_controller/ecc.md) | ECC 纠错、弱块标记、坏块管理 |
+| 9 | [NVMe 错误处理](./.opencode/knowledge/nvme_spec/error_handling.md) | NVMe 状态码、重试策略、断电恢复 |
+| 10 | [Development Skill](./.opencode/skills/development/skill.md) | 开发流程 + CodeGraph 查询步骤 |
+| 11 | [提示词库](./templates/prompt_library.md) | 需求理解/设计方案/编码/Review/测试 |
 
 ## 核心原则
 
