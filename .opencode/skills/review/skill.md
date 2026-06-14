@@ -27,7 +27,7 @@
 在 Review 前，必须用 CodeGraph 验证影响范围：
 
 1. 用 `impact` 查询变更文件的影响范围
-2. 用 `get_callers` 验证修改的函数是否影响其他模块
+2. 用 `codegraph_callers` 验证修改的函数是否影响其他模块
 3. 用 `find_by_imports` 验证修改的头文件影响范围
 4. 用 `get_dependency_graph` 验证是否违反模块边界
 
@@ -41,7 +41,7 @@
 - 竞态条件
 - 死循环
 - 模块边界违反 ← 用 `check` 命令验证
-- 接口兼容性风险 ← 用 `get_callers` 验证
+|- 接口兼容性风险 ← 用 `codegraph_callers` 验证
 - 函数指针调用遗漏 ← 用 cscope 补充验证
 
 ## 输出格式

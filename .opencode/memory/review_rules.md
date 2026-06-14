@@ -126,7 +126,7 @@ SSD 固件代码 Review 规则。AI Review 代码时必须遵守，人工 Review
 ### 4.1 变更前必须查询
 
 1. 用 `impact` 查询变更文件的影响范围
-2. 用 `get_callers` 验证修改函数的所有调用方
+2. 用 `codegraph_callers` 验证修改函数的所有调用方
 3. 用 `find_by_imports` 验证修改头文件的所有包含方
 4. 用 `get_dependency_graph` 验证模块边界是否被破坏
 

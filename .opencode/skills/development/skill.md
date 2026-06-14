@@ -4,7 +4,7 @@
 
 - 读取设计文档
 - 读取现有代码
-- 查询 CodeGraph ← 通过 ops-codegraph MCP 工具
+- 查询 CodeGraph ← 通过 ops-codegraph MCP 工具（当前部署于 FEMU `../femu/hw/femu/`）
 - 分析影响范围
 - 输出修改方案
 - 生成代码
@@ -42,7 +42,7 @@
 
 | 场景 | MCP 工具 | 补充工具 |
 |------|---------|---------|
-| 谁调用了函数 X | `get_callers` | cscope -L2 |
+|| 谁调用了函数 X | `codegraph_callers` | cscope -L2 |
 | 函数 X 调用了谁 | `get_callees` | cscope -L3 |
 | 结构体 X 在哪里使用 | `symbol_search` + `find_by_imports` | cscope -L0 |
 | 修改文件 X 的影响 | `impact` | cscope -L2 |
@@ -60,7 +60,7 @@ cscope -d -L6 "pattern"           # 正则搜索模式
 
 ## 修改前必须查询
 
-- 修改任何函数签名前 → `get_callers`
+|- 修改任何函数签名前 → `codegraph_callers`
 - 修改任何结构体前 → `symbol_search` + `find_by_imports`
 - 修改任何头文件前 → `find_by_imports`
 - 新增模块前 → `get_dependency_graph`

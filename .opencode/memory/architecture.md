@@ -27,10 +27,11 @@
 ### 4.2 查询工具
 
 主工具: ops-codegraph（MCP 服务器，30+ 工具）
+> 当前部署于 FEMU 项目 `../femu/hw/femu/`
 
 | 场景 | MCP 工具 | 补充工具 |
 |------|---------|---------|
-| 谁调用了函数 X | `get_callers` | `cscope -d -L2` |
+|| 谁调用了函数 X | `codegraph_callers` | `cscope -d -L2` |
 | 函数 X 调用了谁 | `get_callees` | `cscope -d -L3` |
 | 结构体在哪里被使用 | `symbol_search` + `find_by_imports` | `cscope -d -L0` |
 | 修改文件的影响范围 | `impact` | `cscope -d -L2` |
@@ -45,15 +46,16 @@
 
 - 修改任何接口前，必须先查询 `impact`
 - 修改任何结构体前，必须先查询 `symbol_search` + `find_by_imports`
-- 修改任何函数签名前，必须先查询 `get_callers`
+|- 修改任何函数签名前，必须先查询 `codegraph_callers`
 - 新增模块前，必须先了解 `get_dependency_graph`
 - **函数指针相关查询，必须用 cscope 补充**
 
 ### 4.4 ops-codegraph 安装与配置
 
+> 当前部署于 FEMU 项目 `../femu/hw/femu/`
 - 安装: `npm install -g @optave/codegraph`
 - 构建索引: `codegraph build`
-- 查询统计: `codegraph stats`
+|- 查询统计: `codegraph status`
 - MCP 服务器: `codegraph mcp`
 
 ### 4.5 cscope 查询模式
@@ -69,3 +71,25 @@
 | 7 | 查找文件 | 哪些文件名包含 "nand" |
 | 8 | 查找包含文件的文件 | 谁 include 了 "nand_ctx.h" |
 
+## 5. Graphify 查询规则
+
+### 5.1 Graphify 与 CodeGraph 分工
+
+|- **CodeGraph**（ops-codegraph，当前部署于 FEMU `../femu/hw/femu/`）：代码结构查询——调用图、依赖图、影响分析
+- **Graphify**：知识图谱查询——概念关系、社区结构、跨文件语义导航
+- 原则：结构问题用 CodeGraph / cscope，概念问题用 Graphify
+
+### 5.2 查询策略
+
+对于代码库相关问题，当 graphify-out/graph.json 存在时：
+- 优先使用 `graphify query "<问题>"` 获取归域子图
+- 使用 `graphify path "<A>" "<B>"` 查询概念间关系路径
+- 使用 `graphify explain "<概念>"` 获取聚焦解释
+- graphify-out/wiki/index.md 存在时，用于概览导航
+- 仅当 query/path/explain 信息不足时，才阅读 graphify-out/GRAPH_REPORT.md
+
+### 5.3 更新规则
+
+- 修改代码后执行 `graphify update .` 保持图谱最新（仅 AST 更新，无 API 费用）
+- 图谱文件变脏（Git Hook 增量更新导致）不作为跳过 graphify 的理由
+- 只有当任务目标就是修复图谱输出，或用户明确要求不用 graphify 时才跳过

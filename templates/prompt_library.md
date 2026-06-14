@@ -1,4 +1,4 @@
-# Qwen 27B + OpenCode Agent 提示词库
+# OpenCode Agent 提示词库
 
 本文件用于固件团队的标准提示词，目标是把 AI 的工作限制在可控、可验证、可回溯的范围内。
 
@@ -435,10 +435,10 @@
 <在这里描述需求或接口变更>
 
 CodeGraph 查询结果：
-- get_callers 结果：<粘贴查询结果>
-- get_callees 结果：<粘贴查询结果>
+- codegraph_callers 结果：<粘贴查询结果>
+- codegraph_callees 结果：<粘贴查询结果>
 - impact 结果：<粘贴查询结果>
-- find_by_imports 结果：<粘贴查询结果>
+- cscope -d -L8 结果：<粘贴查询结果>
 
 要求输出：
 1. 受影响的文件列表
@@ -473,8 +473,8 @@ CodeGraph 查询结果：
 请分析结构体 <struct_name> 的使用情况。
 
 CodeGraph 查询结果：
-- symbol_search 结果：<粘贴>
-- find_by_imports 结果：<粘贴>
+- codegraph_explore 结果：<粘贴>
+- cscope -d -L8 结果：<粘贴>
 
 cscope 补充查询结果：
 - cscope -d -L0 "<struct_name>"：<粘贴>

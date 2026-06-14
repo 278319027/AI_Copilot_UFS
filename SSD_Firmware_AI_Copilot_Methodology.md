@@ -2,7 +2,7 @@
 
 ## 1. 目标
 
-面向大型嵌入式固件项目，建立一套基于本地大模型 `Qwen 27B` + `OpenCode Agent` 的 AI 辅助编程体系，用于提升以下能力：
+面向大型嵌入式固件项目，建立一套基于 `OpenCode Agent` + `CodeGraph`（调用图分析）+ `Graphify`（知识图谱） 的 AI 辅助编程体系，用于提升以下能力：
 
 - 理解模块设计
 - 理解现有代码
@@ -100,7 +100,7 @@ AI 负责：
 建议形成如下系统结构：
 
 ```text
-Qwen3-27B
+OpenCode Agent
     -> OpenCode Agent
         -> CodeGraph
         -> Docs
@@ -183,7 +183,7 @@ CodeGraph 通过以下工具组合实现：
 | **ctags + cscope** | 补充工具：函数指针/宏查询（tree-sitter 盲区） | ~15% | `apt install universal-ctags cscope` |
 | **Doxygen** | 可视化：交互式 HTML 文档+图（按需） | ~5% | `apt install doxygen graphviz` |
 
-ops-codegraph 通过 MCP 协议与 OpenCode Agent 集成，AI 可直接调用 `get_callers`、`get_callees`、`impact` 等 30+ 工具。
+ops-codegraph 通过 MCP 协议与 OpenCode Agent 集成，AI 可直接调用 `codegraph_callers`、`codegraph_callees`、`codegraph_explore` 等 30+ 工具（当前部署于 FEMU `../femu/hw/femu/`，zsf 仓库无代码）。
 
 C 语言特殊限制：tree-sitter 无法解析函数指针调用和宏展开，这些场景必须用 cscope 补充。
 
@@ -195,7 +195,7 @@ C 语言特殊限制：tree-sitter 无法解析函数指针调用和宏展开，
 
 #### 安装与配置
 
-详见 [CodeGraph 部署与使用教程](./CodeGraph_Setup.md)。
+详见 [CodeGraph 部署与使用教程](./docs/research/CodeGraph_Setup.md)。
 
 ### 4.3 Docs 体系
 
@@ -494,11 +494,7 @@ Project/
     ICD/
     TEST/
   templates/
-  scripts/                     # 工具脚本
-    install_codegraph.sh       # 一键安装 CodeGraph 工具链
-    init_codegraph.sh          # 项目初始化（构建索引）
-    install_git_hook.sh        # Git Hook 安装
-    update_codegraph.sh        # 增量更新索引（--full 全量更新）
+  scripts/                     # 工具脚本（已移除：当前部署于 FEMU `../femu/hw/femu/`，zsf 仓库无代码）
   .codegraph/                  # CodeGraph 配置
     config.json                # ops-codegraph 排除目录配置
     Doxyfile                   # Doxygen 配置
@@ -552,7 +548,7 @@ Project/
 | ✅ 编写 Memory V1 | ✅ 完成 | coding_style + design_rules + review_rules + testing_rules + concurrency_rules |
 | 拆分领域 Skill | 🔲 待做 | NAND_driver/NVMe_cmd/buffer_management 等 |
 | ✅ 建立效果度量 | 🔲 待做 | 度量指标定义和收集 |
-| 模型对比测试 | 🔲 待做 | Qwen 27B vs 更大模型对比 |
+| 模型对比测试 | 🔲 待做 | 不同规模模型对比 |
 
 ### Phase 3：建设 Skills + RAG（5-6 周）
 
