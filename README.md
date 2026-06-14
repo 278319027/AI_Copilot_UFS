@@ -19,11 +19,11 @@
 
 ```text
 zsf/
-├── SSD_Firmware_AI_Copilot_Methodology.md   # 方法论总文档
 ├── README.md                                # 本文件
 ├── opencode.json                            # MCP 配置（CodeGraph → FEMU）
 │
 ├── docs/                        # 项目事实与设计信息
+│   ├── SSD_Firmware_AI_Copilot_Methodology.md   # 方法论总文档
 │   ├── research/                # 调研与部署文档
 │   │   ├── explore_ai_coding.md   # AI 辅助编程可行性研究报告
 │   │   └── CodeGraph_Setup.md     # CodeGraph 部署与使用教程
@@ -71,7 +71,7 @@ zsf/
 
 | 序号 | 文档 | 内容 |
 |------|------|------|
-| 1 | [方法论总文档](./SSD_Firmware_AI_Copilot_Methodology.md) | 核心原则、架构、工作流、路线图 |
+| 1 | [方法论总文档](./docs/SSD_Firmware_AI_Copilot_Methodology.md) | 核心原则、架构、工作流、路线图 |
 | 2 | [可行性研究报告](./docs/research/explore_ai_coding.md) | 行业实证、场景可行性矩阵、优化建议 |
 | 3 | [CodeGraph 教程](./docs/research/CodeGraph_Setup.md) | 工具选型、安装部署、MCP 集成、日常使用 |
 | 4 | [Architecture 规则](./.opencode/memory/architecture.md) | 分层规则 + CodeGraph 查询规则 |
