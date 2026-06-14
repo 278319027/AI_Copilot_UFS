@@ -3,7 +3,7 @@
   "mcp": {
     "codegraph": {
       "type": "local",
-      "command": ["codegraph", "mcp"],
+      "command": ["codegraph", "serve", "--mcp", "--path", "/home/tcb/AI_Proj/femu/hw/femu"],
       "enabled": true,
       "env": {}
     }
