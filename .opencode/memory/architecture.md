@@ -93,3 +93,18 @@
 - 修改代码后执行 `graphify update .` 保持图谱最新（仅 AST 更新，无 API 费用）
 - 图谱文件变脏（Git Hook 增量更新导致）不作为跳过 graphify 的理由
 - 只有当任务目标就是修复图谱输出，或用户明确要求不用 graphify 时才跳过
+
+## 6. Agent 配置与 Context 管理
+
+### 6.1 Agent 超时处理
+
+大型文件修改任务（500+ 行文件）容易触发 agent 超时（默认 4-6 分钟 staleness）。对策：
+- 拆分为更小的 sub-task（每个 task 修改不超过 100 行）
+- 在 `.opencode/oh-my-openagent.json` 中调整 `background_task.staleTimeoutMs`（按需）
+
+### 6.2 Context 膨胀控制
+
+- 每个阶段结束后主动执行 context 压缩
+- 单次并发 explore/librarian agent 不超过 5 个
+- context 使用率超过 70% 时暂停新任务
+- 工具调试不超过 2 轮
