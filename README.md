@@ -2,6 +2,17 @@
 
 面向 SSD 固件团队的 AI 辅助编程体系，基于 `OpenCode Agent` + `CodeGraph`（调用图分析）+ `Graphify`（知识图谱）。
 
+## 交付形式
+
+本仓库交付 **三件套**：
+
+| 组件 | 位置 | 用途 |
+|------|------|------|
+| **方法论平台** | `SSD_Firmware_AI_Copilot_Methodology.md` + `.opencode/`（memory/knowledge/skills） | 固件开发团队的 AI 工作环境 |
+| **Skill 可分发包** | `.opencode/skills/sd-firmware-copilot/`（init.sh + rules + references + knowledge-templates） | 复制到任何项目，`bash init.sh` 一步部署全套能力 |
+| **参考实现** | `../femu/hw/femu/`（独立仓库） | CodeGraph + Graphify + WAF 改进，验证方法论可行 |
+
+
 ## 能力概览
 
 | 能力 | 工具支撑 | 状态 |
@@ -50,9 +61,17 @@ zsf/
 │   └── skills/                 # 可复用工作流
 │       ├── development/         # 开发 Skill（含 CodeGraph 查询步骤）
 │       ├── review/              # Review Skill（含 CodeGraph 验证步骤）
-│       ├── drawio-flowchart/   # 流程图生成 Skill
-│       └── graphify/           # 知识图谱 Skill
+│       ├── drawio-flowchart/           # 流程图生成 Skill
+│       ├── graphify/                   # 知识图谱 Skill
+│       └── sd-firmware-copilot/        # ✅ 可分发 Skill 包
+└── .gitignore
+│           ├── SKILL.md                # 触发词 + 7 步工作流
+│           ├── init.sh                 # 一键初始化
+│           ├── rules/                  # 6 条记忆规则（来源）
+│           ├── knowledge-templates/    # 9 份硬件知识模板
+│           └── references/             # 配套参考文档
 │
+├── deploy_tools.sh                            # 一键部署工具链（codegraph + cscope + doxygen + graphify）
 └── .gitignore
 ```
 
@@ -61,16 +80,15 @@ zsf/
 | 序号 | 文档 | 内容 |
 |------|------|------|
 | 1 | [方法论总文档](./SSD_Firmware_AI_Copilot_Methodology.md) | 核心原则、架构、工作流、路线图 |
-
 | 2 | [CodeGraph 部署教程](./.opencode/skills/sd-firmware-copilot/references/deploy-guide.md) | 工具选型、安装部署、MCP 集成 |
-| 4 | [Architecture 规则](./.opencode/memory/architecture.md) | 分层规则 + CodeGraph 查询规则 |
-| 5 | [Concurrency 规则](./.opencode/memory/concurrency_rules.md) | 并发安全：volatile/ISR/锁/DMA/原子/多核 |
-| 6 | [Design 规则](./.opencode/memory/design_rules.md) | 状态机/Context/资源管理/错误处理 |
-| 7 | [Review 规则](./.opencode/memory/review_rules.md) | Review 检查项 + SSD 固件专项 |
-| 8 | [NAND ECC 知识](./.opencode/knowledge/nand_controller/ecc.md) | ECC 纠错、弱块标记、坏块管理 |
-| 9 | [NVMe 错误处理](./.opencode/knowledge/nvme_spec/error_handling.md) | NVMe 状态码、重试策略、断电恢复 |
-| 10 | [Development Skill](./.opencode/skills/development/skill.md) | 开发流程 + CodeGraph 查询步骤 |
-| 11 | [提示词库](./.opencode/skills/sd-firmware-copilot/references/prompt_library.md) | 需求理解/设计方案/编码/Review/测试 |
+| 3 | [Architecture 规则](./.opencode/memory/architecture.md) | 分层规则 + CodeGraph 查询规则 |
+| 4 | [Concurrency 规则](./.opencode/memory/concurrency_rules.md) | 并发安全：volatile/ISR/锁/DMA/原子/多核 |
+| 5 | [Design 规则](./.opencode/memory/design_rules.md) | 状态机/Context/资源管理/错误处理 |
+| 6 | [Review 规则](./.opencode/memory/review_rules.md) | Review 检查项 + SSD 固件专项 |
+| 7 | [NAND ECC 知识](./.opencode/knowledge/nand_controller/ecc.md) | ECC 纠错、弱块标记、坏块管理 |
+| 8 | [NVMe 错误处理](./.opencode/knowledge/nvme_spec/error_handling.md) | NVMe 状态码、重试策略、断电恢复 |
+| 9 | [Development Skill](./.opencode/skills/development/skill.md) | 开发流程 + CodeGraph 查询步骤 |
+| 10 | [提示词库](./.opencode/skills/sd-firmware-copilot/references/prompt_library.md) | 需求理解/设计方案/编码/Review/测试 |
 
 ## 核心原则
 
@@ -200,7 +218,47 @@ graphify extract <path>           # 首次构建或论文/文档语义提取（�
 
 > Graphify 已部署于 FEMU 项目（`../femu/hw/femu/`），与 CodeGraph 配合提供代码结构 + 语义查询双通道。论文语义索引需 `DEEPSEEK_API_KEY` 或 `OPENAI_API_KEY`。
 
+## 快速关联外部项目
+
+将本方法论应用到其他固件项目只需两步：
+
+### 1. CodeGraph 部署与索引
+
+```bash
+# 在目标代码目录执行
+npm install -g @optave/codegraph
+codegraph init <代码路径>
+```
+
+### 2. 更新 MCP 指向
+
+编辑本仓库 `opencode.json`，更改 `--path` 参数为目标项目代码目录：
+
+```json
+{
+  "mcp": {
+    "codegraph": {
+      "command": ["codegraph", "serve", "--mcp", "--path", "<目标项目绝对路径>"],
+      "enabled": true
+    }
+  }
+}
+```
+
+重启 OpenCode 后，所有 CodeGraph 工具和 Agent Skill 自动指向新项目。
+
+### 3. 部署 Skill 包（可选）
+
+```bash
+bash .opencode/skills/sd-firmware-copilot/init.sh
+```
+
+将方法论规则和知识模板复制到目标项目的 `.opencode/` 中。
+
+> 当前配置：`--path /home/tcb/AI_Proj/femu/hw/femu` — 参考实现 FEMU 项目
+
 ## 团队落地原则
+
 
 - 以文档为输入，以代码为事实，以规则为约束。
 - 每次只做一个明确任务，避免大范围改动。
