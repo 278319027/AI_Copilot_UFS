@@ -20,6 +20,7 @@
 ```text
 zsf/
 ├── README.md                                # 本文件
+├── opencode.json                            # 统一配置（MCP → FEMU + Graphify 插件）
 ├── opencode.json                            # MCP 配置（CodeGraph → FEMU）
 │
 ├── docs/                        # 项目事实与设计信息
@@ -31,7 +32,6 @@ zsf/
 │       └── metrics_template.md  # 效果度量模板
 │
 ├── .opencode/                   # OpenCode Agent 配置
-│   ├── opencode.json             # OpenCode 插件配置（graphify）
 │   ├── plugins/
 │   │   └── graphify.js           # Graphify Git Hook 插件
 │   ├── memory/                 # 项目规则与约束
