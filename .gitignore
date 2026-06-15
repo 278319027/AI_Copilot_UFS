@@ -8,10 +8,6 @@ node_modules/
 # Graphify 生成文件（知识图谱输出）
 graphify-out/
 
-# Node modules（opencode 用）
-node_modules/
-.opencode/node_modules/
-
 # Backup files
 *.bak
 *.orig

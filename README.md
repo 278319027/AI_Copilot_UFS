@@ -61,9 +61,6 @@ zsf/
 │       ├── drawio-flowchart/   # 流程图生成 Skill
 │       └── graphify/           # 知识图谱 Skill
 │
-├── templates/                  # 模板和提示词库
-│   └── prompt_library.md       # 需求理解/设计/编码/Review/测试
-│
 └── .gitignore
 ```
 
@@ -81,7 +78,7 @@ zsf/
 | 8 | [NAND ECC 知识](./.opencode/knowledge/nand_controller/ecc.md) | ECC 纠错、弱块标记、坏块管理 |
 | 9 | [NVMe 错误处理](./.opencode/knowledge/nvme_spec/error_handling.md) | NVMe 状态码、重试策略、断电恢复 |
 | 10 | [Development Skill](./.opencode/skills/development/skill.md) | 开发流程 + CodeGraph 查询步骤 |
-| 11 | [提示词库](./templates/prompt_library.md) | 需求理解/设计方案/编码/Review/测试 |
+| 11 | [提示词库](./.opencode/skills/sd-firmware-copilot/references/prompt_library.md) | 需求理解/设计方案/编码/Review/测试 |
 
 ## 核心原则
 
