@@ -76,7 +76,7 @@ AI 不能从文本直觉直接生成大段代码，必须先建立代码图谱�
 
 ### 2.4 规则与设计分离
 
-- `docs/`：记录项目事实与设计
+
 - `.opencode/memory/`：记录规则、风格、约束
 - `.opencode/skills/`：记录工作流和流程能力
 
@@ -208,7 +208,7 @@ C 语言特殊限制：tree-sitter 无法解析函数指针调用和宏展开，
 
 #### 安装与配置
 
-详见 [CodeGraph 部署与使用教程](./docs/research/CodeGraph_Setup.md)。
+详见 [CodeGraph 部署与使用教程](./.opencode/skills/sd-firmware-copilot/references/deploy-guide.md)。
 
 #### 查询工具选择矩阵
 
@@ -229,8 +229,7 @@ Docs 记录项目事实，不是 AI 配置。
 推荐目录：
 
 ```text
-docs/
-  SAD/
+
   SDD/
   ICD/
   TEST/
@@ -520,8 +519,7 @@ AI 需要给出：
 ```text
 Project/
   source/
-  docs/
-    SAD/
+
     SDD/
     ICD/
     TEST/
@@ -644,7 +642,7 @@ AI 系统只关注三类信息：
 
 ```text
 设计
--> docs/
+
 
 规则
 -> memory/

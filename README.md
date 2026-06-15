@@ -22,11 +22,7 @@ zsf/
 ├── README.md                                # 本文件
 ├── opencode.json                            # 统一配置（MCP → FEMU + Graphify 插件）
 │
-├── docs/                        # 项目事实与设计信息
-│   ├── SSD_Firmware_AI_Copilot_Methodology.md   # 方法论总文档
-│   ├── research/                # 调研与部署文档
-│   │   ├── explore_ai_coding.md   # AI 辅助编程可行性研究报告
-│
+├── SSD_Firmware_AI_Copilot_Methodology.md   # 方法论总文档
 ├── .opencode/                   # OpenCode Agent 配置
 │   ├── plugins/
 │   │   └── graphify.js           # Graphify Git Hook 插件
@@ -64,9 +60,9 @@ zsf/
 
 | 序号 | 文档 | 内容 |
 |------|------|------|
-| 1 | [方法论总文档](./docs/SSD_Firmware_AI_Copilot_Methodology.md) | 核心原则、架构、工作流、路线图 |
-| 2 | [可行性研究报告](./docs/research/explore_ai_coding.md) | 行业实证、场景可行性矩阵、优化建议 |
-| 3 | [CodeGraph 教程](./docs/research/CodeGraph_Setup.md) | 工具选型、安装部署、MCP 集成、日常使用 |
+| 1 | [方法论总文档](./SSD_Firmware_AI_Copilot_Methodology.md) | 核心原则、架构、工作流、路线图 |
+
+| 2 | [CodeGraph 部署教程](./.opencode/skills/sd-firmware-copilot/references/deploy-guide.md) | 工具选型、安装部署、MCP 集成 |
 | 4 | [Architecture 规则](./.opencode/memory/architecture.md) | 分层规则 + CodeGraph 查询规则 |
 | 5 | [Concurrency 规则](./.opencode/memory/concurrency_rules.md) | 并发安全：volatile/ISR/锁/DMA/原子/多核 |
 | 6 | [Design 规则](./.opencode/memory/design_rules.md) | 状态机/Context/资源管理/错误处理 |
@@ -131,7 +127,7 @@ Step 7: 人工确认 + 提交
 
 ### 安装部署
 
-详细安装步骤见 [CodeGraph 部署与使用教程](./docs/research/CodeGraph_Setup.md)。
+详细安装步骤见 [CodeGraph 部署与使用教程](./.opencode/skills/sd-firmware-copilot/references/deploy-guide.md)。
 
 核心工具链：
 
@@ -179,7 +175,7 @@ cscope -d -L8 "nand_ctx.h"       # 谁包含了这个头文件
 
 > 注意：opencode 配置键是 `mcp` 而非 `mcpServers`，`command` 是数组而非字符串。修改后需重启 opencode。
 
-> 详细教程见 [CodeGraph 部署与使用教程](./docs/research/CodeGraph_Setup.md)
+> 详细教程见 [CodeGraph 部署与使用教程](./.opencode/skills/sd-firmware-copilot/references/deploy-guide.md)
 
 ## Graphify 知识图谱
 
@@ -228,4 +224,3 @@ graphify extract <path>           # 首次构建或论文/文档语义提取（�
 | FTL 核心算法生成 | ★ | 不可行，纯人工 |
 | NAND 物理层驱动 | ★ | 不可行，纯人工 |
 
-详见 [可行性研究报告](./docs/research/explore_ai_coding.md)
