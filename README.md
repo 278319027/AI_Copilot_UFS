@@ -35,8 +35,6 @@ zsf/
 │
 ├── SSD_Firmware_AI_Copilot_Methodology.md   # 方法论总文档
 ├── .opencode/                   # OpenCode Agent 配置
-│   ├── plugins/
-│   │   └── graphify.js           # Graphify Git Hook 插件
 │   ├── memory/                 # 项目规则与约束
 │   │   ├── architecture.md      # 分层规则 + CodeGraph 查询规则
 │   │   ├── coding_style.md      # 编码风格
@@ -44,32 +42,10 @@ zsf/
 │   │   ├── design_rules.md    # 设计规则（状态机/Context/资源管理）
 │   │   ├── review_rules.md    # Review 检查项
 │   │   └── testing_rules.md   # 测试规则
-│   ├── knowledge/              # 硬件知识库
-│   │   ├── README.md           # 知识库说明和使用原则
-│   │   ├── nand_controller/    # NAND 控制器知识
-│   │   │   ├── registers.md    # 寄存器定义和配置顺序
-│   │   │   ├── operations.md   # 操作序列和命令码
-│   │   │   ├── constraints.md  # 时序约束和并发约束
-│   │   │   └── ecc.md          # ECC 纠错与坏块管理
-│   │   ├── nvme_spec/          # NVMe 规约知识
-│   │   │   ├── admin_commands.md # Admin 命令集和数据结构
-│   │   │   ├── io_commands.md   # I/O 命令集
-│   │   │   └── error_handling.md # 错误处理与状态码
-│   │   └── platform/           # 平台相关知识
-│   │       ├── memory_map.md   # 内存映射、中断分配、时钟树
-│   │       └── power_states.md # 电源状态转换与约束
 │   └── skills/                 # 可复用工作流
 │       ├── development/         # 开发 Skill（含 CodeGraph 查询步骤）
 │       ├── review/              # Review Skill（含 CodeGraph 验证步骤）
-│       ├── drawio-flowchart/           # 流程图生成 Skill
-│       ├── graphify/                   # 知识图谱 Skill
-│       └── sd-firmware-copilot/        # ✅ 可分发 Skill 包
-└── .gitignore
-│           ├── SKILL.md                # 触发词 + 7 步工作流
-│           ├── init.sh                 # 一键初始化
-│           ├── rules/                  # 6 条记忆规则（来源）
-│           ├── knowledge-templates/    # 9 份硬件知识模板
-│           └── references/             # 配套参考文档
+│       └── sd-firmware-copilot/ # ✅ 可分发 Skill 包（init.sh + rules + references）
 │
 ├── deploy_tools.sh                            # 一键部署工具链（codegraph + cscope + doxygen + graphify）
 └── .gitignore
