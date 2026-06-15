@@ -523,8 +523,8 @@ Project/
     SDD/
     ICD/
     TEST/
-  templates/
-  scripts/                     # 工具脚本（已移除：当前部署于 FEMU `../femu/hw/femu/`，zsf 仓库无代码）
+
+  scripts/                     # 工具脚本（可选：可改用 deploy_tools.sh 一键部署）
   .codegraph/                  # CodeGraph 配置
     config.json                # ops-codegraph 排除目录配置
     Doxyfile                   # Doxygen 配置

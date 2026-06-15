@@ -91,7 +91,7 @@
 ### 5.3 更新规则
 
 - 修改代码后执行 `graphify update .` 保持图谱最新（仅 AST 更新，无 API 费用）
-- 图谱文件变脏（Git Hook 增量更新导致）不作为跳过 graphify 的理由
+- 图谱变陈旧时使用 `graphify update .` 增量刷新（仅 AST 更新，无 API 费用）
 - 只有当任务目标就是修复图谱输出，或用户明确要求不用 graphify 时才跳过
 
 ## 6. Agent 配置与 Context 管理

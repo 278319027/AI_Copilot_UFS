@@ -1,6 +1,6 @@
 # CodeGraph 部署指南（精要版）
 
-> 完整教程见 `docs/research/CodeGraph_Setup.md`
+
 
 ## 一键部署
 
