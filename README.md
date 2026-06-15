@@ -123,14 +123,6 @@ Step 7: 人工确认 + 提交
 
 详细安装步骤见 [CodeGraph 部署与使用教程](./.opencode/skills/sd-firmware-copilot/references/deploy-guide.md)。
 
-核心工具链：
-
-| 工具 | 用途 | 安装 |
-|------|------|------|
-| **ops-codegraph** | 调用图/依赖图/影响分析 | `npm install -g @optave/codegraph` |
-| **ctags + cscope** | 函数指针/宏查询（补充） | `apt install universal-ctags cscope` |
-| **Doxygen + Graphviz** | 交互式文档（按需） | `apt install doxygen graphviz` |
-
 ### 常用查询
 
 ```bash
