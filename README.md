@@ -21,7 +21,6 @@
 zsf/
 ├── README.md                                # 本文件
 ├── opencode.json                            # 统一配置（MCP → FEMU + Graphify 插件）
-├── opencode.json                            # MCP 配置（CodeGraph → FEMU）
 │
 ├── docs/                        # 项目事实与设计信息
 │   ├── SSD_Firmware_AI_Copilot_Methodology.md   # 方法论总文档
