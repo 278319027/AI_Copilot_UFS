@@ -26,9 +26,6 @@ zsf/
 │   ├── SSD_Firmware_AI_Copilot_Methodology.md   # 方法论总文档
 │   ├── research/                # 调研与部署文档
 │   │   ├── explore_ai_coding.md   # AI 辅助编程可行性研究报告
-│   │   └── CodeGraph_Setup.md     # CodeGraph 部署与使用教程
-│   └── TEST/                    # 测试与度量
-│       └── metrics_template.md  # 效果度量模板
 │
 ├── .opencode/                   # OpenCode Agent 配置
 │   ├── plugins/
