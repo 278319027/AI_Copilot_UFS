@@ -696,11 +696,14 @@ AI Agent 的上下文窗口有限，必须主动管理：
 
 ## 11. 最终形态
 
-AI 系统只关注三类信息：
+AI 系统关注五类信息：
 
 ```text
-设计
+规格
+-> specs/baseline/    （系统当前行为的权威描述）
 
+设计
+-> docs/
 
 规则
 -> memory/
@@ -708,23 +711,24 @@ AI 系统只关注三类信息：
 代码
 -> source/
 + CodeGraph
++ Graphify
 ```
 
-通过两个核心 Skill 完成辅助开发：
+通过核心 Skills 完成辅助开发：
 
 - `development`
 - `review`
 
-最终实现流程：
+最终实现流程（含 OpenSpec 工件）：
 
 ```text
 需求
--> 设计理解
--> 代码定位
--> 方案生成
+-> Proposal（proposal.md + specs/ 增量）
+-> CodeGraph 查询
+-> 设计方案（design.md + tasks.md）
 -> 代码生成
--> Review
--> 测试建议
+-> Review（review.md，查证式）
+-> 归档（specs/ 增量合并到 baseline）
 ```
 
 形成稳定、可维护、可推广的 AI 辅助编程体系。
@@ -752,8 +756,6 @@ AI 系统只关注三类信息：
 | 变更粒度约束 | `tasks.md` | 200-500 行/任务的粒度约束固化在 tasks.md 模板中 |
 | 验收标准模板 | `design.md` | 「待人工确认清单」字段即为验收标准 |
 | 失败回退 | `review.md` | 归档合并建议含回滚点（Step 2 引入 review.md） |
-
-> 详见 `.opencode/skills/sd-firmware-copilot/references/spec_workflow.md`
 
 > 详见 `.opencode/skills/sd-firmware-copilot/references/spec_workflow.md`
 
