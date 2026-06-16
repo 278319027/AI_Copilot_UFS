@@ -1,6 +1,6 @@
 # Spec Workflow Reference
 
-design.md 和 tasks.md 的模板与使用规范。这两个工件使 OpenSpec 规格层与 zsf 工作流对齐，直接替代现有流程中的重复劳动。
+design.md、tasks.md、proposal.md 和 review.md 的模板与使用规范。这些工件使 OpenSpec 规格层与 zsf 工作流对齐，直接替代现有流程中的重复劳动。
 
 ---
 
@@ -123,30 +123,172 @@ tasks.md 是编码阶段的任务清单，替代 zsf 现有流程中每次在 se
 
 ---
 
-## 3. 与 zsf 现有流程的映射
+## 3. proposal.md — 提案工件
 
-### 3.1 替代关系
+### 3.1 职责
 
-| zsf 现有流程 | design.md / tasks.md 替代 |
+proposal.md 是需求阶段的唯一持久化产出，声明变更的意图、范围和验收标准。替代 zsf 现有流程中 AI 每次从 session prompt 推断的「需求理解摘要」。
+
+**核心价值**：
+- 固化需求意图和范围，session 间保持一致
+- 提供验收标准，明确「做完」的定义
+- 作为后续 design.md 和 Review 的上下文锚点
+
+### 3.2 模板
+
+```markdown
+# Proposal: {change-id}
+
+## 问题描述
+<!-- 当前存在什么问题？为什么需要这次变更？ -->
+
+## 变更范围
+<!-- IN scope 和 OUT of scope，明确边界 -->
+- IN:
+- OUT:
+
+## 预期行为
+<!-- 变更后系统应如何表现？ -->
+
+## 约束
+<!-- 不能改的、必须满足的、依赖的前置条件 -->
+-
+
+## 影响模块（初步判断）
+<!-- 不做 CodeGraph 深度查询，仅凭设计文档和常识列出可能受影响的模块 -->
+-
+
+## 验收标准
+1. {可验证的条件}
+2. ...
+
+## 风险与假设
+-
+```
+
+### 3.3 使用规范
+
+| 阶段 | 何时产生 | 何时使用 |
+|------|---------|---------|
+| Proposal | 需求理解确认后 | 作为 Design Gate 的输入和上下文 |
+| Design | — | 作为 design.md「架构假设」和「CodeGraph 查询」的范围参考 |
+| Review | — | 作为验收标准的查证源 |
+
+### 3.4 CodeGraph 策略
+
+> **提案阶段 CodeGraph 查询是可选的。**
+
+- 提案关注「要做什么」，而非「怎么做」
+- 初步影响模块用常识判断，CodeGraph 深度查询留给 design.md
+- 单文件 bugfix 可跳过 proposal.md，直接进入 design.md
+
+---
+
+## 4. review.md — 审查工件
+
+### 4.1 职责
+
+review.md 是 Review 阶段的唯一持久化产出，替代 zsf 现有流程中 Review 阶段重新查询 CodeGraph 的重复劳动。改为**查证式**：验证代码变更是否在 design.md 预期的范围内。
+
+**核心价值**：
+- 从「Review 阶段重新查询 CodeGraph」变为「查证 design.md 中的 CodeGraph 结果」
+- design.md 的 CodeGraph 结果作为查证基准，无需重复查询
+- review.md 持久化问题列表和影响范围判断
+
+### 4.2 模板
+
+```markdown
+# Review: {change-id}
+
+## 查证结果
+<!-- 对照 design.md 中的 CodeGraph 查询结果，验证代码变更是否在预期范围内 -->
+
+### 影响范围查证
+| design.md 预期影响 | 实际代码变更 | 一致？ |
+|-------------------|-------------|-------|
+| {文件/函数/结构体} | {实际变更} | ✅/⚠️ |
+
+### 调用关系查证
+| design.md 预期调用者 | 实际新增/修改调用 | 一致？ |
+|---------------------|-----------------|-------|
+
+### 头文件影响查证
+| design.md 预期影响 | 实际 include 变更 | 一致？ |
+|-------------------|-----------------|-------|
+
+### 模块边界查证
+| design.md 预期 | 实际依赖变更 | 一致？ |
+|--------------|------------|-------|
+
+## 偏差说明
+<!-- 如果查证发现偏差，说明原因及是否可接受 -->
+
+## 问题列表
+| 文件 | 行号 | 问题 | 风险等级 | 建议 |
+|------|------|------|---------|------|
+
+## 检查重点
+- [ ] 空指针
+- [ ] 数组越界
+- [ ] 资源泄漏
+- [ ] 竞态条件
+- [ ] 死循环
+- [ ] 模块边界违反
+- [ ] 接口兼容性风险
+- [ ] 函数指针调用遗漏（用 cscope 补充）
+
+## 验收标准核对
+<!-- 对照 proposal.md 的验收标准逐条核对 -->
+| 验收标准 | 状态 | 证据 |
+|---------|------|------|
+```
+
+### 4.3 使用规范
+
+| 阶段 | 何时产生 | 何时使用 |
+|------|---------|---------|
+| Review | 编码完成后，测试前 | 作为 Review 阶段的完整产出 |
+| 后续 | — | 跨 session 可查 review.md 恢复 Review 上下文 |
+
+### 4.4 CodeGraph 策略
+
+> **Review 阶段不需要重新查询 CodeGraph。**
+
+- 查证 design.md 中的 CodeGraph 结果（callers、impact、imports、dependency graph），不是重新查
+- 仅当查证发现偏差时，才必须重新用 CodeGraph 查询偏差涉及的新增影响
+- 函数指针和宏的查证用 cscope 补充（codegraph_callers 覆盖有限）
+
+---
+
+## 5. 与 zsf 现有流程的映射
+
+### 5.1 替代关系
+
+| zsf 现有流程 | OpenSpec 工件替代 |
 |-------------|--------------------------|
+| 需求理解摘要（session 内临时） | proposal.md 持久化意图和验收标准 |
 | 设计确认清单从零生成（design_rules.md §7） | design.md 模板 = 清单本身 |
-| Review 阶段重新查询 CodeGraph | design.md 持久化 CodeGraph 结果，Review 改为查证式 |
-| 跨 session 上下文重建 | 读 design.md + tasks.md 恢复上下文 |
+| Review 阶段重新查询 CodeGraph | design.md 持久化 CodeGraph 结果，review.md 改为查证式 |
+| 跨 session 上下文重建 | 读 proposal.md + design.md + tasks.md + review.md 恢复完整上下文 |
 | 每次声明 200-500 行粒度约束（方法论 §12） | tasks.md 固化约束 |
 | 测试建议从零生成 | tasks.md 测试场景字段 |
+| Review 输出（session 内临时） | review.md 持久化问题列表和查证结果 |
 
-### 3.2 不替代的部分
+### 5.2 不替代的部分
 
 | zsf 现有机制 | 保持不变 |
 |-------------|---------|
 | CodeGraph 查询本身（Design 阶段） | design.md 记录结果，不替代查询动作 |
 | 人工确认门禁 | design.md 作为门禁输入，门禁本身不变 |
 | review_rules.md 检查项 | Review 检查项不变，仅执行方式变为查证式 |
+| 开发技能流程（development/skill.md） | 流程框架不变，融入 OpenSpec 工件 |
 
 ---
 
-## 4. 版本兼容说明
+## 6. 版本兼容说明
 
-- **Step 1**：只引入 design.md + tasks.md 两个工件。proposal.md、review.md、specs/ 增量、baseline、归档在 Step 2/3 引入。
-- **向后兼容**：未使用 OpenSpec 工件的变更仍可按 zsf 原有 7 步流程执行。design.md 和 tasks.md 是推荐流程，不强制所有变更使用。
-- **渐进采用**：建议先从跨模块变更和新功能开始使用，简单 bugfix 可继续保持原有流程。
+- **Step 1**（已完成）：引入 design.md + tasks.md 两个工件。
+- **Step 2**（当前）：引入 proposal.md + review.md 工件。提案阶段的意图持久化 + Review 阶段的查证式验证。
+- **Step 3**（规划中）：引入 specs/ 增量、baseline、归档机制，实现完整的行为可追溯能力。
+- **向后兼容**：未使用 OpenSpec 工件的变更仍可按 zsf 原有 7 步流程执行。所有工件是推荐流程，不强制所有变更使用。
+- **渐进采用**：建议先从跨模块变更和新功能开始使用，简单 bugfix 可跳过 proposal.md 和部分 review.md 字段。

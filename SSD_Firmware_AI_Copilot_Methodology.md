@@ -418,6 +418,18 @@ Step6 生成测试建议
 
 ## 6. 标准工作流
 
+
+### 6.0 OpenSpec 工件集成
+
+本工作流现集成 OpenSpec 工件作为阶段产出物：
+
+- **Proposal Gate**：§6.1 需求理解完成后，产出 `proposal.md`（意图、范围、验收标准）。模板见 `references/spec_workflow.md` §3
+- **Design Gate**：§6.3 设计方案确认门禁使用 `design.md`（CodeGraph 查询结果已持久化）。模板见 `references/spec_workflow.md` §1
+- **Coding Checklist**：§6.4 代码生成按 `tasks.md` 粒度（200-500 行/任务）执行。模板见 `references/spec_workflow.md` §2
+- **Review Gate**：§6.5 Review 产出 `review.md`（查证式，对照 design.md CodeGraph 结果）。模板见 `references/spec_workflow.md` §4
+
+> 所有 OpenSpec 工件均为推荐流程。未使用的变更仍可按原 §6.1-§6.6 流程执行。
+
 ### 6.1 需求理解
 
 输入：

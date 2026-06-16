@@ -7,32 +7,31 @@
 - Review 接口
 - Review 状态机
 
+- 产出 review.md ← 审查阶段持久化产出（模板见 spec_workflow.md §4）
 ## 输入
 
-- 设计文档
+- proposal.md ← 变更意图、范围、验收标准
+- design.md ← CodeGraph 查询结果已持久化于此
 - 变更 diff
 - 相关源代码
 - 规则文件
-- CodeGraph 查询结果 ← 新增：用于验证影响范围
-
 ## 输出
 
-1. 问题列表
-2. 风险等级
-3. 影响范围 ← 通过 CodeGraph 验证
-4. 修改建议
+1. review.md ← 审查阶段完整产出（模板见 spec_workflow.md §4）
+2. 问题列表
+3. 风险等级
+4. 影响范围（查证式，对照 design.md）
+5. 修改建议
+## 查证步骤（注：不再重新查询 CodeGraph）
 
-## CodeGraph 验证步骤
+> review.md 核心理念：对照 design.md 中已持久化的 CodeGraph 结果进行查证，而非重新查询。
 
-在 Review 前，必须用 CodeGraph 验证影响范围：
-
-1. 用 `impact` 查询变更文件的影响范围
-2. 用 `codegraph_callers` 验证修改的函数是否影响其他模块
-3. 用 `find_by_imports` 验证修改的头文件影响范围
-4. 用 `get_dependency_graph` 验证是否违反模块边界
-
-如果影响范围超出预期，必须在 Review 输出中标注。
-
+1. 对照 design.md「CodeGraph 查询结果 → impact」查证变更文件的影响范围
+2. 对照 design.md「CodeGraph 查询结果 → callers」查证修改的函数调用影响
+3. 对照 design.md「CodeGraph 查询结果 → find_by_imports」查证头文件变更影响
+4. 对照 design.md「CodeGraph 查询结果 → get_dependency_graph」查证模块边界
+5. 仅当查证发现偏差时，才必须用 CodeGraph 重新查询偏差涉及的新增影响
+6. 函数指针和宏的查证用 cscope 补充（codegraph_callers 覆盖有限）
 ## 检查重点
 
 - 空指针

@@ -71,15 +71,34 @@
 | 7 | 查找文件 | 哪些文件名包含 "nand" |
 | 8 | 查找包含文件的文件 | 谁 include 了 "nand_ctx.h" |
 
-## 5. Graphify 查询规则
+### 4.6 OpenSpec 查询规则
 
-### 5.1 Graphify 与 CodeGraph 分工
+OpenSpec 四个阶段对 CodeGraph 有不同要求：
+
+| 阶段 | CodeGraph 要求 | 说明 |
+|------|--------------|------|
+| **Proposal** | 可选 | 提案关注「要做什么」，影响模块用常识判断。仅当需求涉及跨模块影响时才用 `impact` 做初步查询 |
+| **Design** | 强制（见 §4.3） | design.md 必须包含完整的 CodeGraph 查询结果（impact、callers、find_by_imports、dependency graph） |
+| **Review** | 查证式 | 不重新查询 CodeGraph。对照 design.md 中已持久化的 CodeGraph 结果查证代码变更是否在预期范围内。仅查证发现偏差时重新查询 |
+| **Archive** | 可选 | 归档阶段无需 CodeGraph 查询 |
+
+> 查证式 Review 的核心理念：design.md 已持久化了 CodeGraph 结果，Review 时直接对照查证，避免重新查询——既节省时间，又确保一致性。
+
+#### 4.6.1 Baseline spec 查询优先级
+
+当 spec baseline 和 CodeGraph 之间有差异时：
+1. **spec baseline 优先**作为「系统应该如何表现」的权威源
+2. **CodeGraph 优先**作为「系统实际上如何表现」的权威源
+3. 两者有差异 → 标注为偏差，在 proposal.md 中列入变更范围
+## 6. Graphify 查询规则
+
+### 6.1 Graphify 与 CodeGraph 分工
 
 |- **CodeGraph**（ops-codegraph，当前部署于 FEMU `../femu/hw/femu/`）：代码结构查询——调用图、依赖图、影响分析
 - **Graphify**：知识图谱查询——概念关系、社区结构、跨文件语义导航
 - 原则：结构问题用 CodeGraph / cscope，概念问题用 Graphify
 
-### 5.2 查询策略
+### 6.2 查询策略
 
 对于代码库相关问题，当 graphify-out/graph.json 存在时：
 - 优先使用 `graphify query "<问题>"` 获取归域子图
@@ -88,21 +107,21 @@
 - graphify-out/wiki/index.md 存在时，用于概览导航
 - 仅当 query/path/explain 信息不足时，才阅读 graphify-out/GRAPH_REPORT.md
 
-### 5.3 更新规则
+### 6.3 更新规则
 
 - 修改代码后执行 `graphify update .` 保持图谱最新（仅 AST 更新，无 API 费用）
 - 图谱变陈旧时使用 `graphify update .` 增量刷新（仅 AST 更新，无 API 费用）
 - 只有当任务目标就是修复图谱输出，或用户明确要求不用 graphify 时才跳过
 
-## 6. Agent 配置与 Context 管理
+## 7. Agent 配置与 Context 管理
 
-### 6.1 Agent 超时处理
+### 7.1 Agent 超时处理
 
 大型文件修改任务（500+ 行文件）容易触发 agent 超时（默认 4-6 分钟 staleness）。对策：
 - 拆分为更小的 sub-task（每个 task 修改不超过 100 行）
 - 在 `.opencode/oh-my-openagent.json` 中调整 `background_task.staleTimeoutMs`（按需）
 
-### 6.2 Context 膨胀控制
+### 7.2 Context 膨胀控制
 
 - 每个阶段结束后主动执行 context 压缩
 - 单次并发 explore/librarian agent 不超过 5 个
