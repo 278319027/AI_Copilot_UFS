@@ -107,11 +107,14 @@ OpenSpec 四个阶段对 CodeGraph 有不同要求：
 - graphify-out/wiki/index.md 存在时，用于概览导航
 - 仅当 query/path/explain 信息不足时，才阅读 graphify-out/GRAPH_REPORT.md
 
-### 6.3 更新规则
+### 6.3 OpenSpec 规格基线查询优先级
 
-- 修改代码后执行 `graphify update .` 保持图谱最新（仅 AST 更新，无 API 费用）
-- 图谱变陈旧时使用 `graphify update .` 增量刷新（仅 AST 更新，无 API 费用）
-- 只有当任务目标就是修复图谱输出，或用户明确要求不用 graphify 时才跳过
+AI 在理解系统行为时，按以下优先级查询（从快到慢）：
+1. **specs/baseline/** → 获取当前行为全貌
+2. **CodeGraph** 局部验证 → 补充调用关系和依赖细节
+3. **代码** → 仅在基线与代码不一致或基线信息不足时
+
+> 门禁与归档规则详见 `rules/spec_rules.md`。
 
 ## 7. Agent 配置与 Context 管理
 
