@@ -1,6 +1,6 @@
 # Spec Workflow Reference
 
-design.md、tasks.md、proposal.md 和 review.md 的模板与使用规范。这些工件使 OpenSpec 规格层与 zsf 工作流对齐，直接替代现有流程中的重复劳动。
+design.md、tasks.md、proposal.md、review.md、specs/ 增量、归档合并的模板与使用规范。这些工件使 OpenSpec 规格层与 zsf 工作流对齐，直接替代现有流程中的重复劳动。
 
 ---
 
@@ -241,6 +241,11 @@ review.md 是 Review 阶段的唯一持久化产出，替代 zsf 现有流程中
 <!-- 对照 proposal.md 的验收标准逐条核对 -->
 | 验收标准 | 状态 | 证据 |
 |---------|------|------|
+
+## specs/ 增量核对
+<!-- 对照 specs/ 增量（ADDED/MODIFIED/REMOVED），验证代码变更是否覆盖 -->
+| 增量文件 | 增量项 | 代码覆盖 | 一致？ |
+|---------|--------|---------|-------|
 ```
 
 ### 4.3 使用规范
@@ -260,9 +265,104 @@ review.md 是 Review 阶段的唯一持久化产出，替代 zsf 现有流程中
 
 ---
 
-## 5. 与 zsf 现有流程的映射
+## 5. specs/ 增量格式
 
-### 5.1 替代关系
+### 5.1 职责
+
+specs/ 增量是 OpenSpec 行为追溯的核心。每次变更在 `proposals/{change-id}/specs/` 下产生 3 个文件，描述行为层面的变化（非代码实现）。
+
+**核心价值**：
+- 从「代码 diff 追溯」升级为「行为变化追溯」
+- 每个增量文件独立可验证，对应测试场景
+- 归档时合并到 `specs/baseline/`，基线始终反映最新行为
+
+### 5.2 ADDED.md 模板
+
+```markdown
+# Added: {change-id}
+
+## {新增行为 1}
+- **描述**：...
+- **触发条件**：...
+- **预期结果**：...
+- **涉及模块**：...
+
+## {新增行为 2}
+...
+```
+
+### 5.3 MODIFIED.md 模板
+
+```markdown
+# Modified: {change-id}
+
+## {修改行为 1}
+- **原行为**：...
+- **新行为**：...
+- **影响范围**：...
+- **兼容性影响**：...
+```
+
+### 5.4 REMOVED.md 模板
+
+```markdown
+# Removed: {change-id}
+
+## {移除行为 1}
+- **原行为**：...
+- **移除原因**：...
+- **替代方案**：...
+```
+
+### 5.5 增量规范
+
+- **增量文件不写代码**：描述「系统做什么」，不描述「代码怎么写」
+- **增量与 CodeGraph 互补**：增量描述行为变化，design.md 中的 CodeGraph 查询记录实现路径
+- **增量必须可验证**：每个增量项必须有对应的测试场景（见 tasks.md）
+- **增量粒度**：每个增量项 = 一个可独立验证的行为变化
+
+### 5.6 使用规范
+
+| 阶段 | 何时产生 | 何时使用 |
+|------|---------|---------|
+| Proposal | 与 proposal.md 同时产出 | 作为 Proposal Gate 的输入（检查与 baseline 冲突） |
+| Design | — | 作为 design.md「CodeGraph 查询范围」的参考 |
+| Review | — | 作为 Review Gate 的验证源（增量 vs 实际代码变更） |
+| Archive | — | 合并到 baseline，变更历史保留在 proposals/ 中 |
+
+---
+
+## 6. 归档与合并
+
+### 6.1 归档时机
+
+Review Gate 全部检查项通过后执行归档。
+
+### 6.2 合并流程
+
+1. ADDED → 追加：将 ADDED.md 中内容追加到对应基线文件（`specs/baseline/{module}.md`）的「行为描述」章节
+2. MODIFIED → 替换：将 MODIFIED.md 中描述的新行为替换基线文件对应章节
+3. REMOVED → 删除：将 REMOVED.md 中描述的内容从基线文件中删除
+4. 版本标记：更新基线文件头部的「最后更新」和「最后变更」字段
+5. 索引更新：更新 `specs/baseline/README.md` 中对应模块的更新时间和变更 ID
+
+### 6.3 合并原则
+
+- **原子性**：一个 change-id 的 3 个增量文件必须在一次操作中合并完毕
+- **冲突处理**：如增量与基线冲突（例如两个变更修改同一行为），优先审查基线是否过时，必要时手动裁决
+- **可逆性**：合并前保存基线快照，通过 Git 可回滚
+
+### 6.4 历史保留
+
+- `proposals/{change-id}/` 目录**不删除**，作为变更审计历史保留
+- 归档 commit message 格式：`chore(spec): merge {change-id} into baseline`
+- 所有 `.openspec/` 文件纳入 Git 版本管理
+
+---
+
+## 7. 与 zsf 现有流程的映射
+
+### 7.1 替代关系
 
 | zsf 现有流程 | OpenSpec 工件替代 |
 |-------------|--------------------------|
@@ -273,8 +373,9 @@ review.md 是 Review 阶段的唯一持久化产出，替代 zsf 现有流程中
 | 每次声明 200-500 行粒度约束（方法论 §12） | tasks.md 固化约束 |
 | 测试建议从零生成 | tasks.md 测试场景字段 |
 | Review 输出（session 内临时） | review.md 持久化问题列表和查证结果 |
+| 行为变化无记录 | specs/ 增量（ADDED/MODIFIED/REMOVED）+ 归档合并到 baseline |
 
-### 5.2 不替代的部分
+### 7.2 不替代的部分
 
 | zsf 现有机制 | 保持不变 |
 |-------------|---------|
@@ -285,10 +386,10 @@ review.md 是 Review 阶段的唯一持久化产出，替代 zsf 现有流程中
 
 ---
 
-## 6. 版本兼容说明
+## 8. 版本兼容说明
 
 - **Step 1**（已完成）：引入 design.md + tasks.md 两个工件。
-- **Step 2**（当前）：引入 proposal.md + review.md 工件。提案阶段的意图持久化 + Review 阶段的查证式验证。
-- **Step 3**（规划中）：引入 specs/ 增量、baseline、归档机制，实现完整的行为可追溯能力。
+- **Step 2**（已完成）：引入 proposal.md + review.md 工件。提案阶段的意图持久化 + Review 阶段的查证式验证。
+- **Step 3**（当前）：引入 specs/ 增量、baseline、归档机制。完整的行为可追溯能力已就绪。
 - **向后兼容**：未使用 OpenSpec 工件的变更仍可按 zsf 原有 7 步流程执行。所有工件是推荐流程，不强制所有变更使用。
 - **渐进采用**：建议先从跨模块变更和新功能开始使用，简单 bugfix 可跳过 proposal.md 和部分 review.md 字段。

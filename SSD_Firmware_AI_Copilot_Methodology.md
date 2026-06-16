@@ -122,7 +122,7 @@ OpenCode Agent
 - `Skills` 是可复用工作流
 - `Source Code` 是最终真实实现
 
-## 4. 四大核心组成
+## 4. 五大核心组成
 
 ### 4.1 Source Code
 
@@ -362,6 +362,51 @@ Memory 保存项目规则，不保存项目设计本身。
 每个模板文件包含填写说明和占位符，使用时需替换为实际芯片的值。
 不同芯片型号有不同的填写文件。
 
+### 4.6 Spec 层（OpenSpec 规格基线）
+
+> 新增。来源：OpenSpec 集成方案，填补「系统当前行为」的权威描述层。
+
+规格层是 OpenSpec 规格驱动开发在 zsf 中的落地点。它独立于约束层（Memory）和基础设施层（CodeGraph），是「系统当前行为」的权威描述。
+
+**Memory ≠ Spec**：
+- Memory 是约束（「必须遵守什么」）——规则、风格、编码规范
+- Spec 是行为（「系统当前做什么」）——模块行为、接口契约、状态转换
+- 两者独立演进，不冲突
+
+推荐目录：
+```text
+.openspec/
+├── proposals/
+│   └── {change-id}/
+│       ├── proposal.md      ← 为什么做、做什么
+│       ├── specs/            ← 行为变更增量
+│       │   ├── ADDED.md
+│       │   ├── MODIFIED.md
+│       │   └── REMOVED.md
+│       ├── design.md         ← 怎么做（含 CodeGraph 查询）
+│       ├── tasks.md          ← 实现清单
+│       └── review.md         ← Review 记录
+└── specs/
+    └── baseline/             ← 活规格基线
+        ├── README.md         ← 基线索引
+        ├── nvme-commands.md
+        ├── ftl-mapping.md
+        ├── nand-driver.md
+        └── error-handling.md
+```
+
+#### 规格层价值
+
+1. **当前行为权威描述**：基线文件描述系统实际行为，AI 查询优先级：基线 → CodeGraph → 代码
+2. **行为变更追溯**：每次变更的 specs/ 增量（ADDED/MODIFIED/REMOVED）持久化行为变化
+3. **三级门禁联动**：Proposal Gate → Design Gate → Review Gate，每级有明确的输入和检查项
+4. **审计历史保留**：proposals/ 目录不删除，每次归档产生 `chore(spec): merge` commit
+
+#### 规则文件
+
+规格层操作规则详见 `.opencode/skills/sd-firmware-copilot/rules/spec_rules.md`。
+
+## 5. Skills 体系
 ## 5. Skills 体系
 
 Skill 尽量少而精，只保留两个核心能力：
@@ -423,12 +468,13 @@ Step6 生成测试建议
 
 本工作流现集成 OpenSpec 工件作为阶段产出物：
 
-- **Proposal Gate**：§6.1 需求理解完成后，产出 `proposal.md`（意图、范围、验收标准）。模板见 `references/spec_workflow.md` §3
+- **Proposal Gate**：§6.1 需求理解完成后，产出 `proposal.md` + `specs/` 增量（意图、范围、验收标准、行为变更声明）。模板见 `references/spec_workflow.md` §3、§5
 - **Design Gate**：§6.3 设计方案确认门禁使用 `design.md`（CodeGraph 查询结果已持久化）。模板见 `references/spec_workflow.md` §1
 - **Coding Checklist**：§6.4 代码生成按 `tasks.md` 粒度（200-500 行/任务）执行。模板见 `references/spec_workflow.md` §2
-- **Review Gate**：§6.5 Review 产出 `review.md`（查证式，对照 design.md CodeGraph 结果）。模板见 `references/spec_workflow.md` §4
+- **Review Gate**：§6.5 Review 产出 `review.md`（查证式，对照 design.md CodeGraph 结果 + specs/ 增量核对）。模板见 `references/spec_workflow.md` §4
+- **Archive**：Review Gate 通过后，specs/ 增量合并到 `specs/baseline/`，commit 格式 `chore(spec): merge`。规范见 `references/spec_workflow.md` §6
 
-> 所有 OpenSpec 工件均为推荐流程。未使用的变更仍可按原 §6.1-§6.6 流程执行。
+> 所有 OpenSpec 工件均为推荐流程。未使用的变更仍可按原 §6.1-§6.6 流程执行。门禁与归档规则详见 `.opencode/skills/sd-firmware-copilot/rules/spec_rules.md`。
 
 ### 6.1 需求理解
 
@@ -709,3 +755,69 @@ AI 系统只关注三类信息：
 
 > 详见 `.opencode/skills/sd-firmware-copilot/references/spec_workflow.md`
 
+> 详见 `.opencode/skills/sd-firmware-copilot/references/spec_workflow.md`
+
+---
+
+## 13. OpenSpec 集成
+
+### 13.1 动机
+
+zsf 原有 4 大核心组成（Source Code、CodeGraph、Docs、Memory）缺乏「规格层」——一种将「系统当前应该做什么」从代码/规则中独立出来的机制。OpenSpec 填补了此空缺。
+
+集成后架构变为 5 层：
+
+```
+┌─────────────────────────────────────────┐
+│  规格层 (OpenSpec)   — 当前行为的权威描述   │  ← 新增
+├─────────────────────────────────────────┤
+│  约束层 (Memory)    — 规则、风格、知识     │
+├─────────────────────────────────────────┤
+│  基础设施层 (CodeGraph/cscope/Graphify)  │
+├─────────────────────────────────────────┤
+│  流程层 (Skills)      — 开发/审查流程     │
+└─────────────────────────────────────────┘
+```
+
+### 13.2 核心机制
+
+| 机制 | 说明 | zsf 落地点 |
+|------|------|----------|
+| Living spec baseline | 系统当前行为的权威描述 | `specs/baseline/` 目录 |
+| Delta spec tracking | 每次变更的行为增量 | `proposals/{id}/specs/`（ADDED/MODIFIED/REMOVED） |
+| Staged review gates | 三级门禁（Proposal/Design/Review） | design_rules.md §7 + spec_rules.md §5 |
+| Persistent change artifacts | 所有变更工件 Git 版本化 | `.openspec/` 全部文件 |
+| Archive & spec merging | Review 通过后增量合并到基线 | `chore(spec): merge` commit |
+
+### 13.3 不依赖外部工具
+
+zsf 的 OpenSpec 集成是纯方法论集成，**不依赖 OpenSpec npm 包**：
+- 工件目录结构（`.openspec/`）作为约定，由 skill 规则驱动
+- 工作流由 development/review skill 的门禁检查点强制执行
+- 规格层规则集中在 `spec_rules.md`
+
+### 13.4 实施进度
+
+分 3 步渐进式引入：
+
+| 步骤 | 内容 | 状态 |
+|------|------|------|
+| Step 1 | 引入 design.md + tasks.md | ✅ 完成 |
+| Step 2 | 引入 proposal.md + review.md（查证式） | ✅ 完成 |
+| Step 3 | 引入 specs/ 增量 + baseline + 归档 | ✅ 完成（当前） |
+
+### 13.5 与现有流程的关系
+
+- **CodeGraph 保持不动**：Design 阶段强制查询，Review 阶段改为查证式验证
+- **Memory 规则保持不动**：约束与规格是正交维度
+- **Skills 保持不动**：流程框架不变，融入 OpenSpec 工件作为阶段产出
+- **替代而非新增**：OpenSpec 直接替代了执行中的 8 处重复劳动（§6.0 替代关系表 + specs/ 增量吸收了行为追溯需求）
+
+### 13.6 相关文档
+
+| 文档 | 内容 |
+|------|------|
+| `rules/spec_rules.md` | 规格层规则（基线管理、增量格式、三级门禁、归档） |
+| `references/spec_workflow.md` | 全部工件模板与使用规范（proposal/specs/design/tasks/review/archive） |
+| `specs/baseline/README.md` | 基线索引与填充状态 |
+| `.omo/plans/openspec-integration-plan.md` | 完整集成方案与设计决策 |

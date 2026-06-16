@@ -13,7 +13,7 @@ echo "项目根目录: $PROJECT_ROOT"
 echo ""
 
 # 1. 复制规则文件到 memory/
-echo "--- [1/4] 部署规则文件 ---"
+echo "--- [1/5] 部署规则文件 ---"
 mkdir -p "$MEMORY_DIR"
 for rule in architecture.md concurrency_rules.md coding_style.md design_rules.md review_rules.md testing_rules.md; do
     if [ -f "$SKILL_DIR/rules/$rule" ]; then
@@ -27,7 +27,7 @@ for rule in architecture.md concurrency_rules.md coding_style.md design_rules.md
 done
 
 # 2. 复制知识模板到 knowledge/
-echo ""
+echo "--- [2/5] 部署知识模板 ---"
 echo "--- [2/4] 部署知识模板 ---"
 echo "（芯片特定值需要手动填写，模板中标记为 TBD）"
 mkdir -p "$KNOWLEDGE_DIR"
@@ -56,7 +56,7 @@ fi
 
 # 3. 配置 CodeGraph MCP
 echo ""
-echo "--- [3/4] 配置 CodeGraph MCP ---"
+echo "--- [3/5] 配置 CodeGraph MCP ---"
 OPENCODE_JSON="$PROJECT_ROOT/opencode.json"
 if [ -f "$OPENCODE_JSON" ]; then
     echo "  opencode.json 已存在"
@@ -74,7 +74,7 @@ fi
 
 # 4. 检查工具链
 echo ""
-echo "--- [4/4] 工具链检查 ---"
+echo "--- [4/5] 工具链检查 ---"
 TOOLS_OK=true
 if command -v codegraph &>/dev/null; then
     echo "  ✓ codegraph: $(codegraph --version 2>&1 | head -1)"
@@ -100,6 +100,23 @@ else
     echo "=== 初始化完成（工具链不完整） ==="
     echo "请安装缺失的工具后重新运行"
 fi
+
+# 5. 初始化 .openspec/ 目录结构
+echo ""
+echo "--- [5/5] 初始化 .openspec/ 目录 ---"
+OPENSPEC_DIR="$PROJECT_ROOT/.openspec"
+if [ ! -d "$OPENSPEC_DIR" ]; then
+    mkdir -p "$OPENSPEC_DIR/proposals"
+    mkdir -p "$OPENSPEC_DIR/specs/baseline"
+    echo "  ✓ .openspec/proposals/"
+    echo "  ✓ .openspec/specs/baseline/"
+    echo ""
+    echo "  提示: 运行以下命令将基线模板复制到项目中："
+    echo "    cp -n $SKILL_DIR/specs/baseline/*.md $OPENSPEC_DIR/specs/baseline/"
+else
+    echo "  ⚠ .openspec/ 已存在，跳过"
+fi
+
 
 # --update-rules 选项处理
 if [ "${1:-}" = "--update-rules" ]; then
