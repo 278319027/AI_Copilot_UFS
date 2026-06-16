@@ -684,3 +684,16 @@ AI 系统只关注三类信息：
 4. 增加失败回退机制
    - 如果 AI 输出不通过，必须回退到文档层重新澄清，而不是盲目重试生成。
 
+### 12.1 OpenSpec 工件吸收
+
+以上四个强化项已被 OpenSpec 规格工件体系吸收，不再需要独立维护：
+
+| 强化项 | 吸收到 | 说明 |
+|--------|--------|------|
+| 文档版本绑定 | `design.md` | CodeGraph 查询结果 + 设计假设随 design.md Git 版本化 |
+| 变更粒度约束 | `tasks.md` | 200-500 行/任务的粒度约束固化在 tasks.md 模板中 |
+| 验收标准模板 | `design.md` | 「待人工确认清单」字段即为验收标准 |
+| 失败回退 | `review.md` | 归档合并建议含回滚点（Step 2 引入 review.md） |
+
+> 详见 `.opencode/skills/sd-firmware-copilot/references/spec_workflow.md`
+

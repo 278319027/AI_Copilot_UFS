@@ -177,9 +177,17 @@ typedef struct {
 
 ### AI 设计方案确认门禁
 
-AI 输出的设计方案必须附带「待人工确认清单」，至少包含：
-1. 架构假设是否正确？（例如：「假设修改只影响 BBSSD 模式」）
-2. 影响范围是否完整？（CodeGraph 查询结果是否覆盖了所有调用者？）
-3. 是否有更简单的替代方案？（能否用更少的修改达到相同效果？）
+设计方案必须通过 `design.md` 产出，模板与规范见 `.opencode/skills/sd-firmware-copilot/references/spec_workflow.md` §1。
 
-人工逐项确认通过后，方可进入编码阶段。设计方案不是「建议」，是等待批准的门禁。
+design.md 必须包含：
+1. 架构假设
+2. CodeGraph 查询结果（impact/callers/imports/dep graph）
+3. 更简方案评估
+4. tasks.md 粒度（200-500 行/任务）
+5. 并发/资源/错误路径
+
+人工逐项确认通过后，方可进入编码阶段。
+
+**design.md 在 Review 阶段作为 CodeGraph 查证基准**——Review 时不再重新查询 CodeGraph，而是验证代码变更是否在 design.md 预期的范围内。
+
+单文件 bugfix（影响范围明确）可精简为仅含「架构假设」和「CodeGraph 查询结果」两个字段。

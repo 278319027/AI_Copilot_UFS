@@ -16,7 +16,7 @@ SSD 固件开发的 AI 辅助技能包。提供 CodeGraph 优先的代码定位�
 ## 核心 7 步流程
 
 ```
-需求/设计文档 → AI 理解 → CodeGraph 查询 → 设计方案 → 小步编码 → Review → 测试建议
+需求/设计文档 → AI 理解 → CodeGraph 查询 → 设计方案(design.md) → 小步编码(tasks.md) → Review → 测试建议
 ```
 
 每一步的详细规则见 `references/methodology.md`。
@@ -24,8 +24,8 @@ SSD 固件开发的 AI 辅助技能包。提供 CodeGraph 优先的代码定位�
 ### 必须遵守
 
 1. **CodeGraph 先查再改**：修改任何代码前，必须先用 CodeGraph 查询影响范围
-2. **小任务原则**：每次 200~500 行，不扩大需求
-3. **设计方案确认门禁**：AI 输出设计方案后，必须包含「待人工确认清单」（架构假设、CodeGraph 影响完整性、更简方案），人工确认后才开始编码
+2. **小任务原则**：每次 200~500 行，不扩大需求。任务清单写入 `tasks.md`
+3. **设计方案确认门禁**：AI 输出设计方案后，必须产出 `design.md`（含 CodeGraph 查询结果、架构假设、更简方案），人工确认后才开始编码。模板见 `references/spec_workflow.md`
 
 ### CodeGraph 查询（必须使用）
 
@@ -63,6 +63,7 @@ cscope -d -L8 "header.h"   # 头文件包含
 | 方法论精要 | `references/methodology.md` | 核心原则、7步流程、分歧矩阵 |
 | 提示词库 | `references/prompt_library.md` | 需求/设计/编码/Review/测试提示词模板 |
 | 部署指南 | `references/deploy-guide.md` | CodeGraph + cscope + Graphify 部署步骤 |
+| 规格工作流 | `references/spec_workflow.md` | design.md + tasks.md 模板与使用规范 |
 
 ## 规则文件
 
