@@ -116,4 +116,4 @@ AI 在理解系统行为时，按以下优先级查询（从快到慢）：
 2. **CodeGraph** 局部验证 → 补充调用关系和依赖细节
 3. **代码** → 仅在基线与代码不一致或基线信息不足时
 
-> 门禁与归档规则详见 `rules/spec_rules.md`。
+> 门禁与归档规则详见 `.opencode/skills/sd-firmware-copilot/SKILL.md`。

@@ -27,8 +27,8 @@
 
 | 任务 | 状态 | 产出 |
 |------|------|------|
-| development Skill | ✅ | 含 CodeGraph + OpenSpec 流程 |
-| review Skill | ✅ | 含查证式验证 |
+| sd-firmware-copilot Skill | ✅ | 含 CodeGraph + OpenSpec 流程（development 已合并入 sd-firmware-copilot） |
+| review Skill | 🔲 | 含查证式验证（已合并入 sd-firmware-copilot） |
 | RAG 知识库建设 | 🔲 | 文档+代码向量化检索 |
 | 编译-修复闭环 | 🔲 | 自动编译→错误反馈→AI 修复 |
 
@@ -38,7 +38,7 @@
 |------|------|------|
 | 选择 3-5 个真实需求 | 🔲 | 接口层/命令处理类需求优先 |
 | 模拟器验证集成 | 🔲 | QEMU NVMe 模拟或 Test Harness |
-| 完整闭环跑通 | 🔲 | CodeGraph + Development + Review + 编译 + 模拟 |
+| 完整闭环跑通 | 🔲 | CodeGraph + sd-firmware-copilot + 编译 + 模拟 |
 | 收集度量数据 | 🔲 | 开发时间、Review 时间、问题数量 |
 
 ### Phase 5：持续优化 🔲 待做
@@ -55,7 +55,7 @@
 | 任务 | 状态 | 产出 |
 |------|------|------|
 | 部署 OpenSpec CLI v1.4.1 | ✅ | `npm install -g @fission-ai/openspec` |
-| 5 个 OpenSpec 适配 Skill | ✅ | `.opencode/skills/openspec-*/` |
+| OpenSpec 工作流 Skill | ✅ | `.opencode/skills/openspec-workflow/` |
 | openspec/ 目录初始化与迁移 | ✅ | `openspec/{changes,specs,config.yaml}` |
 | 5 个迁移 specs | ✅ | nvme-commands / ftl-mapping / nand-driver / error-handling / overview |
 

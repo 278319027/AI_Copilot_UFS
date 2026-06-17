@@ -11,13 +11,13 @@ Superpowers 三条铁律适用于**所有** AI 输出、跨越全部四个阶段
 
 本项目在 graphify-out/ 目录下有知识图谱，包含 god nodes、社区结构、跨文件关系。
 
-当用户输入 `/graphify` 时，先调用 `skill(name="graphify")`。
+当用户输入 `/graphify` 时，直接运行 graphify CLI 命令（graphify query/path/explain/update）。
 
 规则：
 - 对代码库问题，如果 graphify-out/graph.json 存在，优先运行 `graphify query "<问题>"`。使用 `graphify path "<A>" "<B>"` 查询关系，`graphify explain "<概念>"` 聚焦概念。
 - graphify-out/ 的脏文件是正常的（hooks 或增量更新导致）；不要因为 graph 文件脏而跳过 graphify。
-- 如果 graphify-out/wiki/index.md 存在，优先用它做广泛导航，而非直接浏览源码。
-- 仅在 query/path/explain 不足时，才读取 graphify-out/GRAPH_REPORT.md（用于广泛架构审查）。
+- 运行 graphify update . 后，如果 graphify-out/wiki/index.md 已生成，优先用它做广泛导航，而非直接浏览源码。
+- 运行 graphify update . 后，如果 graphify-out/GRAPH_REPORT.md 已生成，则仅在 query/path/explain 不足时才读取它（用于广泛架构审查）。
 - 修改代码后，运行 `graphify update .` 保持图谱最新（AST-only，无 API 成本）。
 
 ## openspec

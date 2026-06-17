@@ -10,7 +10,7 @@
 bash deploy_tools.sh /path/to/c-source
 
 # 2. 验证环境
-bash verify.sh    # 确认 6/6 通过
+bash verify.sh    # 确认 8/8 通过
 
 # 3. 选一条路径开始（在 OpenCode IDE 中）
 #    路径 A（有设计文档）→ /opsx:propose <change-name>
@@ -64,6 +64,6 @@ PLAN → BUILD → FEEDBACK: 同路径 A
 - **代码优先**：Source Code > Design Docs > Specs > Memory > Prompt
 - **小任务原则**：每次 200-500 行，不扩大需求
 - **修改前必查 CodeGraph**：确认影响范围
-- **三级门禁**：Proposal Gate → Design Gate → Review Gate
+- **四级门禁**：Proposal Gate → Design Gate → Review Gate → Archive
 - **三条铁律**：无失败测试不写实现 / 无根因不修 bug / 不验证不宣称完成
 - **AI 辅助不替代人**：人负责架构决策和风险判断

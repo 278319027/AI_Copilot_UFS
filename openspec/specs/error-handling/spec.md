@@ -160,3 +160,14 @@ The error handling layer MUST guarantee that no error condition is ever silently
 - **WHEN** the primary recovery strategy fails
 - **THEN** the layer MUST execute a defined fallback (e.g., retry with reduced parameters, mark block bad, switch to degraded mode)
 - **AND THEN** it MUST NOT return success without a completed and verified result
+
+### Requirement: Dependency Direction
+
+The error handling layer MUST depend only on the platform abstraction layer and the NAND driver's error reporting interface. It MUST NOT depend on FTL or NVMe command layer structures for its core error detection and recovery primitives.
+
+#### Scenario: No FTL or NVMe include in error handling core
+
+- **GIVEN** the error handling layer is being modified
+- **WHEN** an AI agent inspects the include graph
+- **THEN** there MUST be no `#include` of any FTL or NVMe layer header from the error handling core modules
+- **AND THEN** error handling functions MUST NOT take LBA, mapping table entries, or NVMe command structures as parameters for error detection primitives

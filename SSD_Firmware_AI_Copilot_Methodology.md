@@ -203,6 +203,7 @@ zsf/
 ├── opencode.json                      # OpenCode 配置（MCP + Graphify 插件）
 ├── deploy_tools.sh                    # 一键部署工具链
 ├── verify.sh                          # 一键健康检查（8 项）
+├── .gitignore
 ├── docs/
 │   ├── navigation.md                  # 项目导航（文件地图 + 按角色找入口）
 │   ├── roadmap.md                     # 实施路线图与指标
@@ -219,12 +220,11 @@ zsf/
 │       ├── openspec-workflow/         # OpenSpec 五阶段完整工作流
 │       └── sd-firmware-copilot/       # SSD 固件领域规则 + BUILD/FEEDBACK 编排
 │           └── SKILL.md               # 唯一主体文件
-└── graphify-out/                      # 知识图谱产物（自动生成，可供查询）
 ```
 
-*实际结构截至 2026-06-18。已删除模块（development/review/rules/references/commands/init.sh）均不在此树中。*
-└── .gitignore
-```
+*graphify-out/ 目录在首次运行 graphify update . 后自动生成*
+
+*实际结构截至 2026-06-18。已删除模块（development/review/rules/references/commands/knowledge-templates/specs-baseline/init.sh）均不在此树中。*
 
 ---
 

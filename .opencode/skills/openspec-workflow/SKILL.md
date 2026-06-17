@@ -43,7 +43,7 @@ OpenSpec CLI 把 SSD 固件的需求/设计/任务统一管理在 `openspec/spec
 **何时跳过某阶段：**
 - `explore` 是**可选的**思考阶段，可在 propose 之前/之后/之中自由使用
 - `sync` 可在 `apply` 完成后、`archive` 之前执行（archive 也会自动检查 sync 状态）
-- 单文件 bugfix 可跳过 propose，直接进入 apply（参见 `sd-firmware-copilot/rules/spec_rules.md`）
+- 单文件 bugfix 可跳过 propose，直接进入 apply（参见 `sd-firmware-copilot/SKILL.md`）
 
 ---
 
@@ -345,7 +345,7 @@ graphify explain "<概念>"
 
 ```bash
 # 跳过 propose，直接修复
-# （参考 sd-firmware-copilot/rules/spec_rules.md 中「单文件 bugfix 可跳过 Proposal Gate」）
+# （参考 sd-firmware-copilot/SKILL.md 中「单文件 bugfix 可跳过 Proposal Gate」）
 
 # 如需走 OpenSpec：propose + tasks 阶段
 /opsx:propose fix-ftl-race "修复 FTL mapping 阶段的竞态条件"
@@ -390,7 +390,7 @@ graphify explain "<概念>"
 
 ### 4. 跨阶段门禁
 
-- **Proposal Gate** → **Design Gate** → **Review Gate** → **Archive**：每变更必经（详见 `sd-firmware-copilot/rules/spec_rules.md`）
+- **Proposal Gate** → **Design Gate** → **Review Gate** → **Archive**：每变更必经（详见 `sd-firmware-copilot/SKILL.md`）
 - **不删 `openspec/changes/` 条目**——它们是审计追踪
 - **归档提交格式**：`chore(spec): archive {change-id}`
 
@@ -404,15 +404,14 @@ graphify explain "<概念>"
 
 - **`sd-firmware-copilot`**：顶层入口 + 规格层规则（`rules/spec_rules.md`）
 - **`superpowers`**：TDD / 根因调试 / 验证完成（apply 阶段必走）
-- **`development/skill`**：BUILD 薄适配器（可委托 superpowers）
-- **`review/skill`**：FEEDBACK 薄适配器（archive 前的代码审查）
+- **`sd-firmware-copilot/SKILL.md`**：BUILD/FEEDBACK 阶段的整合入口（superpowers 委托 + SSD 特定前后置步骤）
 - **`graphify` / `codegraph`**：KNOW 阶段的知识图谱与调用图（FEEDBACK 后用 `graphify update .` 更新）
 
 ---
 
 ## 工件模板与门禁流程
 
-阶段 1-5 描述「做什么、按什么顺序做」，本节提供「具体怎么写」——**zsf 域注入**、**模板示例**与**简化场景**。规则层面的权威定义（基线管理、增量格式、门禁清单的 checklist）见 `sd-firmware-copilot/rules/spec_rules.md`，避免重复。
+阶段 1-5 描述「做什么、按什么顺序做」，本节提供「具体怎么写」——**zsf 域注入**、**模板示例**与**简化场景**。规则层面的权威定义（基线管理、增量格式、门禁清单的 checklist）见 `sd-firmware-copilot/SKILL.md`，避免重复。
 
 ### 1. OpenSpec 目录布局
 
@@ -452,7 +451,7 @@ openspec/
 | Impact | 列出潜在影响模块：NVMe / FTL / NAND / 错误处理；用 CodeGraph 预查（callers/impact）记录关键调用链 |
 | 验收标准 | 每个验收点必须可在 review 阶段通过 `openspec validate --strict` + CodeGraph 查证 + 测试场景覆盖来核对 |
 
-**简化场景**（与 `spec_rules.md` §6.5 一致）：
+**简化场景**（与 `sd-firmware-copilot/SKILL.md` 一致）：
 
 | 变更类型 | 是否可跳过 proposal 人工评审 | 必需工件 |
 |---------|--------------------------|---------|
@@ -613,7 +612,7 @@ openspec show <capability>
 
 ### 7. 三级门禁衔接点（OpenSpec CLI）
 
-OpenSpec CLI 命令在门禁流程中的衔接点（与 `spec_rules.md` §5 互补，具体人工 checklist 见 `spec_rules.md`）：
+openSpec CLI 命令在门禁流程中的衔接点（与 `sd-firmware-copilot/SKILL.md` 互补，具体人工 checklist 见 `spec_rules.md`）：
 
 | 阶段 | OpenSpec 命令 | 触发点 | 通过后 |
 |------|--------------|--------|--------|
@@ -627,7 +626,7 @@ OpenSpec CLI 命令在门禁流程中的衔接点（与 `spec_rules.md` §5 互�
 
 - **Step 1**（已完成）：引入 design.md + tasks.md 两个手刻工件。
 - **Step 2**（已完成）：引入 proposal.md + review.md + specs/ 增量手刻工件。
-- **Step 3**（当前）：迁移到 OpenSpec CLI——手刻工件模板移除，全部由 `/opsx:propose` / `/opsx:apply` / `/opsx:archive` 生成；旧 `.openspec/proposals/` 与 `.openspec/specs/baseline/` 目录保留作为历史。
+- **Step 3**（当前）：迁移到 OpenSpec CLI——手刻工件模板移除，全部由 `/opsx:propose` / `/opsx:apply` / `/opsx:archive` 生成；旧 `.openspec/proposals/` 与 `.openspec/specs/baseline/` 目录已清理。
 - **Step 4**（已完成）：5 个 baseline specs（ssd-firmware-overview / nvme-commands / ftl-mapping / nand-driver / error-handling）从 `.opencode/skills/sd-firmware-copilot/specs/baseline/` 迁移到 `openspec/specs/<capability>/spec.md`，全部通过 `openspec validate --strict`。
 - **向后兼容**：未使用 OpenSpec CLI 的旧手刻变更仍可走 `.openspec/proposals/` 流程；所有新变更**必须**走 OpenSpec CLI。
 - **渐进采用**：简单 bugfix 可使用 `/opsx:propose` 一次性生成 4 个工件；跨模块变更必须按 Proposal / Design / Review 三级门禁逐项校验。

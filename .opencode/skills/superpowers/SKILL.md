@@ -77,10 +77,6 @@ violating the spirit.
 3. Superpowers plugin (obra/superpowers, if installed)
 ```
 
-Project skills override any identically-named skill in the Superpowers plugin. That is
-why the development and review skills in this project (`.opencode/skills/development/`
-and `.opencode/skills/review/`) are kept as **thin adapters** that delegate to the
-relevant Superpowers skill and then add SSD-specific pre/post steps.
 
 ## How to invoke
 
@@ -96,14 +92,7 @@ and its rules are in force for the duration of the work.
 
 ## Adapters (delegating to Superpowers)
 
-The following project skills delegate to this bundle:
-
-- `.opencode/skills/development/skill.md` — delegates to
-  `executing-plans` + `subagent-driven-development` + `test-driven-development` +
-  `verification-before-completion`, and adds CodeGraph + OpenSpec pre/post steps.
-- `.opencode/skills/review/skill.md` — delegates to
-  `requesting-code-review` + `receiving-code-review`, and adds SSD-specific review
-  checks (concurrency, NVMe error handling, specs/ delta consistency).
+The sole integrating skill is `.opencode/skills/sd-firmware-copilot/SKILL.md`, which delegates to the relevant Superpowers sub-skills and adds SSD-specific pre/post steps.
 
 ## Origin and license
 

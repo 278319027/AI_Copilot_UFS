@@ -175,7 +175,7 @@ typedef struct {
 
 ## 7. 设计方案确认门禁（三级）
 
-三级门禁（Proposal Gate → Design Gate → Review Gate）的权威定义、校验命令、checklist 和简化豁免规则统一在 `.opencode/skills/sd-firmware-copilot/rules/spec_rules.md` §5（门禁）+ §6.5（简化规则）。本节仅给出一句话流程摘要，详细规则请跳转。
+三级门禁（Proposal Gate → Design Gate → Review Gate）的权威定义、校验命令、checklist 和简化豁免规则统一在 `.opencode/skills/sd-firmware-copilot/SKILL.md`。本节仅给出一句话流程摘要，详细规则请跳转。
 
 **流程摘要**：
 
@@ -183,4 +183,4 @@ typedef struct {
 - **Design Gate**（架构 OK）：design.md + tasks.md 完成后 → 校验同上 + 7 项人工确认清单（参见 `openspec-workflow/SKILL.md` §4.3「待人工确认清单」）
 - **Review Gate**（代码匹配 spec）：编码 + Review 后 → 校验同上 + 11 项 Review 检查（参见 `openspec-workflow/SKILL.md` §6「Review 检查项」）
 
-**简化豁免**：单文件 bugfix / 文档变更 / 配置变更 / 跨模块变更的处理见 `spec_rules.md` §6.5。
+**简化豁免**：单文件 bugfix / 文档变更 / 配置变更 / 跨模块变更的处理见 `.opencode/skills/sd-firmware-copilot/SKILL.md`。

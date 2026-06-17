@@ -8,7 +8,7 @@ Define the top-level system architecture, module layering, and cross-module cont
 
 ### Requirement: Layered Architecture
 
-The firmware SHALL organize code into four canonical layers, with strict downward dependencies and no upward or lateral coupling.
+The firmware MUST organize code into four canonical layers, with strict downward dependencies and no upward or lateral coupling.
 
 The layering order from top to bottom is:
 - NVMe command layer (handles host commands)
@@ -36,7 +36,7 @@ The layering order from top to bottom is:
 
 ### Requirement: Public Interface Boundaries
 
-Each layer SHALL expose a narrow, well-documented public interface. Internal helpers, context structures, and platform-specific code MUST remain private to the layer.
+Each layer MUST expose a narrow, well-documented public interface. Internal helpers, context structures, and platform-specific code MUST remain private to the layer.
 
 #### Scenario: NVMe public interface
 

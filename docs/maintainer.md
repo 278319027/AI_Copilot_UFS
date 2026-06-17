@@ -23,13 +23,15 @@ bash deploy_tools.sh /path/to/your/c/source
 # 2. 一键健康检查
 bash verify.sh
 
-# 3. 确认 6/6 通过
-#   [1/6] OpenSpec specs validation
-#   [2/6] CodeGraph MCP config
-#   [3/6] Graphify plugin
-#   [4/6] Memory rules (6 files)
-#   [5/6] Deploy scripts syntax
-#   [6/6] Essential tools on PATH
+# 3. 确认 8/8 通过
+#   [1/8] OpenSpec specs validation
+#   [2/8] CodeGraph MCP config
+#   [3/8] Graphify plugin
+#   [4/8] Memory rules (6 files present)
+#   [5/8] deploy_tools.sh syntax
+#   [6/8] Essential tools on PATH
+#   [7/8] Memory rules format (6 files)
+#   [8/8] openspec/config.yaml
 ```
 
 ## 日常操作
@@ -54,7 +56,6 @@ Skill 是 `.opencode/skills/` 下的目录，标准结构：
 ```
 .opencode/skills/your-skill/
 ├── SKILL.md          # 入口：description + 触发条件 + 工作流
-├── references/       # 模板、范例、部署指南
 └── rules/            # 领域规则（可选）
 ```
 
