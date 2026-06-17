@@ -13,6 +13,16 @@
 #
 # 注：Superpowers 是项目级 Skill 集（.opencode/skills/superpowers/），
 #     随 zsf 仓库分发，不需本脚本安装。详见 .opencode/skills/superpowers/SKILL.md。
+# ------------------------------------------------------------
+# 工具链分工 / C 语言限制（合并自原 references/deploy-guide.md）
+# ------------------------------------------------------------
+# 前置要求: Linux/macOS, sudo 权限 (apt-get), 网络可达 npm/crates.io
+# 覆盖模型: codegraph 80% (函数级调用图) + cscope 15% (函数指针/宏) + doxygen 5% (可视化)
+# 工具分工: codegraph=调用图/影响 | cscope=函数指针/宏 | graphify=知识图谱 | doxygen=HTML 架构
+# C 语言静态解析盲区 (tree-sitter):
+#   函数指针调用 → cscope -d -L2/-L3 | 宏使用 → cscope -d -L4 | #ifdef → Doxyfile PREDEFINED
+# MCP 集成: opencode.json 键为 `mcp` (非 mcpServers)，`command` 必须是数组
+# ------------------------------------------------------------
 
 set -e
 

@@ -115,8 +115,6 @@ cscope -d -L8 "header.h"   # 头文件包含
 | 文档 | 路径 | 内容 |
 |------|------|------|
 | 方法论精要 | `../../SSD_Firmware_AI_Copilot_Methodology.md` | 核心原则、7步流程、分歧矩阵 |
-| 提示词库 | `references/prompt_library.md` | 需求/设计/编码/Review/测试提示词模板 |
-| 部署指南 | `references/deploy-guide.md` | CodeGraph + cscope + Graphify 部署步骤 |
 | 规格工作流 | `references/spec_workflow.md` | proposal.md + specs/ + design.md + tasks.md + review.md + 归档模板与规范 |
 
 ## 规则文件

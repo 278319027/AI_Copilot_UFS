@@ -111,7 +111,6 @@ bash .opencode/skills/sd-firmware-copilot/init.sh  # 部署规则和知识模板
 | 3 | [工程纪律](./.opencode/skills/superpowers/SKILL.md) | TDD / 根因调试 / 验证完成 铁律 |
 | 4 | [规格工作流](./.opencode/skills/sd-firmware-copilot/references/spec_workflow.md) | proposal/design/tasks/review 模板 |
 | 5 | [规格层规则](./.opencode/skills/sd-firmware-copilot/rules/spec_rules.md) | 基线管理、增量格式、三级门禁 |
-| 6 | [CodeGraph 部署](./.opencode/skills/sd-firmware-copilot/references/deploy-guide.md) | 安装、配置、MCP 集成 |
 
 ## 核心原则
 

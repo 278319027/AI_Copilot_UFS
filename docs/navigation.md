@@ -28,7 +28,7 @@
 |---------|------|---------------|
 | **新人**（了解项目） | [README.md](../README.md) | [SSD_Firmware_AI_Copilot_Methodology.md](../SSD_Firmware_AI_Copilot_Methodology.md) → [docs/roadmap.md](roadmap.md) |
 | **贡献者**（修改 Skill/Rule/Spec） | `.opencode/memory/`（6 个规则文件）→ `openspec/specs/`（基线规格）→ `.opencode/skills/`（技能包） | 跑 `bash .opencode/skills/sd-firmware-copilot/init.sh` 验证环境 |
-| **工具部署者**（搭环境） | `deploy_tools.sh` | `.opencode/skills/sd-firmware-copilot/references/deploy-guide.md`（CodeGraph + cscope 部署） |
+| **工具部署者**（搭环境） | `deploy_tools.sh` | `deploy_tools.sh` 头部注释（工具链分工 / C 语言限制） |
 | **AI 代理**（执行任务） | [AGENTS.md](../AGENTS.md) | 不要读本文档——`AGENTS.md` 才是给你的 |
 
 ## 关键目录速查
