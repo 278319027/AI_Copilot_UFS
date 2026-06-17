@@ -1,6 +1,7 @@
 #!/bin/bash
 # sd-firmware-copilot init.sh — 一次性初始化脚本
-# 将规则、知识模板部署到项目的 .opencode/ 目录，并初始化 OpenSpec
+# 将知识模板部署到项目的 .opencode/ 目录，并初始化 OpenSpec
+# 规则文件（architecture.md 等）已内置在 .opencode/memory/ 中，无需额外复制
 set -e
 
 SKILL_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -12,22 +13,23 @@ echo "=== SSD Firmware AI Copilot 初始化 ==="
 echo "项目根目录: $PROJECT_ROOT"
 echo ""
 
-# 1. 复制规则文件到 memory/
-echo "--- [1/6] 部署规则文件 ---"
-mkdir -p "$MEMORY_DIR"
+# 1. 确认规则文件就位
+echo "--- [1/5] 确认规则文件 ---"
+MISSING_RULES=0
 for rule in architecture.md concurrency_rules.md coding_style.md design_rules.md review_rules.md testing_rules.md; do
-    if [ -f "$SKILL_DIR/rules/$rule" ]; then
-        if [ -f "$MEMORY_DIR/$rule" ]; then
-            echo "  ⚠ $rule 已存在，跳过（如需覆盖，使用 --update-rules）"
-        else
-            cp "$SKILL_DIR/rules/$rule" "$MEMORY_DIR/$rule"
-            echo "  ✓ $rule"
-        fi
+    if [ -f "$MEMORY_DIR/$rule" ]; then
+        echo "  ✓ $rule"
+    else
+        echo "  ✗ $rule 缺失"
+        MISSING_RULES=$((MISSING_RULES + 1))
     fi
 done
+if [ $MISSING_RULES -gt 0 ]; then
+    echo "  ⚠ 有 $MISSING_RULES 个规则文件缺失，请检查"
+fi
 
 # 2. 复制知识模板到 knowledge/
-echo "--- [2/6] 部署知识模板 ---"
+echo "--- [2/5] 部署知识模板 ---"
 echo "（芯片特定值需要手动填写，模板中标记为 TBD）"
 mkdir -p "$KNOWLEDGE_DIR"
 for dir in nand_controller nvme_spec platform; do
@@ -55,7 +57,7 @@ fi
 
 # 3. 配置 CodeGraph MCP
 echo ""
-echo "--- [3/6] 配置 CodeGraph MCP ---"
+echo "--- [3/5] 配置 CodeGraph MCP ---"
 OPENCODE_JSON="$PROJECT_ROOT/opencode.json"
 if [ -f "$OPENCODE_JSON" ]; then
     echo "  opencode.json 已存在"
@@ -73,7 +75,7 @@ fi
 
 # 4. 检查工具链（CodeGraph + cscope + OpenSpec）
 echo ""
-echo "--- [4/6] 工具链检查 ---"
+echo "--- [4/5] 工具链检查 ---"
 TOOLS_OK=true
 if command -v codegraph &>/dev/null; then
     echo "  ✓ codegraph: $(codegraph --version 2>&1 | head -1)"
@@ -108,14 +110,13 @@ else
     echo "请安装缺失的工具后重新运行"
 fi
 
-# 5. 初始化 OpenSpec（openspec/ 目录 + OpenCode 集成）
+# 5. 初始化 OpenSpec + 验证基线 specs
 echo ""
-echo "--- [5/6] 初始化 OpenSpec 目录 ---"
+echo "--- [5/5] 初始化 OpenSpec ---"
 if command -v openspec &>/dev/null; then
     OPENSPEC_DIR="$PROJECT_ROOT/openspec"
     if [ -d "$OPENSPEC_DIR" ]; then
         echo "  ⚠ openspec/ 已存在，跳过"
-        echo "  提示: 重新初始化: cd $PROJECT_ROOT && openspec init --tools opencode --force"
     else
         echo "  → 运行 openspec init ..."
         if (cd "$PROJECT_ROOT" && OPENSPEC_TELEMETRY=0 openspec init --tools opencode --force 2>&1 | tail -20); then
@@ -134,9 +135,7 @@ else
     echo "  安装后重新运行本脚本"
 fi
 
-# 6. 复制基线 specs 到 openspec/specs/（如不存在）
-echo ""
-echo "--- [6/6] 验证基线 specs ---"
+# 验证基线 specs
 OPENSPEC_SPECS_DIR="$PROJECT_ROOT/openspec/specs"
 if [ -d "$OPENSPEC_SPECS_DIR" ]; then
     SPEC_COUNT=0
@@ -145,20 +144,15 @@ if [ -d "$OPENSPEC_SPECS_DIR" ]; then
             echo "  ✓ $spec_cap/"
             SPEC_COUNT=$((SPEC_COUNT + 1))
         else
-            echo "  ⚠ $spec_cap/ 缺失，建议运行:"
-            echo "      openspec new spec $spec_cap"
+            echo "  ⚠ $spec_cap/ 缺失，建议运行: openspec new spec $spec_cap"
         fi
     done
     echo ""
     echo "  当前共 $SPEC_COUNT/5 个基线 specs"
     if command -v openspec &>/dev/null; then
         echo "  → 校验基线: openspec validate --strict --specs"
-        if (cd "$PROJECT_ROOT" && OPENSPEC_TELEMETRY=0 openspec validate --strict --specs 2>&1 | tail -10); then
-            :
-        fi
+        (cd "$PROJECT_ROOT" && OPENSPEC_TELEMETRY=0 openspec validate --strict --specs 2>&1 | tail -10) || true
     fi
-else
-    echo "  ⚠ openspec/specs/ 不存在，请先执行 [5/6] 步"
 fi
 
 echo ""
@@ -170,18 +164,6 @@ echo "快速入门:"
 echo "  1. 启动 OpenCode，在 IDE 中使用 /opsx:propose \"<你的想法>\""
 echo "  2. 查看进行中的变更: openspec list"
 echo "  3. 验证所有 spec: openspec validate --strict --all"
-echo "  4. 查看规范工作流: references/spec_workflow.md"
-
-
-# --update-rules 选项处理
-if [ "${1:-}" = "--update-rules" ]; then
-    echo ""
-    echo "--- 强制更新规则文件 ---"
-    for rule in architecture.md concurrency_rules.md coding_style.md design_rules.md review_rules.md testing_rules.md; do
-        if [ -f "$SKILL_DIR/rules/$rule" ]; then
-            cp "$SKILL_DIR/rules/$rule" "$MEMORY_DIR/$rule"
-            echo "  ✓ $rule (已覆盖)"
-        fi
-    done
-    echo "规则文件已更新。知识模板和配置未覆盖（可能包含项目特定值）。"
-fi
+echo "  4. 查看规范工作流: .opencode/skills/sd-firmware-copilot/references/spec_workflow.md"
+echo ""
+echo "  规则文件位于: .opencode/memory/（可直接编辑）"

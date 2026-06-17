@@ -146,7 +146,7 @@ The FTL MUST allocate a new PBA from the SLC region when possible, or from TLC w
 ### 3.3 zsf 域规范（与 OpenSpec 一致 + 域增强）
 
 - **规范词**：使用 SHALL / MUST，**避免** should / may
-- **可验证性**：每个 Scenario 必须是潜在测试用例（参见 `rules/testing_rules.md`）
+- **可验证性**：每个 Scenario 必须是潜在测试用例（参见 `.opencode/memory/testing_rules.md`）
 - **不写代码**：delta 描述「系统做什么」，不描述「代码怎么写」
 - **可追溯性**：每条 delta 对应一个或多个 `tasks.md` 中的任务项
 - **基线查询**：写 delta 前先读 `openspec/specs/<capability>/spec.md` 确认基线行为，避免无谓的 MODIFIED
@@ -226,7 +226,7 @@ design.md 必须包含以下清单，人工逐条确认才能进入 Coding 阶�
 |------|------|
 | 任务粒度 | 每个任务 200-500 行（与 zsf 小任务原则一致） |
 | 依赖 | 任务间依赖关系显式标注（前序任务 ID） |
-| 可独立验证 | 每个任务必须有自己的测试场景（参见 `rules/testing_rules.md`） |
+| 可独立验证 | 每个任务必须有自己的测试场景（参见 `.opencode/memory/testing_rules.md`） |
 | 不扩大需求 | 任务清单严格对应 proposal.md 中的 What Changes；不接受范围蔓延 |
 | 与 spec 增量对应 | 每个任务项至少对应一条 `specs/` delta 中的 Scenario |
 

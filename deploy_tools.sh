@@ -288,7 +288,7 @@ echo "    graphviz   — $(dot -V 2>&1 | head -1 || echo 'N/A')  [KNOW]"
 echo "    graphify   — $(graphify --version 2>&1 | head -1 | awk '{print $NF}' || echo 'N/A')  [KNOW/FEEDBACK]"
 echo "    graphify-out/   — 知识图谱 (graph.json + graph.html)"
 echo "    openspec   — $(openspec --version 2>&1 | head -1 | awk '{print $NF}' || echo '需手动安装')  [PLAN/FEEDBACK]"
-echo "    openspec/  — 规格仓库 (config.yaml + changes/ + specs/baseline/)"
+echo "    openspec/  — 规格仓库 (config.yaml + changes/ + specs/)"
 echo ""
 echo "  项目级 Skill（随 zsf 仓库分发，无需部署）:"
 SP_COUNT=$(ls -1 .opencode/skills/superpowers/ 2>/dev/null | grep -v '^SKILL.md$' | wc -l)

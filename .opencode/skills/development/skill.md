@@ -42,7 +42,7 @@ and adds the SSD-firmware-specific pre/post steps on top.
 
 - 模块设计文档
 - 相关源文件
-- 相关规则文件（`.opencode/memory/` + `sd-firmware-copilot/rules/`）
+- 相关规则文件（`.opencode/memory/`）
 - 相关调用关系 ← through CodeGraph MCP
 - `specs/baseline/` ← 当前行为基线（查询优先级：基线 → CodeGraph → 代码）
 

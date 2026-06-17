@@ -123,13 +123,13 @@ cscope -d -L8 "header.h"   # 头文件包含
 
 | 规则 | 路径 | 核心内容 |
 |------|------|----------|
-| 分层架构 | `rules/architecture.md` | 层级规则 + CodeGraph 查询规则 + Agent 配置 |
-| 并发安全 | `rules/concurrency_rules.md` | volatile/ISR/锁/DMA/原子/多核 |
-| 编码风格 | `rules/coding_style.md` | C 语言规范、命名、注释 |
-| 设计规则 | `rules/design_rules.md` | 状态机/Context/资源管理/三级门禁体系 |
+| 分层架构 | `.opencode/memory/architecture.md` | 层级规则 + CodeGraph 查询规则 + Agent 配置 |
+| 并发安全 | `.opencode/memory/concurrency_rules.md` | volatile/ISR/锁/DMA/原子/多核 |
+| 编码风格 | `.opencode/memory/coding_style.md` | C 语言规范、命名、注释 |
+| 设计规则 | `.opencode/memory/design_rules.md` | 状态机/Context/资源管理/三级门禁体系 |
 | 规格规则 | `rules/spec_rules.md` | 基线管理/增量格式/三级门禁/归档合并 |
-| 规则审查 | `rules/review_rules.md` | Review 检查项 + SSD 专项 |
-| 测试规则 | `rules/testing_rules.md` | 测试框架 + 测试场景清单（强制） |
+| 规则审查 | `.opencode/memory/review_rules.md` | Review 检查项 + SSD 专项 |
+| 测试规则 | `.opencode/memory/testing_rules.md` | 测试框架 + 测试场景清单（强制） |
 
 ## 知识模板
 

@@ -43,7 +43,7 @@ review checks on top.
 - `design.md` ← CodeGraph 查询结果已持久化于此
 - 变更 diff (`git diff BASE_SHA HEAD_SHA`)
 - 相关源代码
-- 规则文件（`.opencode/memory/` + `sd-firmware-copilot/rules/`）
+- 规则文件（`.opencode/memory/`）
 
 ## 输出
 
