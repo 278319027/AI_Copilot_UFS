@@ -35,7 +35,7 @@ and adds the SSD-firmware-specific pre/post steps on top.
   `executing-plans` for sequential plans, `brainstorming` for new features, and
   `systematic-debugging` for any bug. Subagents must follow `test-driven-development`
   and `verification-before-completion`.
-- **Post-execution (SSD-specific):** produce `design.md`, `tasks.md`, `review.md`,
+- **Post-execution (SSD-specific):** produce `design.md`, `tasks.md`, `review.md` (delegated to Superpowers `requesting-code-review`),
   verify that the code change matches the `specs/` increment (ADDED/MODIFIED/REMOVED).
 
 ## 输入
@@ -55,7 +55,7 @@ and adds the SSD-firmware-specific pre/post steps on top.
 4. `design.md` → 设计方案 + CodeGraph 查询结果 + 待确认清单
 5. `tasks.md` → 编码清单（200–500 行/任务，与 Superpowers 粒度兼容）
 6. 代码实现（由 `subagent-driven-development` 调度）
-7. `review.md` → 查证式 Review + 增量核对表
+7. `review.md` → 查证式 Review + 增量核对表（由 Review Skill 委派到 Superpowers `requesting-code-review` 产出）
 
 ## 标准流程
 
@@ -79,9 +79,9 @@ and adds the SSD-firmware-specific pre/post steps on top.
    ↓                                                                   │
 5. 查证式 Review ← 对照 design.md + specs/ 增量 ─────────────────────┘
    ↓
-6. 产出 review.md（含 specs/ 增量核对表）
+6. 产出 review.md（delegated to Superpowers `requesting-code-review`，含 specs/ 增量核对表）
    ↓
-7. 归档 → specs/ 增量合并到 baseline，`chore(spec): merge {change-id} into baseline`
+7. 归档 → specs/ 增量合并到 baseline，`chore(spec): archive {change-id}`
 ```
 
 ## CodeGraph 查询步骤（Pre-execution，强制）

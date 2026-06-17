@@ -126,7 +126,7 @@ AI 负责：
 3. **NO FIXES WITHOUT ROOT CAUSE INVESTIGATION**（无根因调查不修 bug）
    - 任何 bug / 失败必须先用 `systematic-debugging` Skill 完成根因调查，证据可追溯
    - 禁止凭直觉打补丁；禁止"试一下"多次重试
-   - 输出：根因 + 证据 + 修复方案 + 回归测试，全部进入 review.md
+   - 输出：根因 + 证据 + 修复方案 + 回归测试，全部进入 review.md（由 Review Skill 委派到 Superpowers requesting-code-review 产出）
 
 附加铁律：
 
@@ -430,28 +430,28 @@ openspec/
 ├── changes/                   ← 活跃变更
 │   └── {change-id}/
 │       ├── proposal.md         ← 为什么做、做什么
-│       ├── specs/              ← 行为变更增量
-│       │   ├── ADDED.md
-│       │   ├── MODIFIED.md
-│       │   └── REMOVED.md
 │       ├── design.md           ← 怎么做（含 CodeGraph 查询）
-│       ├── tasks.md            ← 实现清单
-│       └── review.md           ← Review 记录
-└── specs/                      ← 基线规格
-    └── baseline/               ← 活规格基线
-        ├── README.md
-        ├── nvme-commands.md
-        ├── ftl-mapping.md
-        ├── nand-driver.md
-        └── error-handling.md
+│       └── tasks.md            ← 实现清单
+└── specs/                      ← 基线规格（每个 capability 一份 spec.md）
+    ├── ssd-firmware-overview/
+    │   └── spec.md
+    ├── nvme-commands/
+    │   └── spec.md
+    ├── ftl-mapping/
+    │   └── spec.md
+    ├── nand-driver/
+    │   └── spec.md
+    └── error-handling/
+        └── spec.md
 ```
 
+> 增量格式：变更提案时在 `<capability>/spec.md` 内追加 `## ADDED Requirements` / `## MODIFIED Requirements` / `## REMOVED Requirements` 三个二级标题段，**不再使用独立 ADDED.md / MODIFIED.md / REMOVED.md 文件**。
 #### 规格层价值
 
 1. **当前行为权威描述**：基线文件描述系统实际行为，AI 查询优先级：基线 → CodeGraph → 代码
-2. **行为变更追溯**：每次变更的 specs/ 增量（ADDED/MODIFIED/REMOVED）持久化行为变化
+2. **行为变更追溯**：每次变更在 `specs/<capability>/spec.md` 内追加 ADDED/MODIFIED/REMOVED Requirements 段，持久化行为变化
 3. **三级门禁联动**：Proposal Gate → Design Gate → Review Gate，每级有明确的输入和检查项
-4. **审计历史保留**：`openspec/changes/` 目录不删除，每次归档产生 `chore(spec): merge` commit
+4. **审计历史保留**：`openspec/changes/` 目录不删除，每次归档产生 `chore(spec): archive` commit
 
 #### OpenSpec Skill 适配器
 
@@ -619,9 +619,9 @@ Step 9  归档       [FEED]   /opsx:archive + graphify update .
   │
   ▼
 [FEEDBACK] Step 5: /opsx:archive "<change-id>"
-  │  specs/ 增量合并到 openspec/specs/baseline/
+  │  specs/ 增量合并到 openspec/specs/
   │  graphify update .（AST-only）
-  │  commit: chore(spec): merge
+  │  commit: chore(spec): archive
   │
   ▼
 [FEEDBACK] Step 6: 人工确认 + 提交
@@ -631,9 +631,9 @@ Step 9  归档       [FEED]   /opsx:archive + graphify update .
 
 | 阶段 | OpenSpec 命令 | 产物 | 门禁 |
 |------|---------------|------|------|
-| PLAN | `/opsx:propose` | `openspec/changes/{id}/{proposal,design,tasks}.md` + `specs/{ADDED,MODIFIED,REMOVED}.md` | Proposal Gate + Design Gate |
+| PLAN | `/opsx:propose` | `openspec/changes/{id}/{proposal,design,tasks}.md` + 受影响 `specs/<capability>/spec.md` 的 ADDED/MODIFIED/REMOVED Requirements 段 | Proposal Gate + Design Gate |
 | BUILD | `/opsx:apply` | 代码 + 测试 | 任务 checklist 逐项完成 |
-| FEEDBACK | `/opsx:archive` | `openspec/specs/baseline/` 更新 + `chore(spec): merge` commit | Review Gate |
+| FEEDBACK | `/opsx:archive` | `openspec/specs/` 更新 + `chore(spec): archive` commit | Review Gate |
 | KNOW（探索） | `/opsx:explore` | 探索性变更（不归档） | — |
 | FEEDBACK（同步） | `/opsx:sync` | 未走 OpenSpec 流程的隐含变更同步到 baseline | — |
 
@@ -719,7 +719,7 @@ Superpowers 铁律（强制）：
 
 ### 6.5 Review
 
-命令：人工 + Superpowers + Review Skill 协同，产出 `openspec/changes/{id}/review.md`。
+命令：人工 + Superpowers + Review Skill 协同，产出 `review.md`（不再手写，由 Review Skill 作为薄适配层委派到 Superpowers `requesting-code-review` 产出）。
 
 Superpowers 铁律（强制）：
 
@@ -885,12 +885,12 @@ AI Agent 的上下文窗口有限，必须主动管理：
 | 任务 | 状态 | 产出 |
 |------|------|------|
 | 引入 design.md + tasks.md | ✅ 完成 | Step 1 |
-| 引入 proposal.md + review.md（查证式） | ✅ 完成 | Step 2 |
+| 引入 proposal.md + review.md（查证式，由 Review Skill 委派到 Superpowers requesting-code-review） | ✅ 完成 | Step 2 |
 | 引入 specs/ 增量 + baseline + 归档 | ✅ 完成 | Step 3 |
 | 部署 OpenSpec CLI v1.4.1 | ✅ 完成 | `npm install -g @fission-ai/openspec` |
 | 5 个 OpenSpec 适配 Skill | ✅ 完成 | `.opencode/skills/openspec-*/` |
 | openspec/ 目录初始化与迁移 | ✅ 完成 | `openspec/{changes,specs,config.yaml}` |
-| 5 个迁移 specs（nvme/ftl/nand/error） | ✅ 完成 | `openspec/specs/baseline/` |
+| 5 个迁移 specs（nvme/ftl/nand/error） | ✅ 完成 | `openspec/specs/` |
 
 ### Phase 7：Superpowers + 四工具架构升级（升级期） ✅ 已完成
 
@@ -936,7 +936,7 @@ AI 系统关注五类信息 + 四件套工具：
 
 ```text
 规格 (PLAN/FEEDBACK)
--> openspec/specs/baseline/   (系统当前行为的权威描述)
+-> openspec/specs/   (系统当前行为的权威描述)
 -> openspec/changes/{id}/     (行为变更增量 + 工件)
 
 设计
@@ -973,11 +973,11 @@ AI 系统关注五类信息 + 四件套工具：
   ↓          Superpowers TDD / systematic-debugging / executing-plans
   ↓          → 代码 + 测试
   ↓ [BUILD]  Superpowers verification-before-completion + requesting-code-review
-  ↓          → review.md（查证式）
+  ↓          → review.md（查证式，via Superpowers requesting-code-review）
   ↓          → Review Gate
-  ↓ [FEEDBACK] /opsx:archive ─► specs/ 增量合并到 openspec/specs/baseline/
+  ↓ [FEEDBACK] /opsx:archive ─► specs/ 增量合并到 openspec/specs/
   ↓          graphify update .（AST-only）
-  ↓          commit: chore(spec): merge
+  ↓          commit: chore(spec): archive
   ↓ [FEEDBACK] 人工确认 + 提交
   → 回到 KNOW（带着更新后的 baseline）
 ```
@@ -1006,7 +1006,7 @@ AI 系统关注五类信息 + 四件套工具：
 | 文档版本绑定 | `design.md` | CodeGraph 查询结果 + 设计假设随 design.md Git 版本化 |
 | 变更粒度约束 | `tasks.md` | 200-500 行/任务的粒度约束固化在 tasks.md 模板中 |
 | 验收标准模板 | `design.md` | 「待人工确认清单」字段即为验收标准 |
-| 失败回退 | `review.md` | 归档合并建议含回滚点（Step 2 引入 review.md） |
+| 失败回退 | `review.md`（via Superpowers requesting-code-review） | 归档合并建议含回滚点（Step 2 引入 review.md） |
 
 > 详见 `.opencode/skills/sd-firmware-copilot/references/spec_workflow.md`
 
@@ -1036,11 +1036,11 @@ zsf 原有 4 大核心组成（Source Code、CodeGraph、Docs、Memory）缺乏�
 
 | 机制 | 说明 | zsf 落地点 |
 |------|------|----------|
-| Living spec baseline | 系统当前行为的权威描述 | `specs/baseline/` 目录 |
-| Delta spec tracking | 每次变更的行为增量 | `proposals/{id}/specs/`（ADDED/MODIFIED/REMOVED） |
+| Living spec baseline | 系统当前行为的权威描述 | `openspec/specs/<capability>/spec.md` |
+| Delta spec tracking | 每次变更的行为增量 | `openspec/changes/{id}/{capability}/spec.md` 内 ADDED/MODIFIED/REMOVED Requirements 段 |
 | Staged review gates | 三级门禁（Proposal/Design/Review） | design_rules.md §7 + spec_rules.md §5 |
-| Persistent change artifacts | 所有变更工件 Git 版本化 | `.openspec/` 全部文件 |
-| Archive & spec merging | Review 通过后增量合并到基线 | `chore(spec): merge` commit |
+| Persistent change artifacts | 所有变更工件 Git 版本化 | `openspec/` 全部文件 |
+| Archive & spec merging | Review 通过后增量合并到基线 | `chore(spec): archive` commit |
 
 ### 13.3 工具依赖（Phase 1 升级后）
 
@@ -1062,7 +1062,7 @@ CLI 工具层与 CLI 适配层提供**可机检一致性**（proposal 校验 / t
 | 步骤 / Phase | 内容 | 状态 |
 |--------------|------|------|
 | Step 1 | 引入 design.md + tasks.md | ✅ 完成 |
-| Step 2 | 引入 proposal.md + review.md（查证式） | ✅ 完成 |
+| Step 2 | 引入 proposal.md + review.md（查证式，via Superpowers requesting-code-review） | ✅ 完成 |
 | Step 3 | 引入 specs/ 增量 + baseline + 归档 | ✅ 完成 |
 | **Phase 1** | **部署 OpenSpec CLI v1.4.1 + 5 个适配 Skill + openspec/ 迁移** | ✅ 完成 |
 | **Phase 2** | **部署 Superpowers（10 子技能）+ 升级为四工具架构** | ✅ 完成（当前） |
@@ -1080,5 +1080,5 @@ CLI 工具层与 CLI 适配层提供**可机检一致性**（proposal 校验 / t
 |------|------|
 | `rules/spec_rules.md` | 规格层规则（基线管理、增量格式、三级门禁、归档） |
 | `references/spec_workflow.md` | 全部工件模板与使用规范（proposal/specs/design/tasks/review/archive） |
-| `specs/baseline/README.md` | 基线索引与填充状态 |
+| `openspec/specs/` | 基线索引与填充状态（按 capability 子目录组织） |
 | `.omo/plans/openspec-integration-plan.md` | 完整集成方案与设计决策 |

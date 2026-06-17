@@ -13,7 +13,7 @@
 | **方法论平台** | `SSD_Firmware_AI_Copilot_Methodology.md` + `.opencode/`（memory/knowledge/skills） | 固件开发团队的 AI 工作环境 |
 | **Skill 可分发包** | `.opencode/skills/sd-firmware-copilot/`（init.sh + rules + references + knowledge-templates） | 复制到任何项目，`bash init.sh` 一键部署全套能力 |
 | **参考实现** | `../femu/hw/femu/`（独立仓库） | CodeGraph + Graphify + WAF 改进，验证方法论可行 |
-| **规格基线** | `openspec/specs/baseline/` | 系统当前行为的权威描述（NVMe/FTL/NAND/错误处理） |
+| **规格基线** | `openspec/specs/` | 系统当前行为的权威描述（NVMe/FTL/NAND/错误处理） |
 | **集成方案** | `.omo/plans/openspec-integration-plan.md` | 完整 OpenSpec 集成方案与设计决策 |
 
 **四件套工具（架构分层）：**
@@ -43,7 +43,7 @@
 
 | 能力 | 工具支撑 | 状态 |
 |------|---------|------|
-| 规格查询与追溯 | OpenSpec CLI `openspec list/specs` + `openspec/specs/baseline/` | ✅ 已建立 |
+| 规格查询与追溯 | OpenSpec CLI `openspec list/specs` + `openspec/specs/` | ✅ 已建立 |
 | 提案与范围管理 | `/opsx:propose`（proposal.md + specs/ 增量） | ✅ 已建立 |
 | 设计方案生成 | `/opsx:propose` 生成 design.md（CodeGraph 查询已持久化） | ✅ 已建立 |
 | 任务分解 | OpenSpec tasks.md（200~500 行/任务）+ 验收标准 | ✅ 已建立 |
@@ -66,7 +66,7 @@
 | 知识图谱增量更新 | `graphify update .`（AST-only，无 API 成本） | ✅ 已建立 |
 | 规格归档 | `/opsx:archive`（specs/ 增量合并到 baseline） | ✅ 已建立 |
 | 同步基线 | `openspec sync-specs`（与代码 diff 同步 baseline） | ✅ 已建立 |
-| 审计追溯 | OpenSpec `openspec/changes/` + `chore(spec): merge` commit | ✅ 已建立 |
+| 审计追溯 | OpenSpec `openspec/changes/` + `chore(spec): archive` commit | ✅ 已建立 |
 
 ## 仓库结构
 
@@ -207,7 +207,7 @@ Source Code > Design Docs > Specs > Memory > Prompt
 [FEEDBACK] Step 5: 归档 — /opsx:archive
   │  /opsx:archive "<change-id>"             ← specs/ 增量合并到 baseline
   │  graphify update .                       ← 知识图谱增量更新（AST-only）
-  │  commit: chore(spec): merge
+  │  commit: chore(spec): archive
   │
   ▼
 [FEEDBACK] Step 6: 人工确认 + 提交
@@ -312,7 +312,7 @@ graphify extract <path>           # 首次构建或论文/文档语义提取（�
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  规格层 (OpenSpec CLI) — 当前行为的权威描述    │  PLAN    │
-│  openspec/specs/baseline/ + openspec/changes/{id}/         │
+│  openspec/specs/ + openspec/changes/{id}/         │
 │  → /opsx:propose / /opsx:apply / /opsx:archive            │
 ├─────────────────────────────────────────────────────────────┤
 │  约束层 (Memory)  — 规则、风格、知识          │  —        │
@@ -360,7 +360,7 @@ graphify extract <path>           # 首次构建或论文/文档语义提取（�
      │  OpenSpec + Graphify   │
      │  /opsx:archive         │
      │  graphify update .     │
-     │  (chore(spec): merge)  │
+     │  (chore(spec): archive)  │
      └──────────┬────────────┘
                 │ 新一轮 KNOW 带着更新后的 baseline
                 └──────────► (回到 KNOW)
@@ -401,7 +401,7 @@ codegraph init <代码路径>
 bash .opencode/skills/sd-firmware-copilot/init.sh
 ```
 
-将方法论规则、知识模板和 OpenSpec 目录结构（含 .openspec/）复制到目标项目中。
+将方法论规则、知识模板和 OpenSpec 目录结构（含 openspec/）复制到目标项目中。
 
 > 当前配置：`--path /home/tcb/AI_Proj/femu/hw/femu` — 参考实现 FEMU 项目
 

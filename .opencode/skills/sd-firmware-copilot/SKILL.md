@@ -50,7 +50,7 @@ SSD 固件开发的 AI 辅助技能包。提供 CodeGraph 优先的代码定位�
                                                                               归档合并 → baseline
 ```
 
-每一步的详细规则见 `references/methodology.md`。
+每一步的详细规则见 `../../SSD_Firmware_AI_Copilot_Methodology.md`。
 规格层规则见 `rules/spec_rules.md`。
 
 ### 必须遵守
@@ -63,7 +63,7 @@ SSD 固件开发的 AI 辅助技能包。提供 CodeGraph 优先的代码定位�
    - Gate 3: Review Gate → 查证式 Review + specs/ 一致性验证后归档
    - 详情见 `rules/spec_rules.md` §5
 4. **提案/审查/增量工件**：需求产出 proposal.md + specs/ 增量，审查产出 review.md（含查证 + 增量核对）
-5. **归档合并**：Review Gate 通过后将 specs/ 增量合并到 `specs/baseline/`，commit 格式 `chore(spec): merge {change-id} into baseline`
+5. **归档合并**：Review Gate 通过后将 specs/ 增量合并到 `specs/baseline/`，commit 格式 `chore(spec): archive {change-id}`
 
 ### CodeGraph 查询（必须使用）
 
@@ -114,7 +114,7 @@ cscope -d -L8 "header.h"   # 头文件包含
 
 | 文档 | 路径 | 内容 |
 |------|------|------|
-| 方法论精要 | `references/methodology.md` | 核心原则、7步流程、分歧矩阵 |
+| 方法论精要 | `../../SSD_Firmware_AI_Copilot_Methodology.md` | 核心原则、7步流程、分歧矩阵 |
 | 提示词库 | `references/prompt_library.md` | 需求/设计/编码/Review/测试提示词模板 |
 | 部署指南 | `references/deploy-guide.md` | CodeGraph + cscope + Graphify 部署步骤 |
 | 规格工作流 | `references/spec_workflow.md` | proposal.md + specs/ + design.md + tasks.md + review.md + 归档模板与规范 |
@@ -166,4 +166,4 @@ init.sh 会：
 2. 复制知识模板到 `.opencode/knowledge/`（保留已有项目特定值）
 3. 配置 CodeGraph MCP（提示输入项目路径）
 4. 提示安装 CodeGraph 工具链
-5. 初始化 `.openspec/` 目录结构（specs/baseline/ + proposals/）
+5. 初始化 `openspec/` 目录结构（specs/baseline/ + proposals/）

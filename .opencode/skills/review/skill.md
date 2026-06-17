@@ -109,8 +109,8 @@ review checks on top.
 |------|--------|----------|
 | **并发安全** | `volatile` 缺失、ISR/锁边界、原子性、DMA 一致性、多核可见性 | `memory/concurrency_rules.md` |
 | **NVMe 错误处理** | 状态码完整、重试策略、断电恢复路径、`async` event 触发 | `knowledge/nvme_spec/error_handling.md` |
-| **FTL 不变量** | LBA→PBA 映射原子性、GC 互斥、磨损均衡阈值、SLC Cache 状态 | `knowledge/nand_controller/` + `specs/baseline/ftl-mapping.md` |
-| **NAND 操作** | ECC 强度、弱块标记、坏块替换、Page/Block 操作原子性 | `specs/baseline/nand-driver.md` |
+| **FTL 不变量** | LBA→PBA 映射原子性、GC 互斥、磨损均衡阈值、SLC Cache 状态 | `knowledge/nand_controller/` + `openspec/specs/ftl-mapping/spec.md` |
+| **NAND 操作** | ECC 强度、弱块标记、坏块替换、Page/Block 操作原子性 | `openspec/specs/nand-driver/spec.md` |
 | **资源管理** | 锁顺序、context 生命周期、内存屏障、错误路径回滚 | `memory/design_rules.md` |
 | **API 接口** | 兼容性、错误码一致性、参数校验 | `memory/coding_style.md` |
 
