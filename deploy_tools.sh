@@ -3,11 +3,16 @@
 # 用法: bash deploy_tools.sh <C源码路径>
 # 示例: bash deploy_tools.sh /home/tcb/AI_Proj/femu/hw/femu
 #
-# 部署四个工具:
-#   1. codegraph  — 调用图/影响分析 (MCP 集成)
-#   2. cscope     — 函数指针/宏查询 (CodeGraph 盲区补充)
-#   3. doxygen    — HTML 架构文档 (按需生成)
-#   4. graphviz   — doxygen 调用图渲染 (自动安装为 doxygen 依赖)
+# 部署六个工具 (KNOW→PLAN→BUILD→FEEDBACK 四工具架构 + 基础设施):
+#   1. codegraph  — KNOW 层：调用图/影响分析 (MCP 集成)
+#   2. cscope     — KNOW 层：函数指针/宏查询 (CodeGraph 盲区补充)
+#   3. doxygen    — KNOW 层：HTML 架构文档 (按需生成)
+#   4. graphviz   — KNOW 层：doxygen 调用图渲染 (自动安装为 doxygen 依赖)
+#   5. graphify   — KNOW/FEEDBACK 层：知识图谱
+#   6. openspec   — PLAN/FEEDBACK 层：规格驱动开发 (Phase 1 新增)
+#
+# 注：Superpowers 是项目级 Skill 集（.opencode/skills/superpowers/），
+#     随 zsf 仓库分发，不需本脚本安装。详见 .opencode/skills/superpowers/SKILL.md。
 
 set -e
 
@@ -42,7 +47,7 @@ echo ""
 # ============================================================
 # Step 1: Node.js 22 (codegraph 依赖)
 # ============================================================
-echo "=== [1/4] Node.js 22 ==="
+echo "=== [1/6] Node.js 22 ==="
 
 export NVM_DIR="${HOME}/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
@@ -63,7 +68,7 @@ HAS_NODE="true"
 # Step 2: codegraph
 # ============================================================
 echo ""
-echo "=== [2/4] codegraph (调用图/影响分析) ==="
+echo "=== [2/6] codegraph (调用图/影响分析) ==="
 
 if command -v codegraph &>/dev/null; then
     echo "  ✓ codegraph $(codegraph --version) 已安装"
@@ -92,7 +97,7 @@ fi
 # Step 3: cscope (函数指针/宏)
 # ============================================================
 echo ""
-echo "=== [3/4] cscope (函数指针/宏查询) ==="
+echo "=== [3/6] cscope (函数指针/宏查询) ==="
 
 if command -v cscope &>/dev/null; then
     echo "  ✓ cscope $(cscope --version 2>&1 | head -1 | awk '{print $NF}') 已安装"
@@ -120,7 +125,7 @@ fi
 # Step 4: doxygen + graphviz (架构文档可视化)
 # ============================================================
 echo ""
-echo "=== [4/4] doxygen + graphviz (架构文档) ==="
+echo "=== [4/6] doxygen + graphviz (架构文档) ==="
 
 DOXY_INSTALLED="false"
 if command -v doxygen &>/dev/null; then
@@ -174,7 +179,7 @@ fi
 # Step 5: graphify (知识图谱)
 # ============================================================
 echo ""
-echo "=== [5/5] graphify (知识图谱) ==="
+echo "=== [5/6] graphify (知识图谱) ==="
 
 if command -v graphify &>/dev/null; then
     echo "  ✓ graphify $(graphify --version 2>&1 | head -1 | awk '{print $NF}')"
@@ -213,8 +218,61 @@ echo "  ✓ 社区检测完成"
 
 echo "  → 论文语义提取需配置 DEEPSEEK_API_KEY (当前仅 code-only)"
 
-
 # ============================================================
+# Step 6: OpenSpec CLI (规格驱动开发)
+# ============================================================
+echo ""
+echo "=== [6/6] openspec (规格驱动开发) ==="
+
+if command -v openspec &>/dev/null; then
+    echo "  ✓ openspec $(openspec --version 2>&1 | head -1 | awk '{print $NF}') 已安装"
+else
+    echo "  → npm install -g @fission-ai/openspec ..."
+    npm install -g @fission-ai/openspec
+    echo "  ✓ openspec $(openspec --version 2>&1 | head -1 | awk '{print $NF}') 安装完成"
+fi
+
+# 在项目根初始化 openspec/ 目录（如未初始化）
+OPENSPEC_DIR="$PROJECT_ROOT/openspec"
+if [ -d "$OPENSPEC_DIR" ] && [ -f "$OPENSPEC_DIR/config.yaml" ]; then
+    echo "  ✓ openspec/ 目录已初始化（config.yaml 存在）"
+else
+    echo "  → 初始化 openspec/ 目录..."
+    cd "$PROJECT_ROOT" && openspec init 2>/dev/null || echo "  ⚠ openspec init 失败，可手动: cd $PROJECT_ROOT && openspec init"
+    echo "  ✓ openspec/ 目录已创建"
+fi
+
+# 验证 OpenSpec 适配 Skill（随 zsf 仓库分发）
+OPENSPEC_SKILLS=(
+    "openspec-propose"
+    "openspec-apply-change"
+    "openspec-archive-change"
+    "openspec-sync-specs"
+    "openspec-explore"
+)
+MISSING_SKILLS=()
+for skill in "${OPENSPEC_SKILLS[@]}"; do
+    if [ ! -d ".opencode/skills/$skill" ]; then
+        MISSING_SKILLS+=("$skill")
+    fi
+done
+if [ ${#MISSING_SKILLS[@]} -eq 0 ]; then
+    echo "  ✓ 5 个 OpenSpec 适配 Skill 已就位 (propose/apply/archive/sync/explore)"
+else
+    echo "  ⚠ 缺少 OpenSpec 适配 Skill: ${MISSING_SKILLS[*]}"
+    echo "    请检查 .opencode/skills/ 目录是否完整克隆 zsf 仓库"
+fi
+
+# Superpowers 提示（项目级 Skill，不需本脚本安装）
+if [ -d ".opencode/skills/superpowers" ]; then
+    SP_COUNT=$(ls -1 .opencode/skills/superpowers/ 2>/dev/null | grep -v '^SKILL.md$' | wc -l)
+    echo "  ✓ Superpowers 项目级 Skill 已就位 (${SP_COUNT} 个子技能 + SKILL.md)"
+    echo "    入口: .opencode/skills/superpowers/SKILL.md"
+else
+    echo "  ⚠ Superpowers 项目级 Skill 未找到"
+    echo "    请检查 .opencode/skills/superpowers/ 目录是否完整克隆 zsf 仓库"
+fi
+
 # 完成
 # ============================================================
 echo ""
@@ -222,18 +280,20 @@ echo "=============================================="
 echo "  部署完成"
 echo "=============================================="
 echo ""
-echo "  已安装工具:"
-echo "    codegraph  — $(codegraph --version 2>/dev/null || echo '需手动安装')"
-echo "    cscope     — $(cscope --version 2>&1 | head -1 || echo 'N/A')"
-echo "    doxygen    — $(doxygen --version 2>/dev/null || echo 'N/A')"
-echo "    graphviz   — $(dot -V 2>&1 | head -1 || echo 'N/A')"
-echo "    graphify     — $(graphify --version 2>&1 | head -1 | awk '{print $NF}' || echo 'N/A')"
-    echo "    graphify-out/   — 知识图谱 (graph.json + graph.html)"
+echo "  已安装工具 (六件套):"
+echo "    codegraph  — $(codegraph --version 2>/dev/null || echo '需手动安装')  [KNOW]"
+echo "    cscope     — $(cscope --version 2>&1 | head -1 || echo 'N/A')  [KNOW]"
+echo "    doxygen    — $(doxygen --version 2>/dev/null || echo 'N/A')  [KNOW]"
+echo "    graphviz   — $(dot -V 2>&1 | head -1 || echo 'N/A')  [KNOW]"
+echo "    graphify   — $(graphify --version 2>&1 | head -1 | awk '{print $NF}' || echo 'N/A')  [KNOW/FEEDBACK]"
+echo "    graphify-out/   — 知识图谱 (graph.json + graph.html)"
+echo "    openspec   — $(openspec --version 2>&1 | head -1 | awk '{print $NF}' || echo '需手动安装')  [PLAN/FEEDBACK]"
+echo "    openspec/  — 规格仓库 (config.yaml + changes/ + specs/baseline/)"
 echo ""
-echo "  索引位置: $CODEGRAPH_DIR/"
-echo "    graph.db        — codegraph SQLite 数据库"
-echo "    cscope.out      — cscope 交叉引用数据库"
-echo ""
+echo "  项目级 Skill（随 zsf 仓库分发，无需部署）:"
+SP_COUNT=$(ls -1 .opencode/skills/superpowers/ 2>/dev/null | grep -v '^SKILL.md$' | wc -l)
+echo "    superpowers/  — ${SP_COUNT} 个子技能（test-driven-development / systematic-debugging / verification-before-completion / ...）  [BUILD]"
+echo "    openspec-*/   — 5 个 OpenSpec CLI 适配 Skill（propose / apply / archive / sync / explore）  [PLAN]"
 echo "  后续操作:"
 echo "    # AI 查询调用图"
 echo "    codegraph callers <函数名>"
@@ -248,7 +308,19 @@ echo ""
 echo "    # 生成架构文档（按需）"
 echo "    cd $PROJECT_ROOT && doxygen Doxyfile"
 echo ""
-echo "  当前 codegraph MCP 配置路径:"
+echo "    # OpenSpec 规格驱动（PLAN/FEEDBACK）"
+echo "    openspec list                                # 列出所有变更"
+echo "    openspec --help                              # 查看全部命令"
+echo "    # 在 OpenCode Agent 中使用:"
+echo "    /opsx:propose '<change-id>' '<意图>'         # 创建变更 + 生成所有工件"
+echo "    /opsx:apply '<change-id>'                    # 按 tasks.md 执行"
+echo "    /opsx:archive '<change-id>'                  # 合并到 baseline"
+echo ""
+echo "    # Superpowers 铁律（BUILD）— 详见 .opencode/skills/superpowers/SKILL.md"
+echo "    test-driven-development                       # 先写失败测试"
+echo "    systematic-debugging                          # 无根因不修"
+echo "    verification-before-completion                # 不验证不宣称完成"
+echo ""
 echo "    ${SRC_DIR}"
 echo ""
 echo "=============================================="

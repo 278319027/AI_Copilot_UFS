@@ -2,6 +2,32 @@
 
 SSD 固件开发的 AI 辅助技能包。提供 CodeGraph 优先的代码定位、影响分析、并发安全规则、OpenSpec 规格驱动 7 步标准开发流程。
 
+## 架构：两层叠加（Superpowers × sd-firmware-copilot）
+
+本技能包是 **上层（领域规则层）**。通用工程纪律由 [Superpowers](../superpowers/SKILL.md) 作为 **下层（执行引擎层）** 提供。两者叠加，缺一不可：
+
+```text
+┌──────────────────────────────────────────────────────────────────┐
+│ 上层 — sd-firmware-copilot（本技能）                              │
+│   决定 SSD 领域 "What"：CodeGraph 影响分析、OpenSpec 工件、       │
+│   specs/ 增量、SSD 规则、specs/baseline/                          │
+├──────────────────────────────────────────────────────────────────┤
+│ 下层 — Superpowers（.opencode/skills/superpowers/）               │
+│   决定通用工程 "How"：TDD、systematic-debugging、                  │
+│   verification-before-completion、subagent-driven-development、   │
+│   requesting-code-review、finishing-a-development-branch          │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+**下层铁律（由 Superpowers 强制，不可绕过）：**
+
+- `NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE`（见 `superpowers/verification-before-completion/`）
+- `NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST`（见 `superpowers/test-driven-development/`）
+- `NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST`（见 `superpowers/systematic-debugging/`）
+
+这些铁律适用于所有本技能包触发的开发/审查工作流。子代理必须先看 `superpowers/using-superpowers/SKILL.md` 的 bootstrap，再决定加载哪些子技能。
+
+
 ## 触发词
 
 `SSD`, `FTL`, `NVMe`, `NAND`, `固件`, `WAF`, `GC`, `磨损均衡`, `坏块管理`, `FTL map`, `NAND controller`, `spec`, `baseline`, `proposal`, `design.md`, `tasks.md`, `review.md`, `specs`, `归档`, `增量`
@@ -58,12 +84,29 @@ cscope -d -L4 "MACRO"      # 宏使用位置
 cscope -d -L8 "header.h"   # 头文件包含
 ```
 
-## 引用技能
+## 引用技能（两层架构）
 
-本技能包专注 SSD 固件领域规则和知识。通用开发/审查流程由已有技能覆盖：
+本技能包专注 SSD 固件领域规则和知识，**复用**而非**重复**下层 Superpowers 与项目适配器：
 
-- **开发流程**：`.opencode/skills/development/skill.md` — 代码生成步骤、CodeGraph 查询集成、OpenSpec 工件产出
-- **审查流程**：`.opencode/skills/review/skill.md` — Review 检查项、查证式验证、specs/ 增量核对
+**下层 — Superpowers 通用纪律**（`.opencode/skills/superpowers/`）：
+
+| 子技能 | 何时调用 | 铁律 |
+|--------|----------|------|
+| `using-superpowers/` | 每段对话开始 | Skill-aware behaviour |
+| `systematic-debugging/` | 任何 bug / 测试失败 | 根因先于修复 |
+| `test-driven-development/` | 新功能 / 修复 / 重构 | 先失败测试后生产代码 |
+| `verification-before-completion/` | 任何"完成"声明前 | 证据先于断言 |
+| `subagent-driven-development/` | 计划中任务互相独立 | 新子代理 + 任务级 Review |
+| `executing-plans/` | 顺序执行计划 | 计划 → 执行 → 验证 |
+| `dispatching-parallel-agents/` | 2+ 独立调查并行 | 单一领域 / 代理 |
+| `requesting-code-review/` | 合并前 / 每任务后 | 审查先于合并 |
+| `receiving-code-review/` | 收到审查反馈 | 验证先于实现 |
+| `finishing-a-development-branch/` | 全部任务完成 | 验证 → 选项 → 收尾 |
+
+**项目适配器（薄壳，委托到 Superpowers + 加 SSD 域前后置）：**
+
+- **开发流程**：`.opencode/skills/development/skill.md` — CodeGraph/OpenSpec 前后置 + 委托 `executing-plans` / `subagent-driven-development` + TDD + verification-before-completion
+- **审查流程**：`.opencode/skills/review/skill.md` — SSD 专项检查 + 委托 `requesting-code-review` / `receiving-code-review` + specs/ 增量核对
 
 > 不要重复已有技能的内容，本技能包只提供 SSD 固件特定规则和知识。
 

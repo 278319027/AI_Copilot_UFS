@@ -1,395 +1,486 @@
 # Spec Workflow Reference
 
-design.md、tasks.md、proposal.md、review.md、specs/ 增量、归档合并的模板与使用规范。这些工件使 OpenSpec 规格层与 zsf 工作流对齐，直接替代现有流程中的重复劳动。
+OpenSpec 是 SSD 固件规格驱动开发的事实标准。本文档描述 zsf 工作流如何与 OpenSpec CLI 协作——OpenSpec 负责工件（proposal / specs / design / tasks）的结构、校验和归档，zsf 在每个工件中注入 SSD 固件域知识（CodeGraph 查询、并发安全、基线查询优先级、200-500 行任务粒度、三级门禁）。
+
+**核心变化**：原本手刻的 `proposal.md` / `design.md` / `tasks.md` / `review.md` / `specs/{ADDED,MODIFIED,REMOVED}.md` 模板不再手动维护，OpenSpec CLI 接管工件结构与校验。zsf 流程专注于工件内容中的 SSD 域规则。
 
 ---
 
-## 1. design.md — 设计工件
+## 1. OpenSpec 目录结构与 CLI 速查
 
-### 1.1 职责
+### 1.1 OpenSpec 目录布局
 
-design.md 是设计阶段的唯一持久化产出，替代 zsf 现有流程中 AI 每次从零生成的「待人工确认清单」（design_rules.md §7）。
+```text
+openspec/
+├── AGENTS.md                    # OpenSpec 注入给 AI 的指令（自动生成）
+├── config.yaml                  # schema: spec-driven + 项目上下文
+├── specs/                       # 已通过归档合并的活基线（READ-ONLY 派生）
+│   ├── ssd-firmware-overview/
+│   ├── nvme-commands/
+│   ├── ftl-mapping/
+│   ├── nand-driver/
+│   └── error-handling/
+└── changes/                     # 进行中的变更（每个目录 = 一个 change）
+    └── {change-id}/
+        ├── .openspec.yaml       # 变更元数据
+        ├── README.md            # 变更说明
+        ├── proposal.md          # /opsx:propose 生成
+        ├── specs/               # /opsx:propose 生成（delta 格式）
+        │   ├── <capability>/spec.md  # ADDED / MODIFIED / REMOVED
+        │   └── ...
+        ├── design.md            # /opsx:propose 生成
+        └── tasks.md             # /opsx:propose 生成
+```
 
-**核心价值**：
-- design.md 持久化 CodeGraph 查询结果，Review 阶段无需重新查询
-- design.md 的「待人工确认清单」字段就是确认清单本身，无需重复生成
-- design.md 作为 Review 阶段的查证基准
+### 1.2 核心 CLI 命令
 
-### 1.2 模板
+| 命令 | 用途 |
+|------|------|
+| `openspec init` | 在项目根目录初始化 OpenSpec（生成 `openspec/` 与 OpenCode 集成） |
+| `openspec new change <id>` | 创建新变更目录（含 `.openspec.yaml` 与 `README.md`） |
+| `/opsx:propose` | 生成 proposal + specs + design + tasks 全部工件 |
+| `/opsx:apply` | 按 tasks.md 逐项实现代码 |
+| `/opsx:archive` | 归档变更：将 deltas 合并到 `openspec/specs/` 基线 |
+| `openspec validate --strict` | 严格校验所有 specs / changes |
+| `openspec validate --strict --specs` | 仅校验基线 specs |
+| `openspec validate --strict --changes` | 仅校验进行中的 changes |
+| `openspec list` | 列出所有进行中的 changes |
+| `openspec show <id>` | 查看某个 change 或 spec 的内容 |
+| `openspec spec list` | 列出所有基线 specs |
+
+### 1.3 旧版 `.openspec/` 的迁移
+
+旧版手刻工件存放在 `.openspec/proposals/{change-id}/{proposal,design,tasks,review}.md`。新版本统一由 OpenSpec CLI 接管，目录变更为 `openspec/changes/{change-id}/`。**旧目录可保留作为历史审计，但不再生成新内容**。
+
+---
+
+## 2. Proposal 阶段 → `/opsx:propose`
+
+### 2.1 职责
+
+`/opsx:propose` 一次生成 proposal.md + specs/*.md（deltas）+ design.md + tasks.md 全部工件，AI 在 OpenSpec 指令引导下填充 zsf 域知识。
+
+### 2.2 触发与流程
+
+```bash
+# 1. 创建变更目录
+openspec new change <change-id> --description "<一句话变更意图>"
+
+# 2. 进入变更目录，启动 OpenSpec 提案（OpenCode IDE slash command）
+#    IDE 中输入: /opsx:propose "<详细意图>"
+#    AI 会读取 openspec/AGENTS.md + openspec/changes/<change-id>/ 并生成 4 个工件
+
+# 3. 校验（AI 自检 + 人工抽查）
+openspec validate --strict --changes
+```
+
+### 2.3 zsf 域注入（AI 在 proposal 阶段必须回答）
+
+| 字段 | zsf 域要求 |
+|------|-----------|
+| Why | 引用 `openspec/specs/<related-capability>/spec.md` 中的相关 Requirement 作为现状；说明本次变更的动机与对系统行为的改变 |
+| What Changes | 列出新增 / 修改 / 移除的 capabilities；**破坏性变更必须标记 `**BREAKING**`** |
+| Capabilities (New) | 命名规范：kebab-case（如 `ftl-slc-folding`、`nvme-sanitize`） |
+| Capabilities (Modified) | 必须在 `openspec/specs/` 中存在；列出受影响的 Requirement ID |
+| Impact | 列出潜在影响模块：NVMe / FTL / NAND / 错误处理；用 CodeGraph 预查（callers/impact）记录关键调用链 |
+| 验收标准 | 每个验收点必须可在 review 阶段通过 `openspec validate --strict` + CodeGraph 查证 + 测试场景覆盖来核对 |
+
+### 2.4 简化场景
+
+| 变更类型 | 是否可跳过 proposal | 必需工件 |
+|---------|--------------------|---------|
+| 单文件 bugfix（影响范围明确） | ✅ 跳过 `proposal.md`，但仍可走 `/opsx:propose` | `/opsx:propose` 全部 4 个工件即可 |
+| 文档 / 注释更新 | ✅ 跳过 OpenSpec | 无 |
+| 配置变更（无逻辑影响） | ✅ 跳过 `proposal.md` | tasks.md |
+| 新功能 / 重构 / 接口变更 | ❌ 必须完整流程 | 全部 4 个工件 |
+| 跨模块变更 | ❌ 必须完整流程 + 额外 Review | 全部 4 个工件 + 双人 Review |
+
+---
+
+## 3. Specs 增量格式（OpenSpec Delta 规范）
+
+### 3.1 OpenSpec Delta 格式
+
+OpenSpec 增量以 `## ADDED Requirements` / `## MODIFIED Requirements` / `## REMOVED Requirements` 三个 `##` 级 header 标识，每条 Requirement 包含：
+
+- `### Requirement: <name>`（3 个 `#`）
+- 描述文本（使用 SHALL / MUST 等规范性词）
+- `#### Scenario: <name>`（4 个 `#`）—— **必须使用 4 个 `#`，3 个 `#` 或列表会导致静默失败**
+- Scenario 用 `**WHEN**` / `**THEN**` 描述
+
+### 3.2 完整示例
 
 ```markdown
-# Design: {change-id}
+## ADDED Requirements
 
-## 架构假设
-<!-- 本次设计依赖哪些架构假设？例如：「假设修改只影响 BBSSD 模式」 -->
+### Requirement: FTL MUST fold SLC blocks when full
+The FTL SHALL migrate data from SLC blocks to TLC blocks when SLC free block count falls below the configured threshold.
 
-## CodeGraph 查询结果
+#### Scenario: SLC threshold reached
+- **WHEN** SLC free block count < threshold
+- **THEN** the FTL MUST pick a victim SLC block
+- **AND THEN** it MUST copy valid pages to a free TLC block
+- **AND THEN** it MUST erase the victim SLC block and return it to the free pool
 
-### impact 查询
-<!-- 修改文件的影响范围（函数、结构体、宏） -->
+## MODIFIED Requirements
 
-### callers 查询
-<!-- 修改函数的调用者列表 -->
+### Requirement: FTL write path
+The FTL MUST allocate a new PBA from the SLC region when possible, or from TLC when SLC is exhausted.
 
-### find_by_imports 查询
-<!-- 修改头文件的 include 影响范围 -->
+#### Scenario: SLC has free blocks
+- **WHEN** the FTL processes a host write
+- **THEN** it MUST allocate the new PBA from the SLC region
 
-### get_dependency_graph 查询
-<!-- 模块边界是否有违反？是否引入循环依赖？ -->
+#### Scenario: SLC exhausted
+- **WHEN** the FTL processes a host write and SLC has no free blocks
+- **THEN** it MUST allocate the new PBA from the TLC region
+- **AND THEN** it MUST schedule an SLC-to-TLC folding pass
 
-## 更简方案评估
-<!-- 是否有更简单的替代方案？能否用更少的修改达到相同效果？ -->
+## REMOVED Requirements
 
-## tasks.md 粒度
-<!-- 每个任务 200-500 行，列出任务清单概要 -->
+### Requirement: Legacy pblock allocation
+**Reason**: Replaced by SLC-aware allocation policy
+**Migration**: All write paths use the new SLC allocation logic
+```
 
-## 并发/资源/错误路径
-<!-- 是否涉及并发安全？资源管理？错误恢复？ -->
+### 3.3 zsf 域规范（与 OpenSpec 一致 + 域增强）
 
-## 待人工确认清单
+- **规范词**：使用 SHALL / MUST，**避免** should / may
+- **可验证性**：每个 Scenario 必须是潜在测试用例（参见 `rules/testing_rules.md`）
+- **不写代码**：delta 描述「系统做什么」，不描述「代码怎么写」
+- **可追溯性**：每条 delta 对应一个或多个 `tasks.md` 中的任务项
+- **基线查询**：写 delta 前先读 `openspec/specs/<capability>/spec.md` 确认基线行为，避免无谓的 MODIFIED
+
+### 3.4 MODIFIED 要求的特殊处理
+
+OpenSpec 对 MODIFIED Requirement 的处理：
+
+1. 在 `openspec/specs/<capability>/spec.md` 中找到原有 Requirement
+2. **复制整个 Requirement 块**（从 `### Requirement:` 到所有 Scenario）
+3. 粘贴到 delta 文件的 `## MODIFIED Requirements` 下
+4. 编辑内容以反映新行为
+5. 头文本必须与原有 Requirement 完全一致（whitespace-insensitive）
+
+> **常见陷阱**：使用 MODIFIED 时只写部分内容会导致归档时丢失细节。如新增关注点不改变现有行为，使用 ADDED 而非 MODIFIED。
+
+---
+
+## 4. Design 阶段 → OpenSpec `design.md`
+
+### 4.1 职责
+
+`design.md` 由 `/opsx:propose` 自动生成，AI 在 OpenSpec 引导下填充内容。zsf 域要求 design.md 必须包含 **CodeGraph 查询结果** 与 **待人工确认清单**——这两项是 zsf Design Gate 的强制输入。
+
+### 4.2 zsf 域注入（AI 在 design 阶段必须执行）
+
+#### 4.2.1 CodeGraph 查询（强制）
+
+修改任何代码前，必须先执行以下查询并把结果粘贴到 design.md 的对应章节：
+
+```bash
+# 必查 4 项
+codegraph impact <symbol>       # 影响范围（函数 / 结构体 / 宏）
+codegraph callers <symbol>      # 谁调用了
+codegraph find_by_imports <header>  # 头文件 include 影响
+codegraph get_dependency_graph  # 模块边界 / 循环依赖
+```
+
+#### 4.2.2 cscope 补充（函数指针 / 宏场景）
+
+```bash
+cscope -d -L2 "<func_ptr>"      # 函数指针调用者
+cscope -d -L3 "<func_ptr>"      # 函数指针指向
+cscope -d -L4 "<MACRO>"         # 宏使用位置
+cscope -d -L8 "<header.h>"      # 谁包含了这个头文件
+```
+
+> CodeGraph 在函数指针 / 宏场景有盲区，cscope 是强制补充。
+
+#### 4.2.3 待人工确认清单（Design Gate 输入）
+
+design.md 必须包含以下清单，人工逐条确认才能进入 Coding 阶段：
+
 1. 架构假设是否正确？
 2. CodeGraph 查询是否完整？（是否覆盖所有调用者和依赖？）
 3. 是否有更简单的替代方案？
 4. tasks.md 粒度是否合适（200-500 行/任务）？
-5. 并发/资源/错误路径是否已考虑？
-```
+5. 并发 / 资源 / 错误路径是否已考虑？（参见 `memory/concurrency_rules.md`）
+6. 模块边界是否违反？（参见 `memory/architecture.md`）
+7. specs/ delta 是否覆盖所有变更？（参见 `openspec/changes/<id>/specs/`）
 
-### 1.3 使用规范
+### 4.3 简化场景
 
-| 阶段 | 何时产生 | 何时使用 |
-|------|---------|---------|
-| Design | CodeGraph 查询完毕后 | 作为设计确认门禁的输入 |
-| Coding | — | 作为编码阶段的参考（特别是 CodeGraph 结果） |
-| Review | — | 作为查证基准——验证代码变更是否在 design.md 预期范围内 |
-
-### 1.4 简化场景
-
-单文件 bugfix（影响范围明确）的 design.md 可精简为仅含「架构假设」和「CodeGraph 查询结果」两个字段。
+单文件 bugfix 的 design.md 可精简为仅含「架构假设」和「CodeGraph 查询结果」两个字段。
 
 ---
 
-## 2. tasks.md — 实现清单
-
-### 2.1 职责
-
-tasks.md 是编码阶段的任务清单，替代 zsf 现有流程中每次在 session 中声明的「200-500 行/任务」粒度约束（方法论 §12）。
-
-**核心价值**：
-- 固化 zsf 小任务原则（200-500 行），session 间保持一致
-- 每个任务可直接作为编码单元，跨 session 可追踪进度
-- 测试场景从 spec 行为描述推导，不再从零凭空生成
-
-### 2.2 模板
-
-```markdown
-# Tasks: {change-id}
-
-<!-- 每个任务 200-500 行，粒度与 zsf 小任务原则一致 -->
-
-## 任务列表
-
-- [ ] 1. {任务描述}
-  - 涉及文件：{file1}, {file2}
-  - 预期行数：{n} 行
-  - 依赖：{前置任务 ID 或「无」}
-
-- [ ] 2. {任务描述}
-  - 涉及文件：...
-  - 预期行数：...
-  - 依赖：...
-
-## 测试场景
-
-<!-- 每个任务对应的测试场景 -->
-| 任务 | 场景 | 输入 | 预期结果 |
-|------|------|------|---------|
-| 1 | {场景描述} | {输入条件} | {预期行为} |
-| ... | ... | ... | ... |
-```
-
-### 2.3 使用规范
-
-| 阶段 | 何时产生 | 何时使用 |
-|------|---------|---------|
-| Design | 与 design.md 同时产出 | 作为 Design Gate 确认项之一（粒度检查） |
-| Coding | — | 作为编码清单，逐项完成 |
-| Review | — | 验证完成度——所有任务是否已实现 |
-
-### 2.4 粒度约束
-
-- 每个任务 200-500 行（与 zsf 小任务原则一致）
-- 每个任务必须可独立验证（有自己的测试场景）
-- 任务间依赖关系显式标注
-
----
-
-## 3. proposal.md — 提案工件
-
-### 3.1 职责
-
-proposal.md 是需求阶段的唯一持久化产出，声明变更的意图、范围和验收标准。替代 zsf 现有流程中 AI 每次从 session prompt 推断的「需求理解摘要」。
-
-**核心价值**：
-- 固化需求意图和范围，session 间保持一致
-- 提供验收标准，明确「做完」的定义
-- 作为后续 design.md 和 Review 的上下文锚点
-
-### 3.2 模板
-
-```markdown
-# Proposal: {change-id}
-
-## 问题描述
-<!-- 当前存在什么问题？为什么需要这次变更？ -->
-
-## 变更范围
-<!-- IN scope 和 OUT of scope，明确边界 -->
-- IN:
-- OUT:
-
-## 预期行为
-<!-- 变更后系统应如何表现？ -->
-
-## 约束
-<!-- 不能改的、必须满足的、依赖的前置条件 -->
--
-
-## 影响模块（初步判断）
-<!-- 不做 CodeGraph 深度查询，仅凭设计文档和常识列出可能受影响的模块 -->
--
-
-## 验收标准
-1. {可验证的条件}
-2. ...
-
-## 风险与假设
--
-```
-
-### 3.3 使用规范
-
-| 阶段 | 何时产生 | 何时使用 |
-|------|---------|---------|
-| Proposal | 需求理解确认后 | 作为 Design Gate 的输入和上下文 |
-| Design | — | 作为 design.md「架构假设」和「CodeGraph 查询」的范围参考 |
-| Review | — | 作为验收标准的查证源 |
-
-### 3.4 CodeGraph 策略
-
-> **提案阶段 CodeGraph 查询是可选的。**
-
-- 提案关注「要做什么」，而非「怎么做」
-- 初步影响模块用常识判断，CodeGraph 深度查询留给 design.md
-- 单文件 bugfix 可跳过 proposal.md，直接进入 design.md
-
----
-
-## 4. review.md — 审查工件
-
-### 4.1 职责
-
-review.md 是 Review 阶段的唯一持久化产出，替代 zsf 现有流程中 Review 阶段重新查询 CodeGraph 的重复劳动。改为**查证式**：验证代码变更是否在 design.md 预期的范围内。
-
-**核心价值**：
-- 从「Review 阶段重新查询 CodeGraph」变为「查证 design.md 中的 CodeGraph 结果」
-- design.md 的 CodeGraph 结果作为查证基准，无需重复查询
-- review.md 持久化问题列表和影响范围判断
-
-### 4.2 模板
-
-```markdown
-# Review: {change-id}
-
-## 查证结果
-<!-- 对照 design.md 中的 CodeGraph 查询结果，验证代码变更是否在预期范围内 -->
-
-### 影响范围查证
-| design.md 预期影响 | 实际代码变更 | 一致？ |
-|-------------------|-------------|-------|
-| {文件/函数/结构体} | {实际变更} | ✅/⚠️ |
-
-### 调用关系查证
-| design.md 预期调用者 | 实际新增/修改调用 | 一致？ |
-|---------------------|-----------------|-------|
-
-### 头文件影响查证
-| design.md 预期影响 | 实际 include 变更 | 一致？ |
-|-------------------|-----------------|-------|
-
-### 模块边界查证
-| design.md 预期 | 实际依赖变更 | 一致？ |
-|--------------|------------|-------|
-
-## 偏差说明
-<!-- 如果查证发现偏差，说明原因及是否可接受 -->
-
-## 问题列表
-| 文件 | 行号 | 问题 | 风险等级 | 建议 |
-|------|------|------|---------|------|
-
-## 检查重点
-- [ ] 空指针
-- [ ] 数组越界
-- [ ] 资源泄漏
-- [ ] 竞态条件
-- [ ] 死循环
-- [ ] 模块边界违反
-- [ ] 接口兼容性风险
-- [ ] 函数指针调用遗漏（用 cscope 补充）
-
-## 验收标准核对
-<!-- 对照 proposal.md 的验收标准逐条核对 -->
-| 验收标准 | 状态 | 证据 |
-|---------|------|------|
-
-## specs/ 增量核对
-<!-- 对照 specs/ 增量（ADDED/MODIFIED/REMOVED），验证代码变更是否覆盖 -->
-| 增量文件 | 增量项 | 代码覆盖 | 一致？ |
-|---------|--------|---------|-------|
-```
-
-### 4.3 使用规范
-
-| 阶段 | 何时产生 | 何时使用 |
-|------|---------|---------|
-| Review | 编码完成后，测试前 | 作为 Review 阶段的完整产出 |
-| 后续 | — | 跨 session 可查 review.md 恢复 Review 上下文 |
-
-### 4.4 CodeGraph 策略
-
-> **Review 阶段不需要重新查询 CodeGraph。**
-
-- 查证 design.md 中的 CodeGraph 结果（callers、impact、imports、dependency graph），不是重新查
-- 仅当查证发现偏差时，才必须重新用 CodeGraph 查询偏差涉及的新增影响
-- 函数指针和宏的查证用 cscope 补充（codegraph_callers 覆盖有限）
-
----
-
-## 5. specs/ 增量格式
+## 5. Tasks 阶段 → OpenSpec `tasks.md`
 
 ### 5.1 职责
 
-specs/ 增量是 OpenSpec 行为追溯的核心。每次变更在 `proposals/{change-id}/specs/` 下产生 3 个文件，描述行为层面的变化（非代码实现）。
+`tasks.md` 由 `/opsx:propose` 自动生成，AI 在 OpenSpec 引导下填充任务清单。zsf 的 **200-500 行/任务** 小任务原则在 tasks.md 中以「预期行数」字段强制表达。
 
-**核心价值**：
-- 从「代码 diff 追溯」升级为「行为变化追溯」
-- 每个增量文件独立可验证，对应测试场景
-- 归档时合并到 `specs/baseline/`，基线始终反映最新行为
+### 5.2 zsf 域注入
 
-### 5.2 ADDED.md 模板
+| 字段 | 约束 |
+|------|------|
+| 任务粒度 | 每个任务 200-500 行（与 zsf 小任务原则一致） |
+| 依赖 | 任务间依赖关系显式标注（前序任务 ID） |
+| 可独立验证 | 每个任务必须有自己的测试场景（参见 `rules/testing_rules.md`） |
+| 不扩大需求 | 任务清单严格对应 proposal.md 中的 What Changes；不接受范围蔓延 |
+| 与 spec 增量对应 | 每个任务项至少对应一条 `specs/` delta 中的 Scenario |
 
-```markdown
-# Added: {change-id}
+### 5.3 任务执行流程
 
-## {新增行为 1}
-- **描述**：...
-- **触发条件**：...
-- **预期结果**：...
-- **涉及模块**：...
+```bash
+# 1. 进入 Apply 阶段（OpenCode IDE slash command）
+#    IDE 中输入: /opsx:apply
+#    AI 按 tasks.md 逐项实现，每完成一项标记 [x]
 
-## {新增行为 2}
-...
+# 2. 任务执行中持续校验
+openspec validate --strict --changes
+
+# 3. CodeGraph 影响范围查证（Design 中记录的影响 vs 实际改动）
 ```
-
-### 5.3 MODIFIED.md 模板
-
-```markdown
-# Modified: {change-id}
-
-## {修改行为 1}
-- **原行为**：...
-- **新行为**：...
-- **影响范围**：...
-- **兼容性影响**：...
-```
-
-### 5.4 REMOVED.md 模板
-
-```markdown
-# Removed: {change-id}
-
-## {移除行为 1}
-- **原行为**：...
-- **移除原因**：...
-- **替代方案**：...
-```
-
-### 5.5 增量规范
-
-- **增量文件不写代码**：描述「系统做什么」，不描述「代码怎么写」
-- **增量与 CodeGraph 互补**：增量描述行为变化，design.md 中的 CodeGraph 查询记录实现路径
-- **增量必须可验证**：每个增量项必须有对应的测试场景（见 tasks.md）
-- **增量粒度**：每个增量项 = 一个可独立验证的行为变化
-
-### 5.6 使用规范
-
-| 阶段 | 何时产生 | 何时使用 |
-|------|---------|---------|
-| Proposal | 与 proposal.md 同时产出 | 作为 Proposal Gate 的输入（检查与 baseline 冲突） |
-| Design | — | 作为 design.md「CodeGraph 查询范围」的参考 |
-| Review | — | 作为 Review Gate 的验证源（增量 vs 实际代码变更） |
-| Archive | — | 合并到 baseline，变更历史保留在 proposals/ 中 |
 
 ---
 
-## 6. 归档与合并
+## 6. Review 阶段 → 查证式验证
 
-### 6.1 归档时机
+### 6.1 职责
 
-Review Gate 全部检查项通过后执行归档。
+Review 阶段是 **查证式验证**（不重新查询 CodeGraph），对照 design.md 中记录的 CodeGraph 结果验证代码变更是否在预期范围内。
 
-### 6.2 合并流程
+### 6.2 Review 检查项
 
-1. ADDED → 追加：将 ADDED.md 中内容追加到对应基线文件（`specs/baseline/{module}.md`）的「行为描述」章节
-2. MODIFIED → 替换：将 MODIFIED.md 中描述的新行为替换基线文件对应章节
-3. REMOVED → 删除：将 REMOVED.md 中描述的内容从基线文件中删除
-4. 版本标记：更新基线文件头部的「最后更新」和「最后变更」字段
-5. 索引更新：更新 `specs/baseline/README.md` 中对应模块的更新时间和变更 ID
+| 检查项 | 验证方法 | 风险等级 |
+|--------|---------|---------|
+| 空指针 | 查 review.md + 静态分析 | 高 |
+| 数组越界 | 查 review.md + 静态分析 | 高 |
+| 资源泄漏 | valgrind / asan | 高 |
+| 竞态条件 | 对照 `memory/concurrency_rules.md` + 重新阅读并发代码 | 高 |
+| 死循环 | 静态分析 + 状态机审查 | 中 |
+| 模块边界违反 | CodeGraph import 关系 | 中 |
+| 接口兼容性 | 对照 baseline spec | 中 |
+| 函数指针调用遗漏 | cscope -L2 / -L3 | 中 |
+| **CodeGraph 影响范围查证** | 对照 design.md vs 实际 diff | 高 |
+| **specs/ delta 覆盖** | 对照 tasks.md vs openspec/changes/<id>/specs/ | 高 |
+| **`openspec validate --strict` 通过** | CI / 命令行 | 强制 |
 
-### 6.3 合并原则
+### 6.3 Review 工具
 
-- **原子性**：一个 change-id 的 3 个增量文件必须在一次操作中合并完毕
-- **冲突处理**：如增量与基线冲突（例如两个变更修改同一行为），优先审查基线是否过时，必要时手动裁决
-- **可逆性**：合并前保存基线快照，通过 Git 可回滚
+```bash
+# 校验 OpenSpec 工件
+openspec validate --strict --changes
 
-### 6.4 历史保留
+# 查证 CodeGraph 影响（仅在 design.md 查证发现偏差时）
+codegraph impact <symbol>
 
-- `proposals/{change-id}/` 目录**不删除**，作为变更审计历史保留
-- 归档 commit message 格式：`chore(spec): merge {change-id} into baseline`
-- 所有 `.openspec/` 文件纳入 Git 版本管理
+# 函数指针 / 宏补充
+cscope -d -L2 "<func_ptr>"
+
+# 基线对比
+openspec show <capability>
+```
+
+### 6.4 Review 输出
+
+Review 输出不再使用手刻的 `review.md`。改为：
+
+1. 在 PR / Change 中以评审评论形式记录（人工 + AI）
+2. 关键问题记录到 `openspec/changes/<id>/design.md` 的「Review Notes」追加段落（由 AI 在 `/opsx:apply` 完成后追加）
+3. **绝不** 重新写手刻 review.md 模板
 
 ---
 
-## 7. 与 zsf 现有流程的映射
+## 7. 归档阶段 → `/opsx:archive`
 
-### 7.1 替代关系
+### 7.1 归档时机
 
-| zsf 现有流程 | OpenSpec 工件替代 |
-|-------------|--------------------------|
-| 需求理解摘要（session 内临时） | proposal.md 持久化意图和验收标准 |
-| 设计确认清单从零生成（design_rules.md §7） | design.md 模板 = 清单本身 |
-| Review 阶段重新查询 CodeGraph | design.md 持久化 CodeGraph 结果，review.md 改为查证式 |
-| 跨 session 上下文重建 | 读 proposal.md + design.md + tasks.md + review.md 恢复完整上下文 |
-| 每次声明 200-500 行粒度约束（方法论 §12） | tasks.md 固化约束 |
-| 测试建议从零生成 | tasks.md 测试场景字段 |
-| Review 输出（session 内临时） | review.md 持久化问题列表和查证结果 |
-| 行为变化无记录 | specs/ 增量（ADDED/MODIFIED/REMOVED）+ 归档合并到 baseline |
+Review Gate 全部检查项通过 + `openspec validate --strict` 全部通过后执行归档。
 
-### 7.2 不替代的部分
+### 7.2 归档流程
+
+```bash
+# OpenCode IDE slash command
+#    IDE 中输入: /opsx:archive
+#    AI 会自动：
+#    1. 验证所有 change 工件
+#    2. 将 openspec/changes/<id>/specs/*.md 的 deltas 合并到 openspec/specs/
+#    3. 生成 commit: chore(spec): archive <id>
+#    4. 移动 openspec/changes/<id>/ → openspec/changes/archive/
+
+# 等效 CLI
+openspec archive <change-id>
+```
+
+### 7.3 合并原则
+
+- **ADDED → 追加**：将 `## ADDED Requirements` 合并到 `openspec/specs/<capability>/spec.md` 的 `## Requirements` 末尾
+- **MODIFIED → 替换**：将 `## MODIFIED Requirements` 中同名 Requirement 替换基线中的对应 Requirement
+- **REMOVED → 删除**：将 `## REMOVED Requirements` 中列出的 Requirement 从基线中删除（含 Reason / Migration 审计信息保留在 archive）
+- **冲突处理**：如 delta 与基线冲突，优先审查基线是否过时，必要时手动裁决
+- **原子性**：一次归档必须完成单个 change 的全部 deltas
+- **可逆性**：归档前由 Git 跟踪 openspec/ 目录，可回滚
+
+### 7.4 历史保留
+
+- `openspec/changes/<id>/` 目录**不删除**（自动移至 `openspec/changes/archive/`），作为变更审计历史保留
+- 归档 commit message 格式：`chore(spec): archive <change-id>`
+- 所有 `openspec/` 文件纳入 Git 版本管理（**`.gitignore` 中不排除** `openspec/`）
+
+---
+
+## 8. 三级门禁体系（zsf 增强）
+
+OpenSpec 工件是门禁的输入，**门禁本身** 仍是 zsf 流程的核心（参见 `rules/spec_rules.md` §5）。
+
+### 8.1 Gate 1：Proposal Gate（提案门禁）
+
+- **时机**：`/opsx:propose` 完成后
+- **输入**：`openspec/changes/<id>/proposal.md` + `specs/*.md`
+- **校验**：`openspec validate --strict --changes` 必须通过
+- **人工检查**：
+  - [ ] 变更动机是否清晰？
+  - [ ] 影响范围是否识别？
+  - [ ] 是否与 `openspec/specs/` 现有基线冲突？
+  - [ ] 是否有更简单的替代方案？
+  - [ ] specs/ delta 是否正确描述了行为变更？
+- **通过后**：→ 进入 Design 阶段（design.md 填充 + CodeGraph 查询）
+
+### 8.2 Gate 2：Design Gate（设计门禁）
+
+- **时机**：design.md + tasks.md 完成后
+- **输入**：proposal.md、design.md、tasks.md
+- **校验**：`openspec validate --strict --changes` 必须通过
+- **人工检查**（design.md「待人工确认清单」7 项，参见 §4.2.3）
+- **通过后**：→ 进入 Coding 阶段（`/opsx:apply`）
+
+### 8.3 Gate 3：Review Gate（审查门禁）
+
+- **时机**：编码完成 + Review 后
+- **输入**：design.md、specs/ delta、代码 diff
+- **校验**：`openspec validate --strict --changes` 必须通过
+- **人工检查**（参见 §6.2 Review 检查项 11 条）
+- **通过后**：→ 归档（`/opsx:archive`），deltas 合并到 `openspec/specs/`
+
+---
+
+## 9. 与 zsf 现有流程的映射
+
+### 9.1 替代关系
+
+| zsf 旧手刻工件 | OpenSpec 替代 |
+|---------------|---------------|
+| `.openspec/proposals/<id>/proposal.md` 手刻 | `/opsx:propose` 生成 `openspec/changes/<id>/proposal.md` |
+| `.openspec/proposals/<id>/design.md` 手刻 | `/opsx:propose` 生成 `openspec/changes/<id>/design.md` |
+| `.openspec/proposals/<id>/tasks.md` 手刻 | `/opsx:propose` 生成 `openspec/changes/<id>/tasks.md` |
+| `.openspec/proposals/<id>/specs/ADDED.md` 手刻 | `/opsx:propose` 生成 `openspec/changes/<id>/specs/<cap>/spec.md`（ADDED Requirements） |
+| `.openspec/proposals/<id>/specs/MODIFIED.md` 手刻 | `/opsx:propose` 生成（MODIFIED Requirements） |
+| `.openspec/proposals/<id>/specs/REMOVED.md` 手刻 | `/opsx:propose` 生成（REMOVED Requirements） |
+| `.openspec/proposals/<id>/review.md` 手刻 | Review 输出在 PR 评论 + design.md 追加段落（不写手刻文件） |
+| 手工合并 ADDED/MODIFIED/REMOVED 到 `.openspec/specs/baseline/` | `/opsx:archive` 自动合并到 `openspec/specs/` |
+| `.openspec/specs/baseline/<module>.md` 手刻格式 | `openspec/specs/<capability>/spec.md`（OpenSpec 标准格式） |
+| `chore(spec): merge <id> into baseline` commit | `chore(spec): archive <id>` commit |
+| 跨 session 上下文重建（读 5 个手刻文件） | `openspec show <id>` 一条命令恢复完整上下文 |
+
+### 9.2 不替代的部分
 
 | zsf 现有机制 | 保持不变 |
 |-------------|---------|
-| CodeGraph 查询本身（Design 阶段） | design.md 记录结果，不替代查询动作 |
-| 人工确认门禁 | design.md 作为门禁输入，门禁本身不变 |
-| review_rules.md 检查项 | Review 检查项不变，仅执行方式变为查证式 |
-| 开发技能流程（development/skill.md） | 流程框架不变，融入 OpenSpec 工件 |
+| CodeGraph 查询本身（Design 阶段强制） | OpenSpec 工件记录结果，不替代查询动作 |
+| cscope 补充（函数指针 / 宏） | OpenSpec 工件记录结果，不替代查询动作 |
+| 人工确认门禁（三级） | OpenSpec 工件作为门禁输入，门禁本身不变 |
+| `memory/review_rules.md` 检查项 | Review 检查项不变，仅执行方式变为查证式 + `openspec validate --strict` |
+| `memory/architecture.md` 分层规则 | 分层规则不变；OpenSpec 工件记录分层假设 |
+| `memory/concurrency_rules.md` | 并发规则不变；Review 中对照检查 |
+| `memory/testing_rules.md` | 测试规则不变；tasks.md 中的测试场景仍由 testing_rules.md 规范 |
+| `development/skill.md` | 开发流程框架不变，融入 OpenSpec 工件 |
+| 200-500 行小任务原则 | tasks.md 强制粒度约束 |
+
+### 9.3 旧 `.openspec/` 目录的处理
+
+旧版手刻工件（`.openspec/proposals/...` 和 `.openspec/specs/baseline/...`）保留在仓库中作为：
+
+1. **历史审计**：已归档变更的 review 记录、合并决策不可丢弃
+2. **新流程不再写入**：所有新变更走 OpenSpec CLI（`openspec/changes/<id>/`）
+3. **手工迁移已完成**：5 个 baseline specs（ssd-firmware-overview / nvme-commands / ftl-mapping / nand-driver / error-handling）已迁移到 `openspec/specs/<capability>/spec.md`
 
 ---
 
-## 8. 版本兼容说明
+## 10. 工具链快速参考
 
-- **Step 1**（已完成）：引入 design.md + tasks.md 两个工件。
-- **Step 2**（已完成）：引入 proposal.md + review.md 工件。提案阶段的意图持久化 + Review 阶段的查证式验证。
-- **Step 3**（当前）：引入 specs/ 增量、baseline、归档机制。完整的行为可追溯能力已就绪。
-- **向后兼容**：未使用 OpenSpec 工件的变更仍可按 zsf 原有 7 步流程执行。所有工件是推荐流程，不强制所有变更使用。
-- **渐进采用**：建议先从跨模块变更和新功能开始使用，简单 bugfix 可跳过 proposal.md 和部分 review.md 字段。
+### 10.1 安装
+
+```bash
+npm install -g @fission-ai/openspec
+openspec --version   # 应输出 1.x
+```
+
+### 10.2 项目初始化
+
+```bash
+# 在项目根目录
+openspec init --tools opencode
+# 生成 openspec/ + OpenCode 集成（5 个 skill + 5 个 command）
+```
+
+### 10.3 日常命令
+
+```bash
+# 查看所有进行中变更
+openspec list
+
+# 查看某个变更的完整内容
+openspec show <change-id>
+
+# 查看某个基线 spec
+openspec spec show <capability>
+
+# 严格校验
+openspec validate --strict --all
+openspec validate --strict --specs
+openspec validate --strict --changes
+openspec validate --strict <change-id>
+
+# 创建新变更
+openspec new change <change-id> --description "<意图>"
+
+# 归档
+openspec archive <change-id>
+```
+
+### 10.4 OpenCode Slash Commands（IDE 中使用）
+
+| 命令 | 用途 |
+|------|------|
+| `/opsx:propose` | 生成 proposal + specs + design + tasks |
+| `/opsx:apply` | 按 tasks.md 逐项实现 |
+| `/opsx:archive` | 归档合并到基线 |
+| `/opsx:explore` | 探索 OpenSpec 流程（教学） |
+| `/opsx:sync-specs` | 同步 specs 状态 |
+
+### 10.5 与 CodeGraph 配合
+
+```bash
+# 1. CodeGraph 查影响（在 design.md 阶段）
+codegraph impact <symbol>          # → 粘贴到 design.md
+codegraph callers <symbol>         # → 粘贴到 design.md
+codegraph find_by_imports <header> # → 粘贴到 design.md
+
+# 2. OpenSpec 校验（持续）
+openspec validate --strict --changes
+
+# 3. Review 查证（不重查 CodeGraph，对照 design.md 验证）
+```
+
+---
+
+## 11. 版本兼容说明
+
+- **Step 1**（已完成）：引入 design.md + tasks.md 两个手刻工件。
+- **Step 2**（已完成）：引入 proposal.md + review.md + specs/ 增量手刻工件。
+- **Step 3**（当前）：迁移到 OpenSpec CLI——手刻工件模板移除，全部由 `/opsx:propose` / `/opsx:apply` / `/opsx:archive` 生成；旧 `.openspec/proposals/` 与 `.openspec/specs/baseline/` 目录保留作为历史。
+- **Step 4**（已完成）：5 个 baseline specs（ssd-firmware-overview / nvme-commands / ftl-mapping / nand-driver / error-handling）从 `.opencode/skills/sd-firmware-copilot/specs/baseline/` 迁移到 `openspec/specs/<capability>/spec.md`，全部通过 `openspec validate --strict`。
+- **向后兼容**：未使用 OpenSpec CLI 的旧手刻变更仍可走 `.openspec/proposals/` 流程；所有新变更**必须**走 OpenSpec CLI。
+- **渐进采用**：简单 bugfix 可使用 `/opsx:propose` 一次性生成 4 个工件；跨模块变更必须按 Proposal / Design / Review 三级门禁逐项校验。
