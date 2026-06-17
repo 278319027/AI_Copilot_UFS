@@ -218,7 +218,7 @@ zsf/
 │       ├── openspec-*/                          # OpenSpec CLI 适配器（5 个）
 │       └── sd-firmware-copilot/                 # 领域规则包（可分发的）
 │           ├── init.sh                          # 一键部署
-│           ├── rules/spec_rules.md              # 规格层规则
+│           ├── SKILL.md                        # 主体（含 Spec 规则章节）
 │           ├── references/                      # 工件模板 + 部署指南
 │           └── references/                      # 工件模板 + 部署指南
 └── .gitignore

@@ -69,7 +69,7 @@ zsf/
 │   ├── plugins/graphify.js          ← KNOW：知识图谱
 │   └── skills/                      ← 四阶段执行引擎
 │       ├── sd-firmware-copilot/     ← 顶层：BUILD + FEEDBACK 内联
-│       │   ├── rules/spec_rules.md  ← OpenSpec 流程规则
+│       │   └── SKILL.md              ← 主体（含 Spec 规则）
 │       │   └── init.sh              ← 初始化
 │       ├── superpowers/             ← 工程纪律层（10 子技能）
 │       ├── openspec-workflow/       ← OpenSpec 完整工作流（propose→archive）
