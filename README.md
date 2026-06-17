@@ -17,6 +17,8 @@ bash verify.sh    # 确认 8/8 通过
 #    路径 B（无设计文档）→ codegraph explore <区域>  先生成设计文档
 ```
 
+> **工具安装 vs 项目分发**：`deploy_tools.sh` 安装的是有可执行文件的外部工具（Node.js、codegraph、cscope、doxygen、graphify、openspec CLI）。Superpowers / openspec-workflow / sd-firmware-copilot 是项目级 Skill（`.opencode/skills/` 下的 Markdown 文件），随仓库分发，`git clone` 即可用，无需脚本安装。
+
 ## 两种使用路径
 
 ### 路径 A：设计文档驱动
