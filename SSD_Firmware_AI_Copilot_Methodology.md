@@ -106,6 +106,8 @@
 ### 5.2 领域规则层（sd-firmware-copilot）
 
 在 Superpowers 之上叠加 SSD 固件领域约束：
+
+*Superpowers 是独立开源项目 (obra/superpowers, MIT)，非 SSD 专用。10 个子技能提供通用工程纪律（TDD/验证/调试/审查/并行调度），本项目仅调用它们。SSD 固件领域约束由以下内容叠加。*
 - **并发安全**：volatile、ISR 边界、锁、DMA 一致性、多核可见性
 - **NVMe 错误处理**：状态码完整、重试策略、断电恢复
 - **FTL 不变量**：LBA→PBA 原子性、GC 互斥、磨损均衡
@@ -126,7 +128,7 @@
 ### 6.1 Review（查证式）
 
 由 Review Skill 调度 Superpowers `requesting-code-review` 产出 `review.md`：
-- 对照 `design.md` 查证 CodeGraph 影响范围
+由 Superpowers `requesting-code-review` 产出 `review.md`：
 - 对照 `specs/` 增量查证代码行为一致性
 - SSD 专项检查（并发/NVMe/FTL/NAND）
 - 问题按 Critical / Important / Minor 风险分级
@@ -191,35 +193,36 @@ graphify explain "<核心概念>"
 graphify update .
 ```
 
----
-
-## 8. 目录结构
+## 8. 目录结构（当前状态）
 
 ```
 zsf/
-├── README.md                                    # 项目入口
-├── AGENTS.md                                    # AI Agent 指令
-├── SSD_Firmware_AI_Copilot_Methodology.md        # 本文件
-├── opencode.json                                # OpenCode 配置（MCP + Graphify 插件）
-├── deploy_tools.sh                              # 一键部署工具链
+├── README.md                          # 项目入口（两路径 + 快速上手 + 推荐阅读）
+├── AGENTS.md                          # AI Agent 运行时指令
+├── SSD_Firmware_AI_Copilot_Methodology.md  # 本文件
+├── opencode.json                      # OpenCode 配置（MCP + Graphify 插件）
+├── deploy_tools.sh                    # 一键部署工具链
+├── verify.sh                          # 一键健康检查（8 项）
 ├── docs/
-│   └── roadmap.md                               # 实施路线图与指标
+│   ├── navigation.md                  # 项目导航（文件地图 + 按角色找入口）
+│   ├── roadmap.md                     # 实施路线图与指标
+│   └── maintainer.md                  # 维护者日常操作指南
 ├── openspec/
-│   ├── config.yaml                              # OpenSpec 配置
-│   ├── changes/                                 # 活跃变更（proposal/design/tasks）
-│   └── specs/                                   # 基线规格（5 个 capability）
+│   ├── config.yaml                    # OpenSpec 上下文配置（C 语言/SSD 域）
+│   ├── changes/                       # 活跃变更
+│   └── specs/                         # 基线规格（5 个 capability）
 ├── .opencode/
-│   ├── memory/                                  # 项目规则（6 个规则文件）
-│   ├── memory/                                  # 项目规则（6 个规则文件）
-│   └── skills/
-│       ├── development/                         # 开发流程 Skill
-│       ├── review/                              # Review 流程 Skill
-│       ├── superpowers/                         # 工程纪律引擎（10 子技能）
-│       ├── openspec-*/                          # OpenSpec CLI 适配器（5 个）
-│       └── sd-firmware-copilot/                 # 领域规则包（可分发的）
-│           ├── SKILL.md                        # 主体（含 Spec 规则章节）
-│           ├── references/                      # 工件模板 + 部署指南
-│           └── references/                      # 工件模板 + 部署指南
+│   ├── memory/                        # 项目规则（6 文件，运行时自动加载）
+│   ├── plugins/graphify.js            # 知识图谱插件
+│   └── skills/                        # 三个独立 Skill
+│       ├── superpowers/               # 通用工程纪律引擎（10 子技能，独立开源 MIT）
+│       ├── openspec-workflow/         # OpenSpec 五阶段完整工作流
+│       └── sd-firmware-copilot/       # SSD 固件领域规则 + BUILD/FEEDBACK 编排
+│           └── SKILL.md               # 唯一主体文件
+└── graphify-out/                      # 知识图谱产物（自动生成，可供查询）
+```
+
+*实际结构截至 2026-06-18。已删除模块（development/review/rules/references/commands/init.sh）均不在此树中。*
 └── .gitignore
 ```
 
@@ -241,8 +244,10 @@ zsf/
 
 ## 10. 下一步
 
-- **部署工具链**：运行 `bash deploy_tools.sh` 一键安装 CodeGraph + cscope + Doxygen + Graphify + OpenSpec CLI
-- **阅读规格工作流**：`.opencode/skills/openspec-workflow/SKILL.md`（含五阶段流程 + 工件模板与门禁清单）
+- **部署工具链**：`bash deploy_tools.sh /path/to/c-source`（CodeGraph + cscope + Doxygen + Graphify + OpenSpec CLI）
+- **验证环境**：`bash verify.sh`，确认 8/8 通过
+- **阅读规格工作流**：`.opencode/skills/openspec-workflow/SKILL.md`（五阶段流程 + 工件模板与门禁清单）
 - **查看路线图**：`docs/roadmap.md`
 - **理解工程纪律**：`.opencode/skills/superpowers/SKILL.md`
-- **了解领域规则**：`.opencode/memory/` 下的规则文件
+- **了解项目结构**：`docs/navigation.md`（完整文件地图 + 按角色找入口）
+- **熟悉领域规则**：`.opencode/memory/`（6 个规则文件，运行时自动加载）
