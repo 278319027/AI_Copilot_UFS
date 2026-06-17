@@ -35,6 +35,22 @@ graphify explain "<概念>"
 # PLAN → BUILD → FEEDBACK 同路径 A
 ```
 
+## 快速上手（5 分钟）
+
+```bash
+# 先确认环境就位
+bash verify.sh
+
+# 没装工具？一行部署
+bash deploy_tools.sh /path/to/c-source    # 需要 C 源码路径作为参数
+bash .opencode/skills/sd-firmware-copilot/init.sh
+
+# 现在选一条路径开始：
+#   路径 A（有设计文档）→ 在 OpenCode IDE 中 /opsx:propose <change-name>
+#   路径 B（无设计文档）→ codegraph explore <区域> 先生成设计文档
+```
+
+> 完整的使用说明见 [方法论文档](SSD_Firmware_AI_Copilot_Methodology.md)。
 ## 四工具架构
 
 | 阶段 | 工具 | 部署方式 |
@@ -63,7 +79,7 @@ zsf/
 │   └── skills/                      ← 四阶段的执行引擎
 │       ├── sd-firmware-copilot/     ← 顶层：SSD 固件 AI 助手统一入口
 │       │   ├── rules/spec_rules.md  ← OpenSpec 流程规则
-│       │   ├── references/          ← 工作流模板 / 部署指南 / 提示库
+│       │   ├── rules/spec_rules.md  ← OpenSpec 流程规则
 │       │   └── init.sh              ← 一键初始化
 │       ├── superpowers/             ← 工程纪律层（10 子技能）
 │       │   ├── test-driven-development
@@ -74,7 +90,7 @@ zsf/
 │       │   └── ...（共 10 个）
 │       ├── development/skill.md     ← BUILD 薄适配器（委托 Superpowers）
 │       ├── review/skill.md          ← FEEDBACK 薄适配器
-│       └── openspec-*/ ×5           ← OpenSpec CLI 包装器
+│       └── openspec-workflow/SKILL.md  ← 五阶段完整工作流（OpenSpec CLI 包装器）
 │
 └── 📐 规格层 (openspec/)
     ├── config.yaml                  ← 项目上下文（C 语言、SSD 固件）
@@ -98,7 +114,7 @@ memory/ ───┘          openspec/specs/ ───┘  spec rules ───
 ## 快速部署
 
 ```bash
-bash deploy_tools.sh                     # 一键安装全部工具链
+bash deploy_tools.sh <C源码路径>            # 一键安装全部工具链
 bash .opencode/skills/sd-firmware-copilot/init.sh  # 部署规则和知识模板到当前项目
 ```
 

@@ -200,7 +200,7 @@ OpenSpec 工件是门禁的输入，**门禁本身** 仍是 zsf 流程的核心�
 - **时机**：design.md + tasks.md 完成后
 - **输入**：proposal.md、design.md、tasks.md
 - **校验命令**：`openspec validate --strict --changes` 必须通过
-- **人工检查**（design.md「待人工确认清单」7 项，参见 `references/spec_workflow.md` §4.2.3）：
+- **人工检查**（design.md「待人工确认清单」7 项，参见 `openspec-workflow/SKILL.md`「工件模板与门禁流程」）：
   - [ ] 架构假设是否正确？
   - [ ] CodeGraph 影响查询是否完整？（impact/callers/imports/dep graph）
   - [ ] 是否有更简单的替代方案？
@@ -214,7 +214,7 @@ OpenSpec 工件是门禁的输入，**门禁本身** 仍是 zsf 流程的核心�
 - **时机**：编码完成 + Review 后
 - **输入**：design.md、specs/ delta、代码 diff
 - **校验命令**：`openspec validate --strict --changes` 必须通过
-- **人工检查**（参见 `references/spec_workflow.md` §6.2 Review 检查项 11 条）
+- **人工检查**（参见 `openspec-workflow/SKILL.md`「工件模板与门禁流程」Review 检查项 11 条）
 - **通过后**：→ 归档（`/opsx:archive`），deltas 合并到 `openspec/specs/`
 
 ---
@@ -303,4 +303,4 @@ openspec archive <id>               # 归档变更
 | `memory/testing_rules.md` | 增量可验证性要求通过 testing_rules.md 的测试场景落地 |
 | `memory/architecture.md` | CodeGraph 查询规则已被 OpenSpec 门禁引用 |
 | `development/skill.md` | 开发流程产出的工件对应本规则的规格层 |
-| `references/spec_workflow.md` | OpenSpec CLI 与 zsf 流程的具体衔接（CLI 命令、模板示例、门禁清单） |
+| `openspec-workflow/SKILL.md` | OpenSpec CLI 与 zsf 流程的具体衔接（CLI 命令、模板示例、门禁清单） |
