@@ -22,6 +22,14 @@
 
 每一个变更都要走完一圈；不允许跳过 KNOW 或 FEEDBACK。
 
+## 新手上路
+
+刚看完 [README](../README.md)？接下来按你的角色走：
+
+1. 往下翻到「你是谁，要看哪里」→ 找到你的角色入口
+2. 往下翻到「关键目录速查」→ 找到你要改的文件位置
+3. 往下翻到「项目结构」→ 理解文件之间的层级关系
+
 ## 你是谁，要看哪里
 
 | 你的角色 | 入口 | 看完之后看哪里 |
@@ -43,6 +51,43 @@
 | `AGENTS.md` | **AI 运行时指令**：graphify / openspec / superpowers 三工具规则 | AI |
 | `README.md` | **项目入口**：双路径、四工具架构、推荐阅读顺序 | 人 |
 
+## 项目结构
+
+```
+zsf/
+├── 📖 人类阅读层
+│   ├── README.md                    ← 项目入口：两路径、四工具、核心原则
+│   ├── AGENTS.md                    ← AI 运行时指令
+│   ├── SSD_Firmware_AI_Copilot_Methodology.md  ← 完整方法论
+│   └── docs/
+│       ├── navigation.md            ← 本文档：文件地图 + 按角色找入口
+│       ├── roadmap.md               ← 实施进度与规划
+│       └── maintainer.md            ← 维护者日常操作
+│
+├── 🔧 AI 运行时 (.opencode/)
+│   ├── memory/                      ← 编码规则（6 文件，运行时加载）
+│   ├── plugins/graphify.js          ← KNOW：知识图谱
+│   └── skills/                      ← 四阶段执行引擎
+│       ├── sd-firmware-copilot/     ← 顶层 SSD 固件 AI 助手
+│       │   ├── rules/spec_rules.md  ← OpenSpec 流程规则
+│       │   └── init.sh              ← 初始化
+│       ├── superpowers/             ← 工程纪律层（10 子技能）
+│       ├── openspec-workflow/       ← OpenSpec 完整工作流（propose→archive）
+│       ├── development/skill.md     ← BUILD 适配器
+│       └── review/skill.md          ← FEEDBACK 适配器
+│
+├── 📐 规格层
+│   └── openspec/
+│       ├── config.yaml              ← 项目上下文
+│       └── specs/                   ← 5 个领域规格（唯一真相源）
+│
+├── 🚀 入口脚本
+│   ├── deploy_tools.sh              ← 一键部署工具链
+│   ├── verify.sh                    ← 一键健康检查（6 项）
+│   └── .opencode/skills/sd-firmware-copilot/init.sh  ← 项目初始化
+│
+└── graphify-out/                   ← 知识图谱产物（自动生成，可查询）
+```
 ## 几条重要约定
 
 1. **代码优先**：`Source Code > Design Docs > Specs > Memory > Prompt`。代码是真实实现。
@@ -61,3 +106,14 @@
 ## 如果你是 AI 代理
 
 请直接读 [AGENTS.md](../AGENTS.md)，**不要**读本文档——本文档是给人看的导航，AGENTS.md 才是给你的运行时指令。
+
+## 配置索引
+
+项目的关键配置文件与对应职责：
+
+| 配置文件 | 职责 |
+|---------|------|
+| `opencode.json` | OpenCode 运行时配置（MCP、插件） |
+| `openspec/config.yaml` | OpenSpec 上下文（语言/C 域、工具链） |
+| `.opencode/memory/*.md` | 编码规则（架构/并发/代码风格/设计/审查/测试） |
+| `.gitignore` | 排除模式 |
