@@ -73,8 +73,8 @@ zsf/
 │       │   └── init.sh              ← 初始化
 │       ├── superpowers/             ← 工程纪律层（10 子技能）
 │       ├── openspec-workflow/       ← OpenSpec 完整工作流（propose→archive）
-│       ├── development/skill.md     ← BUILD 适配器
-│       └── review/skill.md          ← FEEDBACK 适配器
+│       ├── development/SKILL.md     ← BUILD 适配器
+│       └── review/SKILL.md          ← FEEDBACK 适配器
 │
 ├── 📐 规格层
 │   └── openspec/
