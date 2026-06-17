@@ -7,7 +7,6 @@ node_modules/
 
 # Graphify 生成文件（知识图谱输出）
 graphify-out/
-AGENTS.md
 
 # Backup files
 *.bak

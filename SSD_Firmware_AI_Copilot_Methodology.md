@@ -210,7 +210,7 @@ zsf/
 │   └── specs/                                   # 基线规格（5 个 capability）
 ├── .opencode/
 │   ├── memory/                                  # 项目规则（6 个规则文件）
-│   ├── knowledge/                               # 硬件知识库（NAND/NVMe/Platform）
+│   ├── memory/                                  # 项目规则（6 个规则文件）
 │   └── skills/
 │       ├── development/                         # 开发流程 Skill
 │       ├── review/                              # Review 流程 Skill
@@ -220,7 +220,7 @@ zsf/
 │           ├── init.sh                          # 一键部署
 │           ├── rules/spec_rules.md              # 规格层规则
 │           ├── references/                      # 工件模板 + 部署指南
-│           └── knowledge-templates/             # 硬件知识模板
+│           └── references/                      # 工件模板 + 部署指南
 └── .gitignore
 ```
 

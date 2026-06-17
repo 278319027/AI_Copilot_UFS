@@ -10,7 +10,7 @@ SSD 固件开发的 AI 辅助技能包。提供 CodeGraph 优先的代码定位�
 ┌──────────────────────────────────────────────────────────────────┐
 │ 上层 — sd-firmware-copilot（本技能）                              │
 │   决定 SSD 领域 "What"：CodeGraph 影响分析、OpenSpec 工件、       │
-│   specs/ 增量、SSD 规则、specs/baseline/                          │
+│   specs/ 增量、SSD 规则、openspec/specs/                          │
 ├──────────────────────────────────────────────────────────────────┤
 │ 下层 — Superpowers（.opencode/skills/superpowers/）               │
 │   决定通用工程 "How"：TDD、systematic-debugging、                  │
@@ -63,7 +63,7 @@ SSD 固件开发的 AI 辅助技能包。提供 CodeGraph 优先的代码定位�
    - Gate 3: Review Gate → 查证式 Review + specs/ 一致性验证后归档
    - 详情见 `rules/spec_rules.md` §5
 4. **提案/审查/增量工件**：需求产出 proposal.md + specs/ 增量，审查产出 review.md（含查证 + 增量核对）
-5. **归档合并**：Review Gate 通过后将 specs/ 增量合并到 `specs/baseline/`，commit 格式 `chore(spec): archive {change-id}`
+5. **归档合并**：Review Gate 通过后由 `/opsx:archive` 将 specs/ 增量合并到 `openspec/specs/`，commit 格式 `chore(spec): archive {change-id}`
 
 ### CodeGraph 查询（必须使用）
 
@@ -131,15 +131,14 @@ cscope -d -L8 "header.h"   # 头文件包含
 | 规则审查 | `.opencode/memory/review_rules.md` | Review 检查项 + SSD 专项 |
 | 测试规则 | `.opencode/memory/testing_rules.md` | 测试框架 + 测试场景清单（强制） |
 
-## 知识模板
+## 硬件知识
 
-知识模板包含 SSD 固件核心领域的结构化知识框架，**芯片特定值需要填写**：
+本技能包**不**捆绑硬件知识模板。寄存器/时序/中断等芯片特定信息因芯片型号而异，应在项目初始化时由硬件团队提供。
 
-| 领域 | 路径 | 内容 |
-|------|------|------|
-| NAND 控制器 | `knowledge-templates/nand_controller/` | 寄存器、操作序列、时序约束、ECC |
-| NVMe 规约 | `knowledge-templates/nvme_spec/` | Admin/I/O 命令、错误处理 |
-| 平台 | `knowledge-templates/platform/` | 内存映射、电源状态 |
+建议做法：
+- 由项目所有者将芯片手册、寄存器表、时序约束等结构化放入 `.opencode/knowledge/`（按 `nand_controller/`、`nvme_spec/`、`platform/` 等子目录组织）。
+- 本技能包按需注入相关子目录（如处理 NAND 驱动时注入 `nand_controller/`），而非全量加载。
+- 每个知识文件需标注适用芯片型号与固件版本，修改时同步更新版本号。
 
 ## 规格基线
 
@@ -147,11 +146,11 @@ cscope -d -L8 "header.h"   # 头文件包含
 
 | 基线 | 路径 | 描述 |
 |------|------|------|
-| 基线索引 | `specs/baseline/README.md` | 基线文件列表与填充状态 |
-| NVMe 命令 | `specs/baseline/nvme-commands.md` | 命令处理流程、SQ/CQ、PRP/SGL |
-| FTL 映射 | `specs/baseline/ftl-mapping.md` | LBA→PBA、磨损均衡、GC、SLC Cache |
-| NAND 驱动 | `specs/baseline/nand-driver.md` | Page/Block 操作、ECC、坏块管理 |
-| 错误处理 | `specs/baseline/error-handling.md` | 错误传播、恢复策略、断电恢复 |
+| 基线索引 | `openspec/specs/` | 5 个 capability 的 spec.md 总入口（`ssd-firmware-overview` / `nvme-commands` / `ftl-mapping` / `nand-driver` / `error-handling`） |
+| NVMe 命令 | `openspec/specs/nvme-commands/spec.md` | 命令处理流程、SQ/CQ、PRP/SGL |
+| FTL 映射 | `openspec/specs/ftl-mapping/spec.md` | LBA→PBA、磨损均衡、GC、SLC Cache |
+| NAND 驱动 | `openspec/specs/nand-driver/spec.md` | Page/Block 操作、ECC、坏块管理 |
+| 错误处理 | `openspec/specs/error-handling/spec.md` | 错误传播、恢复策略、断电恢复 |
 
 ## 初始化
 
@@ -162,8 +161,9 @@ bash .opencode/skills/sd-firmware-copilot/init.sh
 ```
 
 init.sh 会：
-1. 复制规则文件到 `.opencode/memory/`
-2. 复制知识模板到 `.opencode/knowledge/`（保留已有项目特定值）
-3. 配置 CodeGraph MCP（提示输入项目路径）
-4. 提示安装 CodeGraph 工具链
-5. 初始化 `openspec/` 目录结构（specs/baseline/ + proposals/）
+1. 确认 `.opencode/memory/` 规则文件就位（6 个规则文件）
+2. 配置 CodeGraph MCP（提示输入项目路径）
+3. 提示安装 CodeGraph 工具链
+4. 初始化 `openspec/` 目录结构（`openspec/specs/` + `openspec/changes/`）
+
+> 硬件知识（寄存器/时序/平台）**不**由本技能包提供，芯片特定值需项目初始化时由硬件团队填入 `.opencode/knowledge/`。

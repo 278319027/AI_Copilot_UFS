@@ -17,7 +17,7 @@ is the **lower layer** in a two-layer architecture:
 ┌─────────────────────────────────────────────────────────────┐
 │  Upper layer — Domain rules (SDD-specific)                  │
 │  skills/sd-firmware-copilot/SKILL.md                        │
-│  + memory/ + specs/baseline/ + openspec/                   │
+│  + memory/ + openspec/specs/ + openspec/                   │
 │  → "What" to build for an SSD controller                    │
 ├─────────────────────────────────────────────────────────────┤
 │  Lower layer — Engineering discipline (project-agnostic)    │

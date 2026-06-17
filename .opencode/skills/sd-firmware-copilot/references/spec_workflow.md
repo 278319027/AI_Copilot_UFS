@@ -333,36 +333,17 @@ openspec archive <change-id>
 
 ## 8. 三级门禁体系（zsf 增强）
 
-OpenSpec 工件是门禁的输入，**门禁本身** 仍是 zsf 流程的核心（参见 `rules/spec_rules.md` §5）。
+OpenSpec 工件是门禁的输入，**门禁本身** 仍是 zsf 流程的核心。三级门禁（Proposal / Design / Review）的权威定义、checklist、校验命令见 `rules/spec_rules.md` §5；简化豁免规则见 §6.5。
 
-### 8.1 Gate 1：Proposal Gate（提案门禁）
+本节补充 OpenSpec CLI 命令在门禁流程中的衔接点（与 `rules/spec_rules.md` §5 互补）：
 
-- **时机**：`/opsx:propose` 完成后
-- **输入**：`openspec/changes/<id>/proposal.md` + `specs/*.md`
-- **校验**：`openspec validate --strict --changes` 必须通过
-- **人工检查**：
-  - [ ] 变更动机是否清晰？
-  - [ ] 影响范围是否识别？
-  - [ ] 是否与 `openspec/specs/` 现有基线冲突？
-  - [ ] 是否有更简单的替代方案？
-  - [ ] specs/ delta 是否正确描述了行为变更？
-- **通过后**：→ 进入 Design 阶段（design.md 填充 + CodeGraph 查询）
+| 阶段 | OpenSpec 命令 | 触发点 | 通过后 |
+|------|--------------|--------|--------|
+| Proposal Gate | `openspec validate --strict --changes` | `/opsx:propose` 完成后 | → Design 阶段 |
+| Design Gate | `openspec validate --strict --changes` | design.md + tasks.md 完成后 | → `/opsx:apply` |
+| Review Gate | `openspec validate --strict --changes` | 编码 + Review 后 | → `openspec archive <change-id>` |
 
-### 8.2 Gate 2：Design Gate（设计门禁）
-
-- **时机**：design.md + tasks.md 完成后
-- **输入**：proposal.md、design.md、tasks.md
-- **校验**：`openspec validate --strict --changes` 必须通过
-- **人工检查**（design.md「待人工确认清单」7 项，参见 §4.2.3）
-- **通过后**：→ 进入 Coding 阶段（`/opsx:apply`）
-
-### 8.3 Gate 3：Review Gate（审查门禁）
-
-- **时机**：编码完成 + Review 后
-- **输入**：design.md、specs/ delta、代码 diff
-- **校验**：`openspec validate --strict --changes` 必须通过
-- **人工检查**（参见 §6.2 Review 检查项 11 条）
-- **通过后**：→ 归档（`/opsx:archive`），deltas 合并到 `openspec/specs/`
+具体人工 checklist 见 `rules/spec_rules.md` §5 各小节。
 
 ---
 

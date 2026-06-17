@@ -1,6 +1,6 @@
 #!/bin/bash
 # sd-firmware-copilot init.sh — 一次性初始化脚本
-# 将知识模板部署到项目的 .opencode/ 目录，并初始化 OpenSpec
+# 验证规则文件、配置 CodeGraph MCP、检查工具链、初始化 OpenSpec
 # 规则文件（architecture.md 等）已内置在 .opencode/memory/ 中，无需额外复制
 set -e
 
@@ -14,7 +14,7 @@ echo "项目根目录: $PROJECT_ROOT"
 echo ""
 
 # 1. 确认规则文件就位
-echo "--- [1/5] 确认规则文件 ---"
+echo "--- [1/4] 确认规则文件 ---"
 MISSING_RULES=0
 for rule in architecture.md concurrency_rules.md coding_style.md design_rules.md review_rules.md testing_rules.md; do
     if [ -f "$MEMORY_DIR/$rule" ]; then
@@ -28,36 +28,22 @@ if [ $MISSING_RULES -gt 0 ]; then
     echo "  ⚠ 有 $MISSING_RULES 个规则文件缺失，请检查"
 fi
 
-# 2. 复制知识模板到 knowledge/
-echo "--- [2/5] 部署知识模板 ---"
-echo "（芯片特定值需要手动填写，模板中标记为 TBD）"
-mkdir -p "$KNOWLEDGE_DIR"
-for dir in nand_controller nvme_spec platform; do
-    if [ -d "$SKILL_DIR/knowledge-templates/$dir" ]; then
-        target="$KNOWLEDGE_DIR/$dir"
-        if [ -d "$target" ]; then
-            echo "  ⚠ $dir/ 已存在，跳过"
-        else
-            mkdir -p "$target"
-            cp "$SKILL_DIR/knowledge-templates/$dir/"*.md "$target/"
-            echo "  ✓ $dir/ ($(ls "$SKILL_DIR/knowledge-templates/$dir/"*.md | wc -l) 个文件)"
-        fi
-    fi
-done
-
-# 复制知识库 README
-if [ -f "$SKILL_DIR/knowledge-templates/README.md" ]; then
-    if [ ! -f "$KNOWLEDGE_DIR/README.md" ]; then
-        cp "$SKILL_DIR/knowledge-templates/README.md" "$KNOWLEDGE_DIR/README.md"
-        echo "  ✓ knowledge/README.md"
-    else
-        echo "  ⚠ knowledge/README.md 已存在，跳过"
-    fi
+# 2. 硬件知识：芯片特定，本技能包不提供模板，需项目所有者填入
+echo "--- [2/4] 硬件知识 ---"
+if [ -d "$KNOWLEDGE_DIR" ]; then
+    echo "  ✓ .opencode/knowledge/ 已存在 ($(find "$KNOWLEDGE_DIR" -name '*.md' | wc -l) 个文件)"
+    echo "  → 如芯片型号或固件版本变更，请同步更新知识文件版本号"
+else
+    echo "  ⚠ .opencode/knowledge/ 不存在"
+    echo "  → 请项目所有者创建该目录并填入芯片特定知识"
+    echo "    推荐子目录: nand_controller/ nvme_spec/ platform/"
+    echo "    本技能包不提供硬件知识模板（知识因芯片型号而异）"
 fi
+
 
 # 3. 配置 CodeGraph MCP
 echo ""
-echo "--- [3/5] 配置 CodeGraph MCP ---"
+echo "--- [3/4] 配置 CodeGraph MCP ---"
 OPENCODE_JSON="$PROJECT_ROOT/opencode.json"
 if [ -f "$OPENCODE_JSON" ]; then
     echo "  opencode.json 已存在"
@@ -75,7 +61,7 @@ fi
 
 # 4. 检查工具链（CodeGraph + cscope + OpenSpec）
 echo ""
-echo "--- [4/5] 工具链检查 ---"
+echo "--- [4/4] 工具链检查 ---"
 TOOLS_OK=true
 if command -v codegraph &>/dev/null; then
     echo "  ✓ codegraph: $(codegraph --version 2>&1 | head -1)"
@@ -112,7 +98,7 @@ fi
 
 # 5. 初始化 OpenSpec + 验证基线 specs
 echo ""
-echo "--- [5/5] 初始化 OpenSpec ---"
+echo "--- 初始化 OpenSpec ---"
 if command -v openspec &>/dev/null; then
     OPENSPEC_DIR="$PROJECT_ROOT/openspec"
     if [ -d "$OPENSPEC_DIR" ]; then

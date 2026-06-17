@@ -175,52 +175,12 @@ typedef struct {
 
 ## 7. 设计方案确认门禁（三级）
 
-zsf 集成 OpenSpec 后升级为三级门禁体系。门禁规则详见 `spec_rules.md` §5，本节省略概要。
+三级门禁（Proposal Gate → Design Gate → Review Gate）的权威定义、校验命令、checklist 和简化豁免规则统一在 `.opencode/skills/sd-firmware-copilot/rules/spec_rules.md` §5（门禁）+ §6.5（简化规则）。本节仅给出一句话流程摘要，详细规则请跳转。
 
-### Gate 1：Proposal Gate（提案门禁）
+**流程摘要**：
 
-- **时机**：proposal.md 完成后
-- **输入**：proposal.md、specs/ 增量
-- **检查项**：
-  - 变更动机是否清晰？
-  - 影响范围是否识别？
-  - 是否与现有 baseline spec 冲突？
-  - 是否有更简单的替代方案？
-- **通过后**：→ 进入 CodeGraph 深度查询 + design 阶段
+- **Proposal Gate**（动机 OK）：`/opsx:propose` 完成后 → `openspec validate --strict --changes` 通过 + 5 项人工 checklist
+- **Design Gate**（架构 OK）：design.md + tasks.md 完成后 → 校验同上 + 7 项人工确认清单（参见 `references/spec_workflow.md` §4.2.3）
+- **Review Gate**（代码匹配 spec）：编码 + Review 后 → 校验同上 + 11 项 Review 检查（参见 `references/spec_workflow.md` §6.2）
 
-### Gate 2：Design Gate（设计门禁）
-
-设计方案必须通过 `design.md` 产出，模板与规范见 `references/spec_workflow.md` §1。
-
-design.md 必须包含：
-1. 架构假设
-2. CodeGraph 查询结果（impact/callers/imports/dep graph）
-3. 更简方案评估
-4. tasks.md 粒度（200-500 行/任务）
-5. 并发/资源/错误路径
-
-人工逐项确认通过后，方可进入编码阶段。
-
-**design.md 在 Review 阶段作为 CodeGraph 查证基准**——Review 时不再重新查询 CodeGraph，而是验证代码变更是否在 design.md 预期的范围内。
-
-单文件 bugfix（影响范围明确）可精简为仅含「架构假设」和「CodeGraph 查询结果」两个字段。
-
-### Gate 3：Review Gate（审查门禁）
-
-- **时机**：编码完成 + Review 后
-- **输入**：review.md、design.md、specs/ 增量、代码 diff
-- **检查项**：
-  - Review 检查项全部通过（review_rules.md）
-  - CodeGraph 验证影响范围与 design.md 一致（查证式）
-  - specs/ 增量与实际代码变更一致
-  - 测试场景覆盖（testing_rules.md）
-- **通过后**：→ 归档，specs 增量合并到 baseline
-
-### 简化豁免
-
-| 变更类型 | 简化规则 | 必需工件 |
-|---------|---------|---------|
-| 单文件 bugfix | 跳过 Proposal Gate | design.md + tasks.md |
-| 文档/注释更新 | 跳过全部门禁 | 无需 OpenSpec 工件 |
-| 新功能/重构/接口变更 | **完整流程** | 全部工件 |
-| 跨模块变更 | **完整流程 + 额外 Review** | 全部工件 + 双人 Review |
+**简化豁免**：单文件 bugfix / 文档变更 / 配置变更 / 跨模块变更的处理见 `spec_rules.md` §6.5。

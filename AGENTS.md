@@ -1,21 +1,6 @@
-## 两种驱动模式
+本文档是 OpenCode Agent 的运行时指令，描述 graphify/openspec/superpowers 三工具的使用规则。
 
-本项目支持两种 AI 辅助编程路径：
-- **模式 A（设计文档驱动）**：设计文档 → KNOW → PLAN → BUILD → FEEDBACK
-- **模式 B（代码驱动）**：现有代码 → KNOW（生成设计文档）→ PLAN → BUILD → FEEDBACK
-
-两种模式的区别仅在 KNOW 阶段：模式 A 以设计文档为输入，模式 B 以代码为输入并自动生成设计文档。从 PLAN 阶段起一致。
-
-## 四工具架构
-
-本项目使用 **KNOW→PLAN→BUILD→FEEDBACK** 四工具架构，由 `OpenCode Agent` 统一编排：
-
-| 阶段 | 工具 | 用途 |
-|------|------|------|
-| **KNOW** | Graphify + CodeGraph | 理解现有系统：知识图谱 + 调用图 |
-| **PLAN** | OpenSpec CLI | 规格驱动变更：`propose` → `apply` → `archive` |
-| **BUILD** | Superpowers + `sd-firmware-copilot` | 工程纪律（TDD/调试/验证）+ SSD 领域规则 |
-| **FEEDBACK** | OpenSpec archive + Graphify update | 合并 specs 增量到基线；更新知识图谱 |
+## superpowers 三条铁律
 
 Superpowers 三条铁律适用于**所有** AI 输出、跨越全部四个阶段：
 - **不验证不宣称完成** — 完成前必须实际运行测试/命令验证，使用 `verification-before-completion` Skill
