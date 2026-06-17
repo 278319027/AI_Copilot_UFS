@@ -280,7 +280,7 @@ The system SHALL do something new.
    - **有 delta specs** → 与 `openspec/specs/<capability>/spec.md` 对比，决定将应用的变更（增/改/删/重命名），**先展示合并汇总再提示**：
      - 待变更：选项「立即同步（推荐）」「不同步直接归档」
      - 已同步：选项「立即归档」「再同步一次」「取消」
-   - 若用户选同步：用 Task 工具（`subagent_type: "general-purpose"`）调 `openspec-sync-specs`。
+   - 若用户选同步：用 Task 工具（`subagent_type: "general-purpose"`）调 `openspec-workflow`（阶段 4 同步）。
 5. **执行归档**：
    - 建 `mkdir -p "<planningHome.changesDir>/archive"`
    - 目标名 `YYYY-MM-DD-<change-name>`（用当前日期）
@@ -295,7 +295,7 @@ The system SHALL do something new.
 - **警告不阻塞**——只提示确认
 - **`.openspec.yaml` 跟着目录一起 move**——不要单独处理
 - **展示清晰汇总**
-- **要 sync 就走 openspec-sync-specs 方式**（agent 驱动）
+- **要 sync 就走阶段 4 同步流程**（agent 驱动）
 - **有 delta specs 必先评估+汇总再提示**
 
 ---
