@@ -44,6 +44,57 @@ graphify explain "<概念>"
 | **BUILD** | Superpowers + sd-firmware-copilot | `.opencode/skills/superpowers/` |
 | **FEEDBACK** | OpenSpec CLI + Graphify | 同上 |
 
+## 项目结构
+
+```
+zsf/
+├── 📖 人类阅读层
+│   ├── README.md                    ← 本文件：30 秒上手
+│   ├── AGENTS.md                    ← AI 代理规则（graphify/openspec/superpowers）
+│   ├── docs/
+│   │   ├── navigation.md            ← 新人导航：项目是什么、文件去哪找
+│   │   └── roadmap.md               ← 实施进度与规划
+│   └── SSD_Firmware_AI_Copilot_Methodology.md  ← 完整方法论
+│
+├── 🔧 AI 代理运行时 (.opencode/)
+│   ├── memory/                      ← 编码规则（6 文件，运行时自动加载）
+│   │   └── architecture / design / coding / concurrency / review / testing
+│   ├── plugins/graphify.js          ← KNOW：知识图谱生成/查询
+│   └── skills/                      ← 四阶段的执行引擎
+│       ├── sd-firmware-copilot/     ← 顶层：SSD 固件 AI 助手统一入口
+│       │   ├── rules/spec_rules.md  ← OpenSpec 流程规则
+│       │   ├── references/          ← 工作流模板 / 部署指南 / 提示库
+│       │   └── init.sh              ← 一键初始化
+│       ├── superpowers/             ← 工程纪律层（10 子技能）
+│       │   ├── test-driven-development
+│       │   ├── verification-before-completion
+│       │   ├── systematic-debugging
+│       │   ├── executing-plans
+│       │   ├── requesting-code-review
+│       │   └── ...（共 10 个）
+│       ├── development/skill.md     ← BUILD 薄适配器（委托 Superpowers）
+│       ├── review/skill.md          ← FEEDBACK 薄适配器
+│       └── openspec-*/ ×5           ← OpenSpec CLI 包装器
+│
+└── 📐 规格层 (openspec/)
+    ├── config.yaml                  ← 项目上下文（C 语言、SSD 固件）
+    └── specs/                       ← 5 个领域规格（系统行为的唯一真相源）
+        ├── ssd-firmware-overview/
+        ├── nvme-commands/
+        ├── ftl-mapping/
+        ├── nand-driver/
+        └── error-handling/
+```
+
+**数据流**：
+
+```
+KNOW                 PLAN                  BUILD                  FEEDBACK
+graphify ─┐          openspec-propose ──┐  development ──┐       review
+CodeGraph ─┤  ───→   openspec-explore ──┤→ superpowers ──┤ ───→ superpowers
+memory/ ───┘          openspec/specs/ ───┘  spec rules ───┘       openspec-archive
+(知识图谱+调用图)     (Delta Spec 变更)     (TDD+验证+调试)      (审查+归档)
+```
 ## 快速部署
 
 ```bash
