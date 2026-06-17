@@ -23,8 +23,8 @@ hdr() { printf "\n[%s] %s\n" "$1" "$2"; }
 echo "=== verify.sh — 项目健康检查 ==="
 echo "  项目根: $PROJECT_ROOT"
 
-# [1/6] OpenSpec specs validation
-hdr "1/6" "OpenSpec specs validation"
+# [1/8] OpenSpec specs validation
+hdr "1/8" "OpenSpec specs validation"
 if command -v openspec &>/dev/null; then
     if OUT=$(OPENSPEC_TELEMETRY=0 openspec validate --strict --specs 2>&1) && \
        echo "$OUT" | grep -qE "[0-9]+ passed, 0 failed"; then
@@ -36,16 +36,16 @@ else
     bad "openspec CLI not installed (npm i -g @fission-ai/openspec)"
 fi
 
-# [2/6] CodeGraph MCP
-hdr "2/6" "CodeGraph MCP config"
+# [2/8] CodeGraph MCP
+hdr "2/8" "CodeGraph MCP config"
 if [ -f "$PROJECT_ROOT/opencode.json" ] && grep -q '"codegraph"' "$PROJECT_ROOT/opencode.json"; then
     ok "opencode.json contains codegraph MCP entry"
 else
     bad "opencode.json missing or lacks 'codegraph' MCP"
 fi
 
-# [3/6] Graphify plugin
-hdr "3/6" "Graphify plugin"
+# [3/8] Graphify plugin
+hdr "3/8" "Graphify plugin"
 PLUGIN="$PROJECT_ROOT/.opencode/plugins/graphify.js"
 if [ -r "$PLUGIN" ]; then
     ok "graphify.js exists and is readable"
@@ -53,8 +53,8 @@ else
     bad "$PLUGIN missing or unreadable"
 fi
 
-# [4/6] Memory rules
-hdr "4/6" "Memory rules (6 files)"
+# [4/8] Memory rules (6 files present)
+hdr "4/8" "Memory rules (6 files present)"
 MEM="$PROJECT_ROOT/.opencode/memory"
 MISS=0
 for r in architecture.md concurrency_rules.md coding_style.md design_rules.md review_rules.md testing_rules.md; do
@@ -62,23 +62,42 @@ for r in architecture.md concurrency_rules.md coding_style.md design_rules.md re
 done
 [ "$MISS" -eq 0 ] && ok "all 6 rules present" || bad "$MISS/6 rules missing in .opencode/memory/"
 
-# [5/6] Bash syntax
-hdr "5/6" "Deploy scripts syntax"
-SYN=0
-bash -n "$PROJECT_ROOT/deploy_tools.sh" 2>/dev/null || SYN=$((SYN+1))
-bash -n "$PROJECT_ROOT/.opencode/skills/sd-firmware-copilot/init.sh" 2>/dev/null || SYN=$((SYN+1))
-[ "$SYN" -eq 0 ] && ok "deploy_tools.sh + init.sh have valid bash syntax" || bad "$SYN deploy script(s) have syntax errors"
+# [5/8] deploy_tools.sh syntax
+hdr "5/8" "deploy_tools.sh syntax"
+bash -n "$PROJECT_ROOT/deploy_tools.sh" 2>/dev/null && ok "deploy_tools.sh has valid bash syntax" || bad "deploy_tools.sh has syntax errors"
 
-# [6/6] Tools on PATH
-hdr "6/6" "Essential tools on PATH"
+# [6/8] Tools on PATH
+hdr "6/8" "Essential tools on PATH"
 MT=()
 for t in codegraph openspec cscope; do
     command -v "$t" &>/dev/null || MT+=("$t")
 done
 [ ${#MT[@]} -eq 0 ] && ok "codegraph, openspec, cscope all on PATH" || bad "missing tools: ${MT[*]}"
 
+# [7/8] Memory rules format (non-empty + has headers)
+hdr "7/8" "Memory rules format (6 files)"
+BAD=0
+for r in architecture.md concurrency_rules.md coding_style.md design_rules.md review_rules.md testing_rules.md; do
+    f="$MEM/$r"
+    if [ -f "$f" ] && [ -s "$f" ] && grep -qE "^#" "$f"; then
+        :   # ok
+    else
+        BAD=$((BAD+1))
+    fi
+done
+[ "$BAD" -eq 0 ] && ok "all 6 rules non-empty with markdown headers" || bad "$BAD rules empty or malformed"
+
+# [8/8] openspec/config.yaml non-empty
+hdr "8/8" "openspec/config.yaml"
+CONFIG="$PROJECT_ROOT/openspec/config.yaml"
+if [ -f "$CONFIG" ] && [ -s "$CONFIG" ]; then
+    ok "config.yaml exists and is non-empty"
+else
+    bad "config.yaml missing or empty"
+fi
+
 # Summary
 printf "\n==============================================\n"
-printf "  Summary: %d/6 checks passed\n" "$P"
+printf "  Summary: %d/8 checks passed\n" "$P"
 printf "==============================================\n"
 [ "$F" -eq 0 ] && exit 0 || exit 1

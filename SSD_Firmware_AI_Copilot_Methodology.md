@@ -217,7 +217,6 @@ zsf/
 │       ├── superpowers/                         # 工程纪律引擎（10 子技能）
 │       ├── openspec-*/                          # OpenSpec CLI 适配器（5 个）
 │       └── sd-firmware-copilot/                 # 领域规则包（可分发的）
-│           ├── init.sh                          # 一键部署
 │           ├── SKILL.md                        # 主体（含 Spec 规则章节）
 │           ├── references/                      # 工件模板 + 部署指南
 │           └── references/                      # 工件模板 + 部署指南

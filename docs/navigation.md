@@ -35,7 +35,7 @@
 | 你的角色 | 入口 | 看完之后看哪里 |
 |---------|------|---------------|
 | **新人**（了解项目） | [README.md](../README.md) | [SSD_Firmware_AI_Copilot_Methodology.md](../SSD_Firmware_AI_Copilot_Methodology.md) → [docs/roadmap.md](roadmap.md) |
-| **贡献者**（修改 Skill/Rule/Spec） | `.opencode/memory/`（6 个规则文件）→ `openspec/specs/`（基线规格）→ `.opencode/skills/`（技能包） | 跑 `bash .opencode/skills/sd-firmware-copilot/init.sh` 验证环境 |
+│ **贡献者**（修改 Skill/Rule/Spec） | `.opencode/memory/`（6 个规则文件）→ `openspec/specs/`（基线规格）→ `.opencode/skills/`（技能包） | 跑 `bash verify.sh` 验证环境 |
 | **工具部署者**（搭环境） | `deploy_tools.sh` | `deploy_tools.sh` 头部注释（工具链分工 / C 语言限制） |
 | **AI 代理**（执行任务） | [AGENTS.md](../AGENTS.md) | 不要读本文档——`AGENTS.md` 才是给你的 |
 
@@ -70,7 +70,6 @@ zsf/
 │   └── skills/                      ← 四阶段执行引擎
 │       ├── sd-firmware-copilot/     ← 顶层：BUILD + FEEDBACK 内联
 │       │   └── SKILL.md              ← 主体（含 Spec 规则）
-│       │   └── init.sh              ← 初始化
 │       ├── superpowers/             ← 工程纪律层（10 子技能）
 │       ├── openspec-workflow/       ← OpenSpec 完整工作流（propose→archive）
 │
@@ -81,8 +80,7 @@ zsf/
 │
 ├── 🚀 入口脚本
 │   ├── deploy_tools.sh              ← 一键部署工具链
-│   ├── verify.sh                    ← 一键健康检查（6 项）
-│   └── .opencode/skills/sd-firmware-copilot/init.sh  ← 项目初始化
+│   ├── verify.sh                    ← 一键健康检查（8 项）
 │
 └── graphify-out/                   ← 知识图谱产物（自动生成，可查询）
 ```

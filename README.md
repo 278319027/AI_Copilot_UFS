@@ -7,9 +7,7 @@
 ## 快速上手（5 分钟）
 
 ```bash
-# 1. 部署工具链（<C源码路径> 为 FEMU/SSD 固件的根目录）
 bash deploy_tools.sh /path/to/c-source
-bash .opencode/skills/sd-firmware-copilot/init.sh
 
 # 2. 验证环境
 bash verify.sh    # 确认 6/6 通过

@@ -326,27 +326,41 @@ echo "=============================================="
 
 
 # ============================================================
-# Step 7: 自动环境验证 (init.sh --check-only)
-#   部署工具链后，调用 init.sh 的只读验证模式检查项目根状态
-#   注意: 此步骤是信息性的，验证失败不会中断 deploy_tools.sh
+# Step 7: 项目根环境验证
+#   部署工具链后，验证 rules / specs / graphify 三项就位
 # ============================================================
-INIT_SCRIPT="$(cd "$(dirname "$0")" && pwd)/.opencode/skills/sd-firmware-copilot/init.sh"
-if [ ! -f "$INIT_SCRIPT" ]; then
+PROJECT_ROOT="$(cd "$(dirname "$0")" && pwd)"
+ERR=0
+
+echo ""
+echo "=============================================="
+echo "  Step 7: 环境验证"
+echo "=============================================="
+
+echo -n "  [1/3] Rules (6 files)... "
+MISS=0
+for r in architecture concurrency_rules coding_style design_rules review_rules testing_rules; do
+    [ -f "$PROJECT_ROOT/.opencode/memory/${r}.md" ] || MISS=$((MISS+1))
+done
+if [ "$MISS" -eq 0 ]; then echo "✓ 6/6"; else echo "✗ $MISS missing"; ERR=$((ERR+1)); fi
+
+echo -n "  [2/3] OpenSpec specs... "
+if command -v openspec &>/dev/null; then
+    OUT=$(OPENSPEC_TELEMETRY=0 openspec validate --strict --specs 2>&1) && \
+    echo "$OUT" | grep -qE "[0-9]+ passed, 0 failed" && echo "✓ passed" || \
+    { echo "✗ failed"; ERR=$((ERR+1)); }
+else
+    echo "✗ openspec not installed"; ERR=$((ERR+1))
+fi
+
+echo -n "  [3/3] Graphify plugin... "
+[ -r "$PROJECT_ROOT/.opencode/plugins/graphify.js" ] && echo "✓ exists" || \
+{ echo "✗ missing"; ERR=$((ERR+1)); }
+
+if [ "$ERR" -gt 0 ]; then
     echo ""
-    echo "=== 环境验证 (init.sh --check-only) ==="
-    echo "  ⚠ init.sh 未找到: $INIT_SCRIPT"
-    echo "  跳过环境验证"
+    echo "⚠  环境验证有 $ERR 项未通过，工具链部署不受影响"
 else
     echo ""
-    echo "=== 环境验证 (init.sh --check-only) ==="
-    # 临时关闭 set -e: init.sh --check-only 失败不应中断 deploy_tools.sh
-    set +e
-    bash "$INIT_SCRIPT" --check-only
-    INIT_RC=$?
-    set -e
-    if [ $INIT_RC -eq 0 ]; then
-        echo "✓ 环境验证通过"
-    else
-        echo "⚠ 环境验证发现问题，请运行: bash .opencode/skills/sd-firmware-copilot/init.sh"
-    fi
+    echo "✓  环境验证全部通过 (3/3)"
 fi
