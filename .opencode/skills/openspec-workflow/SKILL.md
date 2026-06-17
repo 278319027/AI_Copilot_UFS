@@ -410,6 +410,230 @@ graphify explain "<概念>"
 
 ---
 
+## 工件模板与门禁流程
+
+阶段 1-5 描述「做什么、按什么顺序做」，本节提供「具体怎么写」——**zsf 域注入**、**模板示例**与**简化场景**。规则层面的权威定义（基线管理、增量格式、门禁清单的 checklist）见 `sd-firmware-copilot/rules/spec_rules.md`，避免重复。
+
+### 1. OpenSpec 目录布局
+
+```text
+openspec/
+├── AGENTS.md                       # OpenSpec 注入给 AI 的指令（自动生成）
+├── config.yaml                     # schema: spec-driven + 项目上下文
+├── specs/                          # 已通过归档合并的活基线
+│   ├── ssd-firmware-overview/spec.md
+│   ├── nvme-commands/spec.md
+│   ├── ftl-mapping/spec.md
+│   ├── nand-driver/spec.md
+│   └── error-handling/spec.md
+└── changes/                        # 进行中的变更（每个目录 = 一个 change）
+    └── {change-id}/
+        ├── .openspec.yaml          # 变更元数据
+        ├── README.md               # 变更说明
+        ├── proposal.md             # /opsx:propose 生成
+        ├── specs/                  # /opsx:propose 生成（OpenSpec delta 格式）
+        │   └── <capability>/spec.md  # 含 ## ADDED / ## MODIFIED / ## REMOVED Requirements
+        ├── design.md               # /opsx:propose 生成（含 CodeGraph 查询结果）
+        └── tasks.md                # /opsx:propose 生成（200-500 行/任务）
+```
+
+---
+
+### 2. Proposal 域注入（zsf 域要求）
+
+`/opsx:propose` 生成 `proposal.md` 时，AI 必须按以下 zsf 域要求填充：
+
+| 字段 | zsf 域要求 |
+|------|-----------|
+| Why | 引用 `openspec/specs/<related-capability>/spec.md` 中的相关 Requirement 作为现状；说明本次变更的动机与对系统行为的改变 |
+| What Changes | 列出新增 / 修改 / 移除的 capabilities；**破坏性变更必须标记 `**BREAKING**`** |
+| Capabilities (New) | 命名规范：kebab-case（如 `ftl-slc-folding`、`nvme-sanitize`） |
+| Capabilities (Modified) | 必须在 `openspec/specs/` 中存在；列出受影响的 Requirement ID |
+| Impact | 列出潜在影响模块：NVMe / FTL / NAND / 错误处理；用 CodeGraph 预查（callers/impact）记录关键调用链 |
+| 验收标准 | 每个验收点必须可在 review 阶段通过 `openspec validate --strict` + CodeGraph 查证 + 测试场景覆盖来核对 |
+
+**简化场景**（与 `spec_rules.md` §6.5 一致）：
+
+| 变更类型 | 是否可跳过 proposal 人工评审 | 必需工件 |
+|---------|--------------------------|---------|
+| 单文件 bugfix（影响范围明确） | ✅ 跳过 | 仍建议走 `/opsx:propose` 全部 4 个工件 |
+| 文档 / 注释更新 | ✅ 跳过全部门禁 | 无需 OpenSpec 工件 |
+| 配置变更（无逻辑影响） | ✅ 跳过 Proposal Gate 人工评审 | tasks.md 即可 |
+| 新功能 / 重构 / 接口变更 | ❌ 必须完整流程 | 全部 4 个工件 + 三级门禁 |
+| 跨模块变更 | ❌ 必须完整流程 + 额外 Review | 全部 4 个工件 + 双人 Review |
+
+---
+
+### 3. Specs Delta 格式与示例
+
+OpenSpec 增量以 `## ADDED Requirements` / `## MODIFIED Requirements` / `## REMOVED Requirements` 三个 `##` 级 header 标识：
+
+- `### Requirement: <name>`（3 个 `#`）
+- 描述文本使用 SHALL / MUST（避免 should / may）
+- `#### Scenario: <name>`（4 个 `#`）—— **必须使用 4 个 `#`，3 个 `#` 或列表会导致静默失败**
+- Scenario 用 `**WHEN**` / `**THEN**` 描述
+- delta 描述「系统做什么」，不描述「代码怎么写」
+
+**完整示例**：
+
+```markdown
+## ADDED Requirements
+
+### Requirement: FTL MUST fold SLC blocks when full
+The FTL SHALL migrate data from SLC blocks to TLC blocks when SLC free block count falls below the configured threshold.
+
+#### Scenario: SLC threshold reached
+- **WHEN** SLC free block count < threshold
+- **THEN** the FTL MUST pick a victim SLC block
+- **AND THEN** it MUST copy valid pages to a free TLC block
+- **AND THEN** it MUST erase the victim SLC block and return it to the free pool
+
+## MODIFIED Requirements
+
+### Requirement: FTL write path
+The FTL MUST allocate a new PBA from the SLC region when possible, or from TLC when SLC is exhausted.
+
+#### Scenario: SLC has free blocks
+- **WHEN** the FTL processes a host write
+- **THEN** it MUST allocate the new PBA from the SLC region
+
+#### Scenario: SLC exhausted
+- **WHEN** the FTL processes a host write and SLC has no free blocks
+- **THEN** it MUST allocate the new PBA from the TLC region
+- **AND THEN** it MUST schedule an SLC-to-TLC folding pass
+
+## REMOVED Requirements
+
+### Requirement: Legacy pblock allocation
+**Reason**: Replaced by SLC-aware allocation policy
+**Migration**: All write paths use the new SLC allocation logic
+```
+
+> **MODIFIED 备份原则**：复制整个 Requirement 块（含所有 Scenario），只写部分内容会导致归档时丢失细节。如新增关注点不改变现有行为，使用 ADDED 而非 MODIFIED。
+
+---
+
+### 4. Design 域注入（CodeGraph 强制）
+
+`design.md` 由 `/opsx:propose` 生成，AI 在 OpenSpec 引导下填充内容。zsf 域要求 `design.md` 必须包含 **CodeGraph 查询结果** 与 **待人工确认清单**——这是 Design Gate 的强制输入。
+
+#### 4.1 CodeGraph 查询（强制 4 项）
+
+修改任何代码前，必须先执行以下查询并把结果粘贴到 design.md 的对应章节：
+
+```bash
+codegraph impact <symbol>            # 影响范围（函数 / 结构体 / 宏）
+codegraph callers <symbol>           # 谁调用了
+codegraph find_by_imports <header>   # 头文件 include 影响
+codegraph get_dependency_graph       # 模块边界 / 循环依赖
+```
+
+#### 4.2 cscope 补充（函数指针 / 宏场景）
+
+```bash
+cscope -d -L2 "<func_ptr>"           # 函数指针调用者
+cscope -d -L3 "<func_ptr>"           # 函数指针指向
+cscope -d -L4 "<MACRO>"              # 宏使用位置
+cscope -d -L8 "<header.h>"           # 谁包含了这个头文件
+```
+
+> CodeGraph 在函数指针 / 宏场景有盲区，cscope 是强制补充。
+
+#### 4.3 待人工确认清单（Design Gate 输入，7 项）
+
+人工逐条确认才能进入 Coding 阶段：
+
+1. 架构假设是否正确？
+2. CodeGraph 查询是否完整？（是否覆盖所有调用者和依赖？）
+3. 是否有更简单的替代方案？
+4. tasks.md 粒度是否合适（200-500 行/任务）？
+5. 并发 / 资源 / 错误路径是否已考虑？（参见 `memory/concurrency_rules.md`）
+6. 模块边界是否违反？（参见 `memory/architecture.md`）
+7. specs/ delta 是否覆盖所有变更？（参见 `openspec/changes/<id>/specs/`）
+
+**简化场景**：单文件 bugfix 的 design.md 可精简为仅含「架构假设」和「CodeGraph 查询结果」两个字段。
+
+---
+
+### 5. Tasks 域注入
+
+`tasks.md` 由 `/opsx:propose` 自动生成，AI 在 OpenSpec 引导下填充任务清单。zsf 的 **200-500 行/任务** 小任务原则在 tasks.md 中以「预期行数」字段强制表达：
+
+| 字段 | 约束 |
+|------|------|
+| 任务粒度 | 每个任务 200-500 行（与 zsf 小任务原则一致） |
+| 依赖 | 任务间依赖关系显式标注（前序任务 ID） |
+| 可独立验证 | 每个任务必须有自己的测试场景（参见 `memory/testing_rules.md`） |
+| 不扩大需求 | 任务清单严格对应 proposal.md 中的 What Changes；不接受范围蔓延 |
+| 与 spec 增量对应 | 每个任务项至少对应一条 `specs/` delta 中的 Scenario |
+
+---
+
+### 6. Review 域注入（查证式验证）
+
+Review 阶段是**查证式验证**（不重新查询 CodeGraph），对照 design.md 中记录的 CodeGraph 结果验证代码变更是否在预期范围内。检查项按风险等级排列：
+
+| 检查项 | 验证方法 | 风险等级 |
+|--------|---------|---------|
+| 空指针 | 查 review 报告 + 静态分析 | 高 |
+| 数组越界 | 查 review 报告 + 静态分析 | 高 |
+| 资源泄漏 | valgrind / asan | 高 |
+| 竞态条件 | 对照 `memory/concurrency_rules.md` + 重新阅读并发代码 | 高 |
+| 死循环 | 静态分析 + 状态机审查 | 中 |
+| 模块边界违反 | CodeGraph import 关系 | 中 |
+| 接口兼容性 | 对照 baseline spec | 中 |
+| 函数指针调用遗漏 | cscope -L2 / -L3 | 中 |
+| **CodeGraph 影响范围查证** | 对照 design.md vs 实际 diff | 高 |
+| **specs/ delta 覆盖** | 对照 tasks.md vs openspec/changes/<id>/specs/ | 高 |
+| **`openspec validate --strict` 通过** | CI / 命令行 | 强制 |
+
+**Review 工具**：
+
+```bash
+# 校验 OpenSpec 工件
+openspec validate --strict --changes
+
+# 查证 CodeGraph 影响（仅在 design.md 查证发现偏差时）
+codegraph impact <symbol>
+
+# 函数指针 / 宏补充
+cscope -d -L2 "<func_ptr>"
+
+# 基线对比
+openspec show <capability>
+```
+
+**Review 输出模式**（不再使用手刻 `review.md`）：
+
+1. 在 PR / Change 中以评审评论形式记录（人工 + AI）
+2. 关键问题记录到 `openspec/changes/<id>/design.md` 的「Review Notes」追加段落（由 AI 在 `/opsx:apply` 完成后追加）
+3. **绝不** 重新写手刻 review.md 模板
+
+---
+
+### 7. 三级门禁衔接点（OpenSpec CLI）
+
+OpenSpec CLI 命令在门禁流程中的衔接点（与 `spec_rules.md` §5 互补，具体人工 checklist 见 `spec_rules.md`）：
+
+| 阶段 | OpenSpec 命令 | 触发点 | 通过后 |
+|------|--------------|--------|--------|
+| Proposal Gate | `openspec validate --strict --changes` | `/opsx:propose` 完成后 | → Design 阶段 |
+| Design Gate | `openspec validate --strict --changes` | design.md + tasks.md 完成后 | → `/opsx:apply` |
+| Review Gate | `openspec validate --strict --changes` | 编码 + Review 后 | → `openspec archive <change-id>` |
+
+---
+
+### 8. 版本兼容说明
+
+- **Step 1**（已完成）：引入 design.md + tasks.md 两个手刻工件。
+- **Step 2**（已完成）：引入 proposal.md + review.md + specs/ 增量手刻工件。
+- **Step 3**（当前）：迁移到 OpenSpec CLI——手刻工件模板移除，全部由 `/opsx:propose` / `/opsx:apply` / `/opsx:archive` 生成；旧 `.openspec/proposals/` 与 `.openspec/specs/baseline/` 目录保留作为历史。
+- **Step 4**（已完成）：5 个 baseline specs（ssd-firmware-overview / nvme-commands / ftl-mapping / nand-driver / error-handling）从 `.opencode/skills/sd-firmware-copilot/specs/baseline/` 迁移到 `openspec/specs/<capability>/spec.md`，全部通过 `openspec validate --strict`。
+- **向后兼容**：未使用 OpenSpec CLI 的旧手刻变更仍可走 `.openspec/proposals/` 流程；所有新变更**必须**走 OpenSpec CLI。
+- **渐进采用**：简单 bugfix 可使用 `/opsx:propose` 一次性生成 4 个工件；跨模块变更必须按 Proposal / Design / Review 三级门禁逐项校验。
+
+---
+
 ## 速查卡片
 
 ```

@@ -102,6 +102,12 @@ bash deploy_tools.sh                     # 一键安装全部工具链
 bash .opencode/skills/sd-firmware-copilot/init.sh  # 部署规则和知识模板到当前项目
 ```
 
+部署后验证：
+
+```bash
+bash verify.sh    # 一键检查 6 项：OpenSpec / CodeGraph / Graphify / memory / 语法 / PATH
+```
+
 ## 推荐阅读
 
 | 序号 | 文档 | 内容 |
@@ -109,9 +115,20 @@ bash .opencode/skills/sd-firmware-copilot/init.sh  # 部署规则和知识模板
 | 1 | [方法论](./SSD_Firmware_AI_Copilot_Methodology.md) | 双路径、四阶段闭环、三条铁律 |
 | 2 | [路线图](./docs/roadmap.md) | 实施进度与规划 |
 | 3 | [工程纪律](./.opencode/skills/superpowers/SKILL.md) | TDD / 根因调试 / 验证完成 铁律 |
-| 4 | [规格工作流](./.opencode/skills/sd-firmware-copilot/references/spec_workflow.md) | proposal/design/tasks/review 模板 |
+| 4 | [规格工作流](./.opencode/skills/openspec-workflow/SKILL.md) | 五阶段完整工作流 + proposal/design/tasks/review 模板与门禁清单 |
 | 5 | [规格层规则](./.opencode/skills/sd-firmware-copilot/rules/spec_rules.md) | 基线管理、增量格式、三级门禁 |
 
+## 配置索引
+
+| 配置文件 | 用途 |
+|---------|------|
+| `opencode.json` | OpenCode Agent 主配置（MCP + 插件 + 指令） |
+| `openspec/config.yaml` | OpenSpec 项目上下文（C 语言、SSD 固件领域） |
+| `.opencode/memory/` | 运行时编码规则（6 文件，自动加载） |
+| `.opencode/plugins/graphify.js` | 知识图谱插件 |
+| `graphify-out/` | 知识图谱数据（为绑定代码库自动生成） |
+| `verify.sh` | 一键健康检查脚本（6 项检查） |
+| `deploy_tools.sh` | 一键部署工具链 |
 ## 核心原则
 
 - **代码优先**：`Source Code > Design Docs > Specs > Memory > Prompt`

@@ -243,7 +243,7 @@ zsf/
 ## 10. 下一步
 
 - **部署工具链**：运行 `bash deploy_tools.sh` 一键安装 CodeGraph + cscope + Doxygen + Graphify + OpenSpec CLI
-- **阅读规格工作流**：`.opencode/skills/sd-firmware-copilot/references/spec_workflow.md`
+- **阅读规格工作流**：`.opencode/skills/openspec-workflow/SKILL.md`（含五阶段流程 + 工件模板与门禁清单）
 - **查看路线图**：`docs/roadmap.md`
 - **理解工程纪律**：`.opencode/skills/superpowers/SKILL.md`
 - **了解领域规则**：`.opencode/memory/` 下的规则文件

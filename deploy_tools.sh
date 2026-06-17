@@ -253,24 +253,12 @@ else
 fi
 
 # 验证 OpenSpec 适配 Skill（随 zsf 仓库分发）
-OPENSPEC_SKILLS=(
-    "openspec-propose"
-    "openspec-apply-change"
-    "openspec-archive-change"
-    "openspec-sync-specs"
-    "openspec-explore"
-)
-MISSING_SKILLS=()
-for skill in "${OPENSPEC_SKILLS[@]}"; do
-    if [ ! -d ".opencode/skills/$skill" ]; then
-        MISSING_SKILLS+=("$skill")
-    fi
-done
-if [ ${#MISSING_SKILLS[@]} -eq 0 ]; then
-    echo "  ✓ 5 个 OpenSpec 适配 Skill 已就位 (propose/apply/archive/sync/explore)"
+# 验证 OpenSpec 适配 Skill（随 zsf 仓库分发）
+if [ -f ".opencode/skills/openspec-workflow/SKILL.md" ]; then
+    echo "  ✓ openspec-workflow Skill 已就位 (propose/explore/apply/sync/archive 五合一)"
 else
-    echo "  ⚠ 缺少 OpenSpec 适配 Skill: ${MISSING_SKILLS[*]}"
-    echo "    请检查 .opencode/skills/ 目录是否完整克隆 zsf 仓库"
+    echo "  ⚠ openspec-workflow Skill 未找到"
+    echo "    请检查 .opencode/skills/openspec-workflow/ 目录是否完整克隆 zsf 仓库"
 fi
 
 # Superpowers 提示（项目级 Skill，不需本脚本安装）
@@ -302,8 +290,9 @@ echo "    openspec/  — 规格仓库 (config.yaml + changes/ + specs/)"
 echo ""
 echo "  项目级 Skill（随 zsf 仓库分发，无需部署）:"
 SP_COUNT=$(ls -1 .opencode/skills/superpowers/ 2>/dev/null | grep -v '^SKILL.md$' | wc -l)
-echo "    superpowers/  — ${SP_COUNT} 个子技能（test-driven-development / systematic-debugging / verification-before-completion / ...）  [BUILD]"
-echo "    openspec-*/   — 5 个 OpenSpec CLI 适配 Skill（propose / apply / archive / sync / explore）  [PLAN]"
+echo "    openspec-workflow/  — OpenSpec 完整工作流 Skill (propose/explore/apply/sync/archive 五合一)  [PLAN/FEEDBACK]"
+echo "    superpowers/        — ${SP_COUNT} 个子技能（test-driven-development / systematic-debugging / verification-before-completion / ...）  [BUILD]"
+echo "    sd-firmware-copilot/ — SSD 固件领域规则 + 规格管理 [ALL]"
 echo "  后续操作:"
 echo "    # AI 查询调用图"
 echo "    codegraph callers <函数名>"
@@ -334,3 +323,30 @@ echo ""
 echo "    ${SRC_DIR}"
 echo ""
 echo "=============================================="
+
+
+# ============================================================
+# Step 7: 自动环境验证 (init.sh --check-only)
+#   部署工具链后，调用 init.sh 的只读验证模式检查项目根状态
+#   注意: 此步骤是信息性的，验证失败不会中断 deploy_tools.sh
+# ============================================================
+INIT_SCRIPT="$(cd "$(dirname "$0")" && pwd)/.opencode/skills/sd-firmware-copilot/init.sh"
+if [ ! -f "$INIT_SCRIPT" ]; then
+    echo ""
+    echo "=== 环境验证 (init.sh --check-only) ==="
+    echo "  ⚠ init.sh 未找到: $INIT_SCRIPT"
+    echo "  跳过环境验证"
+else
+    echo ""
+    echo "=== 环境验证 (init.sh --check-only) ==="
+    # 临时关闭 set -e: init.sh --check-only 失败不应中断 deploy_tools.sh
+    set +e
+    bash "$INIT_SCRIPT" --check-only
+    INIT_RC=$?
+    set -e
+    if [ $INIT_RC -eq 0 ]; then
+        echo "✓ 环境验证通过"
+    else
+        echo "⚠ 环境验证发现问题，请运行: bash .opencode/skills/sd-firmware-copilot/init.sh"
+    fi
+fi

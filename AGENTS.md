@@ -30,9 +30,9 @@ Superpowers 三条铁律适用于**所有** AI 输出、跨越全部四个阶段
 - **Spec 变更是「系统做什么」的权威来源。** 修改影响已文档化行为的代码前，必须先读 `openspec/specs/`。
 - **每次变更必须经过门禁**：Proposal Gate → Design Gate → Review Gate → Archive。
 - **永不删除 `openspec/changes/` 条目** — 它们构成审计追踪。
-- 优先使用 `.opencode/skills/openspec-*/` 中的包装 Skill（它们处理 CLI 调用 + 工件生成）。
+- **OpenSpec 流程**使用 `.opencode/skills/openspec-workflow/SKILL.md`（五阶段完整工作流：propose → explore → apply → sync → archive）。
 - 规格层规则见 `.opencode/skills/sd-firmware-copilot/rules/spec_rules.md`。
-- 工件模板见 `.opencode/skills/sd-firmware-copilot/references/spec_workflow.md`。
+- 工件模板与门禁流程见 `.opencode/skills/openspec-workflow/SKILL.md`（`## 工件模板与门禁流程` 一节）。
 - 可跳过 Proposal Gate 的场景：仅单文件 bugfix。文档/注释变更不需要 OpenSpec 工件。
 - 归档提交格式：`chore(spec): archive {change-id}`。
 

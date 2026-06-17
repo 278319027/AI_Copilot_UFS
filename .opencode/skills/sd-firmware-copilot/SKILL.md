@@ -115,7 +115,7 @@ cscope -d -L8 "header.h"   # 头文件包含
 | 文档 | 路径 | 内容 |
 |------|------|------|
 | 方法论精要 | `../../SSD_Firmware_AI_Copilot_Methodology.md` | 核心原则、7步流程、分歧矩阵 |
-| 规格工作流 | `references/spec_workflow.md` | proposal.md + specs/ + design.md + tasks.md + review.md + 归档模板与规范 |
+| 规格工作流 | `../../openspec-workflow/SKILL.md` | OpenSpec 五阶段完整工作流（propose/explore/apply/sync/archive）+ 工件模板与门禁清单 |
 
 ## 规则文件
 
