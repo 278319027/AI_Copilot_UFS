@@ -131,7 +131,7 @@ The sole integrating skill is `.opencode/skills/sd-firmware-copilot/SKILL.md`, w
 ## Origin and license
 
 - Upstream: https://github.com/obra/superpowers
-- License: MIT (see /tmp/superpowers/LICENSE)
+- License: MIT (see https://github.com/obra/superpowers/blob/main/LICENSE)
 - Local commit: pinned to the shallow clone performed at integration time.
 - Plugin install (alternative): add `"plugin": ["superpowers@git+https://github.com/obra/superpowers.git"]`
   to `opencode.json`. Local copies take priority over the plugin and are preferred

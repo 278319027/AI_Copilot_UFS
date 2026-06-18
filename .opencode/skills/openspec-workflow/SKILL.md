@@ -402,7 +402,7 @@ graphify explain "<概念>"
 
 ### 6. 与其他 Skill 的协作
 
-- **`sd-firmware-copilot`**：顶层入口 + 规格层规则（`rules/spec_rules.md`）
+- **`sd-firmware-copilot`**：顶层入口 + 规格层规则（`.opencode/skills/sd-firmware-copilot/SKILL.md`）
 - **`superpowers`**：TDD / 根因调试 / 验证完成（apply 阶段必走）
 - **`sd-firmware-copilot/SKILL.md`**：BUILD/FEEDBACK 阶段的整合入口（superpowers 委托 + SSD 特定前后置步骤）
 - **`graphify` / `codegraph`**：KNOW 阶段的知识图谱与调用图（FEEDBACK 后用 `graphify update .` 更新）
@@ -521,10 +521,10 @@ The FTL MUST allocate a new PBA from the SLC region when possible, or from TLC w
 修改任何代码前，必须先执行以下查询并把结果粘贴到 design.md 的对应章节：
 
 ```bash
-codegraph impact <symbol>            # 影响范围（函数 / 结构体 / 宏）
+codegraph callers <symbol>           # 影响范围（函数 / 结构体 / 宏）
 codegraph callers <symbol>           # 谁调用了
-codegraph find_by_imports <header>   # 头文件 include 影响
-codegraph get_dependency_graph       # 模块边界 / 循环依赖
+codegraph explore <header>           # 头文件 include 影响
+codegraph explore                    # 模块边界 / 循环依赖
 ```
 
 #### 4.2 cscope 补充（函数指针 / 宏场景）
@@ -593,7 +593,7 @@ Review 阶段是**查证式验证**（不重新查询 CodeGraph），对照 desi
 openspec validate --strict --changes
 
 # 查证 CodeGraph 影响（仅在 design.md 查证发现偏差时）
-codegraph impact <symbol>
+codegraph callers <symbol>
 
 # 函数指针 / 宏补充
 cscope -d -L2 "<func_ptr>"
@@ -612,7 +612,7 @@ openspec show <capability>
 
 ### 7. 三级门禁衔接点（OpenSpec CLI）
 
-openSpec CLI 命令在门禁流程中的衔接点（与 `sd-firmware-copilot/SKILL.md` 互补，具体人工 checklist 见 `spec_rules.md`）：
+openSpec CLI 命令在门禁流程中的衔接点（与 `sd-firmware-copilot/SKILL.md` 互补，具体人工 checklist 见 `.opencode/skills/sd-firmware-copilot/SKILL.md`）：
 
 | 阶段 | OpenSpec 命令 | 触发点 | 通过后 |
 |------|--------------|--------|--------|

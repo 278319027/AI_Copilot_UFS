@@ -1,4 +1,4 @@
-本文档是 OpenCode Agent 的运行时指令，描述 graphify/openspec/superpowers 三工具的使用规则。
+本文档是 OpenCode Agent 的运行时指令，描述 graphify/codegraph/openspec/superpowers 四工具的使用规则。
 
 ## superpowers 三条铁律
 
