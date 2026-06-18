@@ -68,6 +68,19 @@ Skill 是 `.opencode/skills/` 下的目录，标准结构：
 graphify update .
 ```
 
+**⚠️ 大项目（10K+ 文件）必须限定子目录**：`graphify update .` 会遍历 `.o`/`.d` 等中间产物并超时。
+
+```bash
+# 正确做法：子目录分构建 + 合并
+graphify update hw/femu/      # 仅 FEMU SSD 代码（< 100 文件，秒级）
+graphify update hw/nvme/      # 仅 NVMe 层（< 50 文件，秒级）
+graphify merge-graphs hw/femu/graphify-out/graph.json \
+                      hw/nvme/graphify-out/graph.json \
+                      --out graph.json
+```
+
+*回退：项目根图谱为空时，代码内联分析仍可用。`graphify query` 会优雅降级。*
+
 ### 健康检查
 
 ```bash

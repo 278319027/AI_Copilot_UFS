@@ -61,6 +61,26 @@
 | **Graphify** | 知识图谱、概念解释 | `graphify query "<问题>"`, `graphify explain "<概念>"`, `graphify path "<A>" "<B>"` |
 | **cscope** | 函数指针/宏（补充树解析盲区） | `cscope -d -L2 <ptr>`, `cscope -d -L4 <MACRO>` |
 
+### 3.4 Graphify 最佳实践（避免超时）
+
+**问题**：全仓库 `graphify update .` 对大项目（QEMU/FEMU 88,239 文件）会遍历 `.o`/`.d` 等中间产物，零进度反馈导致 5 分钟内无输出，无法判断死/活。
+
+**解决**：
+1. **不限全仓库**：`graphify update .` 仅适用于 <10K 文件的小项目
+2. **子目录分构建**：
+   ```bash
+   graphify update hw/femu/      # FEMU SSD 代码（< 100 文件，< 3s）
+   graphify update hw/nvme/      # NVMe 层（< 50 文件，< 2s）
+   ```
+3. **合并子图**：
+   ```bash
+   graphify merge-graphs hw/femu/graphify-out/graph.json \
+                       hw/nvme/graphify-out/graph.json \
+                       --out graph.json
+   ```
+4. **回退**：项目根图谱为空时，`graphify query` 会优雅降级，代码内联分析仍可用。
+
+**验证**：子目录构建 ≤ 3 秒/目录，合并后图谱完整可用（如 FEMU: 1110 节点）。
 ---
 
 ## 4. PLAN 阶段：规格化变更
@@ -140,7 +160,7 @@
 ```
 
 - `specs/` 增量合并到 `openspec/specs/` baseline
-- 知识图谱增量更新：`graphify update .`
+- 知识图谱更新：`graphify update <子目录>`（大项目避免全仓库扫描，见 §3.4）
 - 提交：`git commit -m "chore(spec): archive <change-id>"`
 
 ### 6.3 闭环返回
@@ -172,7 +192,7 @@ codegraph explore <代码区域>
 # ─── FEEDBACK：Review + 归档 ───
 # → Review Skill 产出 review.md
 /opsx:archive my-change
-graphify update .
+graphify update <子目录>   # 大项目避免全仓库扫描（见 §3.4）
 ```
 
 ### 模式 B：代码驱动（完整流程）
@@ -190,7 +210,7 @@ graphify explain "<核心概念>"
 /opsx:apply my-change
 # → Review + 归档
 /opsx:archive my-change
-graphify update .
+graphify update <子目录>   # 大项目避免全仓库扫描（见 §3.4）
 ```
 
 ## 8. 目录结构（当前状态）
