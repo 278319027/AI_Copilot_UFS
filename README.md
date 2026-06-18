@@ -10,7 +10,7 @@
 bash deploy_tools.sh /path/to/c-source
 
 # 2. 验证环境
-bash verify.sh    # 确认 8/8 通过
+bash verify.sh    # 确认 12/12 通过
 
 # 3. 选一条路径开始（在 OpenCode IDE 中）
 #    路径 A（有设计文档）→ /opsx:propose <change-name>
@@ -50,14 +50,29 @@ PLAN → BUILD → FEEDBACK: 同路径 A
 | **KNOW** | Graphify + CodeGraph | `bash deploy_tools.sh` |
 | **PLAN** | OpenSpec CLI v1.4.1 | `npm install -g @fission-ai/openspec` |
 | **BUILD** | Superpowers + sd-firmware-copilot | `.opencode/skills/superpowers/` |
-| **FEEDBACK** | OpenSpec CLI + Graphify | 同上 |
+
+## 配置（opencode.json）
+
+`opencode.json` 声明 MCP 服务器、插件和加载的 Skill。其中 `codegraph` MCP 的 `--path` 形参使用 `opencode.json` 不支持注释（JSON 标准不支持），但可用 shell 变量表达式指定目标 SSD 固件源码根：
+
+```json
+"command": ["codegraph", "serve", "--mcp", "--path", "${FEMU_ROOT:-/home/tcb/AI_Proj/femu}/hw/femu"]
+```
+
+| 环境变量 | 作用 | 默认值 | 必需 |
+|---------|------|-------|------|
+| `FEMU_ROOT` | CodeGraph MCP 服务的目标 SSD 固件源码根（指向含 `hw/femu/` 的仓库根） | `/home/tcb/AI_Proj/femu` | 否（未设则用默认） |
+
+调整默认路径的方式：
+- **临时覆盖**：`FEMU_ROOT=/path/to/your/ssd_repo opencode`（当前 shell 启动 Agent 时生效）
+- **永久设置**：`echo 'export FEMU_ROOT=/path/to/your/ssd_repo' >> ~/.bashrc`
 
 ## 推荐阅读
 
 | 序号 | 文档 | 内容 |
 |------|------|------|
 | 1 | [项目导航](docs/navigation.md) | 完整结构地图 + 按角色找文件 + 配置索引 |
-| 2 | [方法论](SSD_Firmware_AI_Copilot_Methodology.md) | 双路径、四阶段闭环、三条铁律 |
+| 2 | [方法论](SSD_Firmware_AI_Copilot_Methodology.md) | 双路径、四阶段闭环、四条铁律 |
 | 3 | [路线图](docs/roadmap.md) | 实施进度与规划 |
 | 4 | [维护者指南](docs/maintainer.md) | 日常操作、FAQ、变更记录 |
 
@@ -67,5 +82,5 @@ PLAN → BUILD → FEEDBACK: 同路径 A
 - **小任务原则**：每次 200-500 行，不扩大需求
 - **修改前必查 CodeGraph**：确认影响范围
 - **四级门禁**：Proposal Gate → Design Gate → Review Gate → Archive
-- **三条铁律**：无失败测试不写实现 / 无根因不修 bug / 不验证不宣称完成
+- **四条铁律**：不验证不宣称完成 / 无验证不写实现 / 无根因不修 bug / 未审查不合并
 - **AI 辅助不替代人**：人负责架构决策和风险判断

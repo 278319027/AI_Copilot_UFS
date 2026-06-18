@@ -121,7 +121,7 @@ bash verify.sh    # 只读检查，不修改任何文件
 | 路径 | 一句话说明 |
 |------|-----------|
 | `deploy_tools.sh` | 一键部署六件套工具链 |
-| `verify.sh` | 一键健康检查（6 项） |
+| `verify.sh` | 一键健康检查（8 项） |
 | `openspec/` | 规格层：基线 `specs/` + 活跃变更 `changes/` |
 | `.opencode/skills/superpowers/` | 工程纪律层（10 子技能），入口见 `SKILL.md` |
 | `.opencode/skills/openspec-workflow/` | OpenSpec 五合一工作流（propose/explore/apply/sync/archive） |

@@ -41,7 +41,10 @@ if [ ! -d "$SRC_DIR" ]; then
     exit 1
 fi
 
-SRC_DIR="$(realpath "$SRC_DIR")"
+# realpath 可移植性: 用 cd/pwd 替代 (realpath 在 coreutils/macOS 行为不同, 部分镜像不可用)
+
+SRC_DIR="$(cd "$SRC_DIR" && pwd)"
+
 PROJECT_ROOT="$(dirname "$SRC_DIR")"
 echo "=============================================="
 echo " SSD 固件 CodeGraph 工具链一键部署"
@@ -88,9 +91,17 @@ fi
 CODEGRAPH_DIR="$SRC_DIR/.codegraph"
 if [ -f "$CODEGRAPH_DIR/graph.db" ]; then
     echo "  → codegraph 索引已存在，增量更新..."
-    cd "$PROJECT_ROOT" && codegraph init "$(basename "$SRC_DIR")" 2>/dev/null || \
-        (cd "$SRC_DIR" && codegraph build 2>/dev/null) || true
+
+    if ! (cd "$PROJECT_ROOT" && codegraph init "$(basename "$SRC_DIR")" 2>/dev/null || \
+
+        (cd "$SRC_DIR" && codegraph build 2>/dev/null)); then
+
+        echo "  ⚠ codegraph 增量更新失败, 可手动: cd $PROJECT_ROOT && codegraph init $(basename "$SRC_DIR")"
+
+    fi
+
     echo "  ✓ codegraph 索引已更新"
+
 else
     echo "  → 首次构建 codegraph 索引 (仅扫描 $SRC_DIR)..."
     cd "$PROJECT_ROOT" && codegraph init "$(basename "$SRC_DIR")" 2>/dev/null || \
@@ -116,13 +127,29 @@ fi
 CSCOPE_DIR="$SRC_DIR/.codegraph"
 mkdir -p "$CSCOPE_DIR"
 
-C_FILE_COUNT=$(find "$SRC_DIR" -name "*.c" -o -name "*.h" 2>/dev/null | wc -l)
+# -type f \( -name "*.c" -o -name "*.h" \) — 必须加括号, 否则 -type f 只作用于 *.c (find 隐式 and 优先级高于 -o)
+
+C_FILE_COUNT=$(find "$SRC_DIR" -type f \( -name "*.c" -o -name "*.h" \) 2>/dev/null | wc -l)
+
 if [ "$C_FILE_COUNT" -eq 0 ]; then
     echo "  ⚠ 未找到 .c/.h 文件，跳过 cscope 索引构建"
 else
     echo "  → 扫描 $C_FILE_COUNT 个 C/H 文件..."
-    find "$SRC_DIR" -name "*.c" -o -name "*.h" > "$CSCOPE_DIR/cscope.files"
-    cscope -b -q -k -i "$CSCOPE_DIR/cscope.files" 2>/dev/null
+    find "$SRC_DIR" -type f \( -name "*.c" -o -name "*.h" \) > "$CSCOPE_DIR/cscope.files"
+
+    # cscope -b 默认在 CWD 写 cscope.out, 必须 cd 到 CSCOPE_DIR; 子 shell 不影响外层 CWD
+
+    if (cd "$CSCOPE_DIR" && cscope -b -q -k -i cscope.files 2>/dev/null); then
+
+        :
+
+    else
+
+        echo "  ⚠ cscope 索引构建失败, 可手动: cd $CSCOPE_DIR && cscope -b -q -k -i cscope.files"
+
+    fi
+    echo "  ✓ cscope 数据库已构建 ($CSCOPE_DIR/cscope.out)"
+
     echo "  ✓ cscope 数据库已构建 ($CSCOPE_DIR/cscope.out)"
 fi
 
@@ -207,20 +234,31 @@ fi
 # 构建知识图谱（code-only，无需 LLM API key）
 if [ -d "$SRC_DIR/graphify-out" ] && [ -f "$SRC_DIR/graphify-out/graph.json" ]; then
     echo "  → 知识图谱已存在，增量更新..."
-    cd "$PROJECT_ROOT" && graphify extract "$(basename "$SRC_DIR")" --no-cluster 2>/dev/null || true
+
+    if ! cd "$PROJECT_ROOT" && graphify extract "$(basename "$SRC_DIR")" --no-cluster 2>/dev/null; then
+
+        echo "  ⚠ graphify 增量更新失败, 可手动: cd $PROJECT_ROOT && graphify extract $(basename "$SRC_DIR") --no-cluster"
+
+    fi
+
     echo "  ✓ 知识图谱已更新"
+
 else
     echo "  → 首次构建知识图谱 (AST-only)..."
     cd "$PROJECT_ROOT" && graphify extract "$(basename "$SRC_DIR")" --no-cluster 2>/dev/null
 fi
 
 # 社区检测
-cd "$PROJECT_ROOT" && graphify cluster-only "$(basename "$SRC_DIR")" --no-label 2>/dev/null || true
+if ! cd "$PROJECT_ROOT" && graphify cluster-only "$(basename "$SRC_DIR")" --no-label 2>/dev/null; then
+
+    echo "  ⚠ graphify 社区检测失败, 可手动: cd $PROJECT_ROOT && graphify cluster-only $(basename "$SRC_DIR") --no-label"
+
+fi
+
 echo "  ✓ 社区检测完成"
-
 echo "  → 论文语义提取需配置 DEEPSEEK_API_KEY (当前仅 code-only)"
-
 # ============================================================
+
 # Step 6: OpenSpec CLI (规格驱动开发)
 # ============================================================
 echo ""
@@ -240,8 +278,23 @@ if [ -d "$OPENSPEC_DIR" ] && [ -f "$OPENSPEC_DIR/config.yaml" ]; then
     echo "  ✓ openspec/ 目录已初始化（config.yaml 存在）"
 else
     echo "  → 初始化 openspec/ 目录..."
-    cd "$PROJECT_ROOT" && openspec init 2>/dev/null || echo "  ⚠ openspec init 失败，可手动: cd $PROJECT_ROOT && openspec init"
-    echo "  ✓ openspec/ 目录已创建"
+
+    # --tools opencode 跳过交互式工具选择, 适配 CI/脚本场景
+
+    cd "$PROJECT_ROOT" && openspec init --tools opencode 2>/dev/null || echo "  ⚠ openspec init 失败，可手动: cd $PROJECT_ROOT && openspec init --tools opencode"
+
+    # 显式验证 init 成功 (config.yaml 是 openspec CLI 写入的标记文件)
+
+    if [ -f "$OPENSPEC_DIR/config.yaml" ]; then
+
+        echo "  ✓ openspec/ 目录已创建 (config.yaml 存在)"
+
+    else
+
+        echo "  ⚠ openspec init 未生成 config.yaml, 请检查 openspec CLI 版本 (需 v1.4.1+)"
+
+    fi
+
 fi
 
 # 验证 OpenSpec 适配 Skill（随 zsf 仓库分发）

@@ -4,6 +4,17 @@
 
 Define the cross-cutting error handling behavior for the SSD firmware. This spec covers error propagation, recovery strategies for NAND ECC errors, DMA/IRQ error recovery, command-level error reporting, power-loss recovery, and degraded operation modes. Errors MUST NOT be silently swallowed and critical paths MUST have a defined fallback.
 
+## Consumers
+
+This layer is consumed by:
+
+- **NVMe command layer** — uses error-to-status mapping interfaces
+- **FTL mapping layer** — uses bad block update and error code conversion interfaces
+- **NAND driver layer** — uses DMA timeout and IRQ loss recovery primitives
+
+The error handling layer is cross-cutting; the precise consumer relationship is owned by each consuming layer's spec (e.g., the NAND driver spec's "Consumers" section). This section is a summary, not the authoritative list.
+
+
 ## Requirements
 
 ### Requirement: Error Propagation

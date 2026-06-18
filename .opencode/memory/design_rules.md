@@ -180,8 +180,8 @@ typedef struct {
 **流程摘要**：
 
 - **Proposal Gate**（动机 OK）：`/opsx:propose` 完成后 → `openspec validate --strict --changes` 通过 + 5 项人工 checklist
-- **Design Gate**（架构 OK）：design.md + tasks.md 完成后 → 校验同上 + 7 项人工确认清单（参见 `openspec-workflow/SKILL.md` §4.3「待人工确认清单」）
-- **Review Gate**（代码匹配 spec）：编码 + Review 后 → 校验同上 + 11 项 Review 检查（参见 `openspec-workflow/SKILL.md` §6「Review 检查项」）
+- **Design Gate**（架构 OK）：design.md + tasks.md 完成后 → 校验同上 + 7 项人工确认清单
+- **Review Gate**（代码匹配 spec）：编码 + Review 后 → 校验同上 + 11 项 Review 检查
 - **Archive Gate**（归档提交）：Review 通过后 → `chore(spec): archive <id>` 提交（合并 specs/ 与 changes/）
 
 **简化豁免**：单文件 bugfix / 文档变更 / 配置变更 / 跨模块变更的处理见 `.opencode/skills/sd-firmware-copilot/SKILL.md`。

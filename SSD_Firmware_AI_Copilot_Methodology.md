@@ -1,10 +1,10 @@
 # SSD 固件 AI 辅助编程方法论
 
-## 1. 两种驱动模式
+## 1. 两种驱动路径
 
 本方法论支持两种 AI 辅助编程路径，覆盖「有设计文档」和「无设计文档」两种常见场景。
 
-### 模式 A：设计文档驱动（Design → Code）
+### 路径 A：设计文档驱动（Design → Code）
 
 **适用场景**：已有 SAD/SDD/ICD 等设计文档，需要按文档实现功能。
 
@@ -12,7 +12,7 @@
 设计文档 → [KNOW] 理解设计 + 定位代码 → [PLAN] 规格化变更 → [BUILD] TDD 实现 → [FEEDBACK] 归档
 ```
 
-### 模式 B：代码驱动（Code → Design → Code）
+### 路径 B：代码驱动（Code → Design → Code）
 
 **适用场景**：无设计文档，需要基于现有代码理解系统，AI 自动生成设计文档后再实现。
 
@@ -20,7 +20,7 @@
 现有代码 → [KNOW] 分析代码 + 生成设计文档 → [PLAN] 规格化变更 → [BUILD] TDD 实现 → [FEEDBACK] 归档
 ```
 
-两种模式的区别仅在 **KNOW 阶段**：模式 A 以设计文档为输入理解系统，模式 B 以代码为输入、AI 自动生成设计文档作为输出。从 PLAN 阶段开始，两条路径完全一致。
+两种路径的区别仅在 **KNOW 阶段**：路径 A 以设计文档为输入理解系统，路径 B 以代码为输入、AI 自动生成设计文档作为输出。从 PLAN 阶段开始，两条路径完全一致。
 
 ---
 
@@ -39,14 +39,14 @@
 
 ## 3. KNOW 阶段：理解系统
 
-### 3.1 模式 A（设计文档驱动）
+### 3.1 路径 A（设计文档驱动）
 
 1. 读取设计文档（SAD/SDD/ICD）
 2. 使用 Graphify 查询相关概念：`graphify query "<关键词>"` / `graphify explain "<概念>"`
 3. 使用 CodeGraph 定位相关代码：`codegraph explore <区域>`
 4. 输出：需求摘要 + 关键接口 + 风险点
 
-### 3.2 模式 B（代码驱动）
+### 3.2 路径 B（代码驱动）
 
 1. 使用 CodeGraph 分析代码结构：调用链（callers/callees）、依赖关系、模块边界
 2. 使用 Graphify 查询知识图谱：概念关系、社区结构
@@ -124,13 +124,14 @@ graphify merge-graphs hw/femu/graphify-out/graph.json \
 
 ## 5. BUILD 阶段：实现与验证
 
-### 5.1 三条铁律（Superpowers，强制执行）
+### 5.1 四条铁律（Superpowers，强制执行）
 
 | 铁律 | Skill | 说明 |
-|------|-------|------|
+|-------|-------|------|
+| **不验证不宣称完成** | `verification-before-completion` | 完成前必须实际运行测试/编译/命令并验证结果，禁止「应该没问题」 |
 | **无验证不写实现** | `test-driven-development` | **Path A**（纯逻辑：红→绿→重构，先写失败测试）；**Path B**（硬件依赖：BUILD 编译验证 + FEEDBACK 系统测试） |
 | **无根因不修 bug** | `systematic-debugging` | 禁止凭直觉打补丁；必须先复现、读错误、查变更、形成假设、最小验证 |
-| **不验证不宣称完成** | `verification-before-completion` | 完成前必须实际运行测试/编译/命令并验证结果，禁止「应该没问题」 |
+| **未审查不合并** | `requesting-code-review` / `receiving-code-review` | 合并前必须经正式审查，禁止绕过；接收反馈以技术为准，不表演性认同 |
 
 ### 5.2 领域规则层（sd-firmware-copilot）
 
@@ -179,7 +180,7 @@ graphify merge-graphs hw/femu/graphify-out/graph.json \
 
 ## 7. 快速上手
 
-### 模式 A：设计文档驱动（完整流程）
+### 路径 A：设计文档驱动（完整流程）
 
 ```bash
 # ─── KNOW：理解设计 ───
@@ -203,7 +204,7 @@ codegraph explore <代码区域>
 graphify update <子目录>   # 大项目避免全仓库扫描（见 §3.4）
 ```
 
-### 模式 B：代码驱动（完整流程）
+### 路径 B：代码驱动（完整流程）
 
 ```bash
 # ─── KNOW：分析代码 + 生成设计文档 ───
@@ -213,7 +214,7 @@ codegraph impact <关键接口>
 graphify explain "<核心概念>"
 # → AI 自动生成设计文档到 openspec/changes/<id>/design.md
 
-# ─── PLAN → BUILD → FEEDBACK 同模式 A ───
+# ─── PLAN → BUILD → FEEDBACK 同路径 A ───
 /opsx:propose my-change "基于代码分析扩展 X 功能"
 /opsx:apply my-change
 # → Review + 归档
@@ -274,7 +275,7 @@ zsf/
 
 - **部署工具链**：`bash deploy_tools.sh /path/to/c-source`（CodeGraph + cscope + Doxygen + Graphify + OpenSpec CLI）
 - **验证环境**：`bash verify.sh`，确认 8/8 通过
-- **阅读规格工作流**：`.opencode/skills/openspec-workflow/SKILL.md`（五阶段流程 + 工件模板与门禁清单）
+- **阅读规格工作流**：`.opencode/skills/openspec-workflow/SKILL.md`（五阶段流程：propose → explore → apply → sync → archive）
 - **查看路线图**：`docs/roadmap.md`
 - **理解工程纪律**：`.opencode/skills/superpowers/SKILL.md`
 - **了解项目结构**：`docs/navigation.md`（完整文件地图 + 按角色找入口）

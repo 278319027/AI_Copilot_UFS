@@ -34,7 +34,7 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
                                                                            归档合并 → baseline
 ```
 
-> 详细步骤 → [openspec-workflow](../openspec-workflow/SKILL.md)。每个门禁都有对应工件（`proposal.md`/`design.md`/`tasks.md`/`review.md`）。
+> 详细步骤 → [openspec-workflow](../openspec-workflow/SKILL.md)。每个门禁都有对应工件（`proposal.md` / `design.md` / `tasks.md`，加上 `specs/` 增量作为第 4 个产出）。
 
 ### 必须遵守
 
@@ -135,7 +135,6 @@ SSD 固件规格层规则。基于 OpenSpec CLI 实现，zsf 注入 SSD 域知�
 
 ```
 openspec/
-├── AGENTS.md                       # OpenSpec 注入给 AI 的指令
 ├── config.yaml
 ├── specs/                          # 已归档的活基线
 │   └── <capability>/spec.md
@@ -174,7 +173,7 @@ The <layer> SHALL <behavior>.
 
 **3 个不可违反的规则**：(1) Scenario 强制 4 个 `#`（3 个 `#` 静默失败）；(2) 规范词 SHALL / MUST，避免 should / may；(3) 每个 Scenario 必须是潜在测试用例。
 
-**四级门禁**（Proposal → Design → Review → Archive） → 详见 [openspec-workflow §工件模板与门禁流程](../openspec-workflow/SKILL.md)。**简化规则**：单文件 bugfix 跳 Proposal 人工；文档/注释跳全部门禁；其他完整流程。
+**四级门禁**（Proposal → Design → Review → Archive） → 详见 [openspec-workflow/SKILL.md § Five-Stage Workflow](../openspec-workflow/SKILL.md)。**简化规则**：单文件 bugfix 跳 Proposal 人工；文档/注释跳全部门禁；其他完整流程。
 
 ### 跨规则关系
 

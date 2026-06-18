@@ -4,6 +4,15 @@
 
 Define the behavior of the FTL (Flash Translation Layer) mapping module. The FTL translates host LBAs to NAND physical addresses (PBA), maintains the mapping table within DRAM limits, implements wear leveling, garbage collection, SLC cache management, and supports power-loss recovery of the mapping table.
 
+## Consumers
+
+This layer is consumed by:
+
+- **NVMe command layer** — calls `ftl_read`, `ftl_write`, `ftl_trim` to translate host I/O into physical operations
+
+This layer MUST NOT be consumed by the NAND driver layer (the NAND layer is strictly below the FTL layer).
+
+
 ## Requirements
 
 ### Requirement: LBA to PBA Translation
@@ -141,7 +150,50 @@ The FTL MUST persist the mapping table and MUST be able to recover to a consiste
 - **AND THEN** it MUST replay any committed-but-uncheckpointed transactions from the write journal
 - **AND THEN** the recovered state MUST equal the state as of the last successfully completed command
 
+### Requirement: Write Amplification Bound
+
+The FTL MUST bound steady-state write amplification (WA) so that the ratio of total physical NAND writes to host-requested writes does not exceed the configured upper limit. Write amplification is defined as `WA = (host_writes + gc_writes + wear_leveling_moves) / host_writes`. The bound MUST hold in steady state under the configured representative workload; transient WA during recovery is exempt for the first 60 seconds after boot.
+
+The default steady-state WA bounds are:
+
+| Workload pattern            | Maximum WA (default) |
+|-----------------------------|----------------------|
+| Sequential 128 KiB writes   | 1.1                  |
+| Random 4 KiB writes         | 4.0                  |
+| Mixed 70% read / 30% write  | 3.0                  |
+
+The bounds are compile-time configurable; the configured values MUST be reported via the runtime health interface so that the test harness can assert against them.
+
+#### Scenario: Sequential write stays near unity
+
+- **GIVEN** the host issues 100 GiB of sequential 128 KiB writes
+- **WHEN** the steady-state phase is reached (after at least 10 GiB of writes)
+- **THEN** the measured WA MUST be less than or equal to the configured sequential bound
+- **AND THEN** the FTL MUST log a warning if the bound is exceeded
+
+#### Scenario: Random 4 KiB write bound is enforced
+
+- **GIVEN** the host issues 100 GiB of random 4 KiB writes
+- **WHEN** the steady-state phase is reached
+- **THEN** the measured WA MUST be less than or equal to the configured random bound
+- **AND THEN** if the bound is exceeded, the FTL MUST reduce GC aggressiveness (increase the free-block threshold) until the bound is met
+
+#### Scenario: WA is exposed to the runtime health interface
+
+- **GIVEN** the FTL is in any operating state
+- **WHEN** the runtime health interface is queried
+- **THEN** the current WA estimate (last 60 s window) MUST be available
+- **AND THEN** the configured WA bounds MUST be available for comparison
+
+#### Scenario: Wear-leveling moves count toward WA
+
+- **GIVEN** the FTL moves a cold block to a younger block to balance wear
+- **WHEN** the move completes
+- **THEN** the move's physical writes MUST be counted in the WA numerator
+- **AND THEN** the WA estimate MUST reflect wear-leveling cost, not just GC cost
+
 ### Requirement: Dependency Direction
+
 
 The FTL layer MUST depend only on the NAND driver public interface and the platform abstraction layer. It MUST NOT depend on the NVMe command layer.
 

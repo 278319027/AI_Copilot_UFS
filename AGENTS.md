@@ -1,11 +1,41 @@
 本文档是 OpenCode Agent 的运行时指令，描述 graphify/codegraph/openspec/superpowers 四工具的使用规则。
 
-## superpowers 三条铁律
+## superpowers 四条铁律
 
-Superpowers 三条铁律适用于**所有** AI 输出、跨越全部四个阶段：
+Superpowers 四条铁律适用于**所有** AI 输出、跨越全部四个阶段：
 - **不验证不宣称完成** — 完成前必须实际运行测试/命令验证，使用 `verification-before-completion` Skill
 - **无验证不写实现** — 纯逻辑代码走 Path A（红→绿→重构），硬件依赖代码走 Path B（编译验证 + FEEDBACK 系统测试），均需调用 `test-driven-development` Skill
 - **无根因不修 bug** — 使用 `systematic-debugging` Skill，禁止凭直觉打补丁
+- **未审查不合并** — 使用 `requesting-code-review` Skill，禁止绕过审查直接合入主干
+## codegraph 与 FEMU_ROOT
+
+
+
+CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其目标路径通过 `opencode.json` 的 `mcp.codegraph.command` 数组配置，路径形式为 `${FEMU_ROOT:-/home/tcb/AI_Proj/femu}/hw/femu`。
+
+
+
+| 项 | 值 |
+
+|----|----|
+
+| **环境变量名** | `FEMU_ROOT` |
+
+| **默认值** | `/home/tcb/AI_Proj/femu` |
+
+| **拼接路径** | `<FEMU_ROOT 或默认值>/hw/femu` |
+
+| **用途** | CodeGraph MCP 服务的 `--path` 参数 (被 opencode.json ${VAR:-default} 展开) |
+
+| **验证命令** | `bash verify.sh` 中的 `[10/12] FEMU_ROOT` 检查 (或直接 `test -d ${FEMU_ROOT:-/home/tcb/AI_Proj/femu}/hw/femu`) |
+
+
+
+覆盖示例: `export FEMU_ROOT=/opt/ssd-firmware` — 则 CodeGraph 索引 `/opt/ssd-firmware/hw/femu`。
+
+
+
+## graphify
 
 ## graphify
 
@@ -33,7 +63,7 @@ Superpowers 三条铁律适用于**所有** AI 输出、跨越全部四个阶段
 - **永不删除 `openspec/changes/` 条目** — 它们构成审计追踪。
 - **OpenSpec 流程**使用 `.opencode/skills/openspec-workflow/SKILL.md`（五阶段完整工作流：propose → explore → apply → sync → archive）。
 - 规格层规则见 `.opencode/skills/sd-firmware-copilot/SKILL.md`（`## Spec 规则` 一节）。
-- 工件模板与门禁流程见 `.opencode/skills/openspec-workflow/SKILL.md`（`## 工件模板与门禁流程` 一节）。
+
 - 可跳过 Proposal Gate 的场景：仅单文件 bugfix。文档/注释变更不需要 OpenSpec 工件。
 - 归档提交格式：`chore(spec): archive {change-id}`。
 

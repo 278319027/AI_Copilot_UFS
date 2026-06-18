@@ -2,7 +2,33 @@
 
 ## Purpose
 
-Define the behavior of the NAND driver layer. The driver issues page-level reads, page-level writes, and block-level erases to the underlying flash hardware. It MUST handle ECC encoding and decoding, bad block management, retry logic, and DMA/IRQ coordination while respecting the physical constraints of NAND flash.
+Define the behavior of the NAND driver layer. The driver issues page-level reads, page-level writes, and block-level erases to the underlying flash hardware. It MUST handle ECC encoding and decoding, bad block management, retry logic, multi-plane operations, and DMA/IRQ coordination while respecting the physical constraints of NAND flash.
+
+## Consumers
+
+This layer is consumed by:
+
+- **FTL mapping layer** — uses `nand_read_page`, `nand_write_page`, `nand_erase_block` for physical I/O
+- **Error handling layer** — uses bad block table update and ECC error reporting interfaces
+
+This layer MUST NOT be consumed by the NVMe command layer (the NVMe layer reaches flash only via the FTL layer).
+
+## Geometry Constraints
+
+The driver MUST operate within the following flash geometry boundaries. The exact values are compile-time configurable; the contract below is the structural contract that the FTL and error handling layers rely on.
+
+| Parameter           | Contract                                                          |
+|---------------------|-------------------------------------------------------------------|
+| Page size (data)    | Power-of-two multiple of 512 bytes, between 4 KiB and 16 KiB     |
+| Spare area size     | At least 64 bytes per page, large enough for ECC parity + metadata |
+| Pages per block     | Power-of-two between 64 and 512                                   |
+| Blocks per plane    | At least 1024                                                     |
+| Planes per LUN      | Power-of-two between 1 and 8                                      |
+| LUNs per target     | Configurable, at least 1                                          |
+| Page program order  | Within-block sequential, no out-of-order page writes              |
+| Block erase unit    | Entire block only (no partial block erase)                        |
+
+The page address passed to `nand_read_page(B, P, ...)` and `nand_write_page(B, P, ...)` MUST be expressed in (block, page) coordinates, with `B` ranging over the block space and `P` ranging over the pages within a block.
 
 ## Requirements
 
@@ -12,7 +38,7 @@ The NAND driver MUST read a single page (data + spare) from the specified PBA, p
 
 #### Scenario: Successful page read
 
-- **GIVEN** block B and page P form a valid readable address
+- **GIVEN** block B and page P form a valid readable address within the geometry
 - **WHEN** the caller invokes `nand_read_page(B, P, buffer)`
 - **THEN** the driver MUST issue a Read command to the controller with the correct row address
 - **AND THEN** it MUST DMA the page data (including spare area) into the caller buffer
@@ -83,6 +109,25 @@ The NAND driver MUST erase an entire block. A successful erase MUST set all byte
 - **THEN** it MUST return an erase failure error
 - **AND THEN** the upper layer MUST decide whether to mark the block as bad
 
+### Requirement: Multi-Plane Operations
+
+The NAND driver MUST support multi-plane page reads and page writes when the underlying target exposes multiple planes per LUN. A multi-plane operation MUST target the same page offset across all selected planes in a single issued command sequence.
+
+#### Scenario: Multi-plane page write
+
+- **GIVEN** the target exposes N planes per LUN and a multi-plane write is requested
+- **WHEN** the caller invokes `nand_write_page_multi(block, page, buffers[N])`
+- **THEN** the driver MUST issue a multi-plane Program command sequence addressing the same (block, page) on every selected plane
+- **AND THEN** it MUST run ECC encoding on each plane's data independently
+- **AND THEN** it MUST return success only when all planes confirm program completion
+- **AND THEN** on a partial-plane failure, it MUST report which plane(s) failed
+
+#### Scenario: Single-plane target
+
+- **GIVEN** the target exposes exactly one plane per LUN
+- **WHEN** the caller invokes a multi-plane API
+- **THEN** the driver MUST behave as a single-plane operation and MUST NOT issue multi-plane command sequences
+
 ### Requirement: ECC Encoding and Decoding
 
 The NAND driver MUST use the configured ECC engine (BCH, LDPC, or hardware ECC) for all data transfers. ECC parity MUST be stored in the spare area.
@@ -145,6 +190,31 @@ The NAND driver MUST use DMA for all data transfers larger than the configured t
 - **THEN** the driver MUST switch to polling mode for the current operation
 - **AND THEN** it MUST log the IRQ loss event for diagnostics
 - **AND THEN** the operation MUST still complete to a success or failure terminal state
+
+### Requirement: ONFI / Toggle Interface Conformance
+
+The NAND driver MUST communicate with the target through a standard NAND interface. The driver implementation MAY support either ONFI (Open NAND Flash Interface) or Toggle (legacy/toggle-mode DDR) targets; the choice is compile-time. The driver MUST detect the interface mode at init and MUST reject targets whose identification response does not match the configured mode.
+
+#### Scenario: ONFI target detected
+
+- **GIVEN** the driver is configured for ONFI mode
+- **WHEN** the driver issues the ONFI Read ID command
+- **THEN** the target MUST respond with the ONFI signature "ONFI"
+- **AND THEN** the driver MUST read ONFI parameter page for geometry and timing
+
+#### Scenario: Toggle target detected
+
+- **GIVEN** the driver is configured for Toggle mode
+- **WHEN** the driver issues the Toggle Read ID sequence
+- **THEN** the target MUST respond with a Toggle-compatible JEDEC ID
+- **AND THEN** the driver MUST NOT issue ONFI-specific commands
+
+#### Scenario: Mismatched target rejected
+
+- **GIVEN** the driver is configured for ONFI mode
+- **WHEN** the target responds with a non-ONFI signature
+- **THEN** the driver MUST refuse to initialize the target
+- **AND THEN** it MUST return a target-detection error to the upper layer
 
 ### Requirement: Dependency Direction
 

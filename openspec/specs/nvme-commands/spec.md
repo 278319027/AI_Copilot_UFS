@@ -2,7 +2,16 @@
 
 ## Purpose
 
-Define how the NVMe command layer accepts host commands, parses and routes them, executes them through the FTL layer, and returns completion entries. The layer MUST complete command processing within microsecond-scale latency and MUST correctly handle Admin commands, I/O commands, and error conditions.
+Define how the NVMe command layer accepts host commands, parses and routes them, executes them through the FTL layer, and returns completion entries. The layer MUST complete command processing within microsecond-scale latency and MUST correctly handle Admin commands, I/O commands, SGL data buffers, namespace management, and error conditions.
+
+## Consumers
+
+This layer is consumed by:
+
+- **Host** (the NVMe initiator) — submits Admin and I/O commands via the Submission Queues
+
+This layer MUST NOT be consumed by the FTL, NAND driver, or error handling core layers.
+
 
 ## Requirements
 
@@ -110,6 +119,69 @@ The NVMe layer MUST enforce command timeouts and MUST transition the controller 
 - **THEN** the NVMe layer MUST abort the command
 - **AND THEN** it MUST post a completion with status code 0x4 (Internal Device Error) or 0x6 (Command Aborted)
 - **AND THEN** it MUST log the timeout with the command ID and submission timestamp
+
+### Requirement: SGL Data Buffer Support
+
+The NVMe layer MUST support both PRP and SGL data buffer descriptions for all I/O commands. When the command's PSDT field indicates SGL, the layer MUST parse the SGL segment chain, follow last-segment / linked-segment descriptors, and DMA the data from the scatter-gather regions into the FTL-supplied buffer.
+
+#### Scenario: SGL with single data block
+
+- **GIVEN** a Read command is issued with PSDT = SGL and a single SGL data block descriptor
+- **WHEN** the NVMe layer processes the command
+- **THEN** it MUST locate the SGL segment in the queue page
+- **AND THEN** it MUST read the data from the SGL-described physical address into the FTL buffer
+- **AND THEN** it MUST honor the byte count from the SGL descriptor
+
+#### Scenario: SGL with linked segments
+
+- **GIVEN** a Write command is issued with PSDT = SGL and a linked-list of SGL segments
+- **WHEN** the NVMe layer walks the SGL chain
+- **THEN** it MUST follow linked-segment descriptors until the last-segment bit is set
+- **AND THEN** it MUST DMA the cumulative data into the FTL buffer
+- **AND THEN** it MUST reject the command with status 0x2 (Invalid Field) if the chain contains a cycle (a segment reachable twice) or exceeds the maximum supported segment count
+
+#### Scenario: SGL bit-bucket descriptor
+
+- **GIVEN** a Write command includes an SGL bit-bucket descriptor (zero-fill region)
+- **WHEN** the NVMe layer processes the bit-bucket region
+- **THEN** it MUST NOT DMA any host data for that region
+- **AND THEN** it MUST treat the corresponding FTL buffer range as zero-filled
+
+### Requirement: Namespace Management
+
+The NVMe layer MUST support namespace management Admin commands and MUST maintain a namespace table that maps NSID to FTL logical block range. The mandatory namespace management commands are Identify Namespace, Create Namespace, Delete Namespace, Attach Namespace, and Detach Namespace.
+
+#### Scenario: Create Namespace
+
+- **GIVEN** the host issues Create Namespace with a non-zero namespace size
+- **WHEN** the NVMe layer processes the command
+- **THEN** it MUST allocate a new NSID
+- **AND THEN** it MUST reserve the requested LBA range from the FTL
+- **AND THEN** it MUST persist the namespace descriptor to non-volatile storage
+- **AND THEN** it MUST return the new NSID in the completion entry
+
+#### Scenario: Delete Namespace
+
+- **GIVEN** the host issues Delete Namespace for an existing NSID
+- **WHEN** the NVMe layer processes the command
+- **THEN** it MUST release the LBA range back to the FTL free pool
+- **AND THEN** it MUST mark the NSID as deleted and unavailable for new commands
+- **AND THEN** it MUST return success only after the FTL has confirmed release
+
+#### Scenario: Attach Namespace to controller
+
+- **GIVEN** the host issues Attach Namespace for an existing NSID and a target controller ID
+- **WHEN** the NVMe layer processes the command
+- **THEN** it MUST add the NSID to the controller's private namespace list
+- **AND THEN** commands addressed to that NSID on the attached controller MUST be accepted
+- **AND THEN** commands on non-attached controllers MUST be rejected with status 0x2
+
+#### Scenario: Identify Namespace returns current geometry
+
+- **GIVEN** the host issues Identify Namespace for NSID N
+- **WHEN** the NVMe layer processes the command
+- **THEN** it MUST populate the Identify Namespace data structure with NSID N's current size, capacity, format, and protection information
+- **AND THEN** it MUST post a successful completion within the command timeout window
 
 ### Requirement: Dependency Direction
 
