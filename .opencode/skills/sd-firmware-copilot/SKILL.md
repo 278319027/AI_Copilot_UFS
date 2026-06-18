@@ -158,7 +158,21 @@ openspec/
 
 **基线查询优先级**：`openspec/specs/<cap>/spec.md` → CodeGraph 局部验证 → 读代码。CLI：`openspec spec list` / `openspec spec show <cap>`。
 
-**Delta 格式** → 详见 [openspec-workflow](../openspec-workflow/SKILL.md)（ADDED / MODIFIED / REMOVED 三个 header 规范）。
+**Delta 格式**（3 类 header + 强制 4 个 `#`）：
+
+```markdown
+## ADDED Requirements
+### Requirement: <name>
+The <layer> SHALL <behavior>.
+#### Scenario: <name>
+- **WHEN** <condition>
+- **THEN** <expected outcome>
+```
+
+- **MODIFIED Requirements**：复制 baseline 整个 `### Requirement:` 块（含所有 Scenario），头文本必须与原 Requirement 完全一致（不一致 = 归档丢失细节）。
+- **REMOVED Requirements**：`### Requirement: <name>` + `**Reason**:` + `**Migration**:`。
+
+**3 个不可违反的规则**：(1) Scenario 强制 4 个 `#`（3 个 `#` 静默失败）；(2) 规范词 SHALL / MUST，避免 should / may；(3) 每个 Scenario 必须是潜在测试用例。
 
 **三级门禁**（Proposal → Design → Review） → 详见 [openspec-workflow §工件模板与门禁流程](../openspec-workflow/SKILL.md)。**简化规则**：单文件 bugfix 跳 Proposal 人工；文档/注释跳全部门禁；其他完整流程。
 

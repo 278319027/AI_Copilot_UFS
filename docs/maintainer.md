@@ -14,6 +14,35 @@
 
 每个变更必须走完一圈，不允许跳过 KNOW 或 FEEDBACK。
 
+## OpenSpec 5 阶段生命周期
+
+```
+┌────────────────────────────────────────────────────────────────────┐
+│                OpenSpec 增量变更生命周期（5 阶段）                  │
+├────────────────────────────────────────────────────────────────────┤
+│                                                                    │
+│  ① propose        ② explore        ③ apply        ④ sync  ⑤ archive│
+│  ─────────        ─────────        ─────────      ─────  ──────── │
+│  创建变更          探索思考          实施任务       同步基线  归档变更│
+│  生成 artifacts    （可选）         按 tasks.md   delta→main  移到│
+│  proposal/design/  不写代码        TDD 推进      specs/      archive/│
+│  specs/tasks                                                     │
+│                                                                    │
+│  关键命令：                                                        │
+│  /opsx:propose    /opsx:explore    /opsx:apply   /opsx:sync /opsx:archive│
+│  openspec new     （CLI 无命令）   openspec      openspec  openspec  │
+│   change                            instructions  status    status    │
+│                                    apply                      (then mv)│
+│                                                                    │
+│  状态：changes/{id}/    同左      tasks.md       specs/    archive/  │
+│        新建空骨架      思考中      [x] 勾选        delta     YYYY-    │
+│                                          完成      已合并    MM-DD-  │
+│                                                                {id}/  │
+└────────────────────────────────────────────────────────────────────┘
+```
+
+**何时跳过某阶段**：`explore` 可选（propose 前/后/中自由使用）；`sync` 可在 apply 后 archive 前执行；单文件 bugfix 可跳过 propose 直接 apply。
+
 ## 快速上手
 
 ```bash
