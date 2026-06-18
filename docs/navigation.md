@@ -47,7 +47,7 @@
 | `.opencode/skills/` | **AI 技能包**：Superpowers 纪律 + sd-firmware-copilot 领域规则 + OpenSpec 适配器 | AI（人偶尔查阅） |
 | `.opencode/memory/` | **项目规则**：6 个规则文件（架构/并发/编码/设计/审查/测试） | AI（人审阅） |
 | `docs/` | **人类文档**：roadmap、navigation | 人 |
-| `graphify-out/` | **知识图谱产物**：可由 Graphify 工具查询 | AI（人偶阅） |
+| `graphify-out/` | **知识图谱产物**：在目标代码库运行 graphify 后生成，zsf 自身无此目录 | AI |
 | `AGENTS.md` | **AI 运行时指令**：graphify / openspec / superpowers 三工具规则 | AI |
 | `README.md` | **项目入口**：双路径、四工具架构、推荐阅读顺序 | 人 |
 
@@ -82,7 +82,7 @@ zsf/
 │   ├── deploy_tools.sh              ← 一键部署工具链
 │   ├── verify.sh                    ← 一键健康检查（8 项）
 │
-└── graphify-out/                   ← 知识图谱产物（自动生成，可查询）
+*graphify-out/ 存在于目标代码库（如 FEMU），zsf 根目录无此目录*
 ```
 ## 几条重要约定
 

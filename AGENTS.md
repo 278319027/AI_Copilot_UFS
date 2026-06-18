@@ -9,7 +9,7 @@ Superpowers 三条铁律适用于**所有** AI 输出、跨越全部四个阶段
 
 ## graphify
 
-本项目在 graphify-out/ 目录下有知识图谱，包含 god nodes、社区结构、跨文件关系。
+本项目配置了 Graphify 知识图谱插件（`.opencode/plugins/graphify.js`）。在目标代码库（非 zsf 自身）运行 `graphify update <子目录>` 后，会生成 `graphify-out/` 知识图谱（god nodes、社区结构、跨文件关系）。
 
 当用户输入 `/graphify` 时，直接运行 graphify CLI 命令（graphify query/path/explain/update）。
 
