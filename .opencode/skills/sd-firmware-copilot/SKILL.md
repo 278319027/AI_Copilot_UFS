@@ -64,13 +64,21 @@ CodeGraph 基于 AST，关注函数级调用关系；cscope 补充：
 2. CodeGraph 探索已完成（影响范围明确）
 3. 理解现有代码模式（错误处理、并发、日志）
 
-### 实现流程（Superpowers 铁律驱动）
+### 实现流程（Superpowers 铁律驱动 — 强制加载）
 
-1. **加载 `test-driven-development`**：按红 → 绿 → 重构执行
+**🚨 必做清单**：在写第一行代码前，通过 skill tool 加载以下所有 skills。**缺一个 = 铁律失效，方法论退化为手动检查清单**。
+
+> 1. `superpowers:test-driven-development` — Path A（纯逻辑）或 Path B（硬件依赖）必走
+> 2. `superpowers:executing-plans` — 按 tasks.md 顺序执行
+> 3. `superpowers:subagent-driven-development` 或 `superpowers:dispatching-parallel-agents` — 视任务而定
+> 4. `superpowers:verification-before-completion` — 每步验证后才进入下一步
+>
+> 加载列表与触发场景详见 [superpowers/SKILL.md §Bootstrap 决策表](../superpowers/SKILL.md)。
+
+1. **加载 `test-driven-development`**：按 Path A（红→绿→重构）或 Path B（编译→验证→FEEDBACK 测试）执行
 2. **加载 `executing-plans`**：按 tasks.md 逐项执行
-3. **加载 `subagent-driven-development`**：复杂任务独立代理；可独立的任务并行
-4. **加载 `dispatching-parallel-agents`**：最大化并行吞吐
-5. **加载 `verification-before-completion`**：不验证不宣称完成
+3. **加载 `subagent-driven-development` 或 `dispatching-parallel-agents`**：复杂任务独立代理；可独立的任务并行
+4. **加载 `verification-before-completion`**：每步验证后才进入下一步
 
 > BUILD 阶段从不孤立执行。必须先经过 KNOW（CodeGraph 探索）→ PLAN（OpenSpec proposal/design/tasks），再进入 BUILD。
 
@@ -100,11 +108,16 @@ CodeGraph 基于 AST，关注函数级调用关系；cscope 补充：
 
 ## FEEDBACK 阶段
 
-### 审查前
+### 审查前（强制加载）
 
-1. 加载 `requesting-code-review`：按工作流程执行
-2. 用户说 'review my work' → 自动加载 `requesting-code-review`
-3. 收集所有已变更文件的 CodeGraph 影响数据
+**🚨 必做清单**：在开始审查前，通过 skill tool 加载以下所有 skills。
+
+> 1. `superpowers:requesting-code-review` — 发起正式审查
+> 2. `superpowers:verification-before-completion` — 确保审查用的验证命令真的能跑
+> 3. `superpowers:receiving-code-review` — 接收反馈时使用
+
+1. 加载 `requesting-code-review`：按其工作流执行
+2. 收集所有已变更文件的 CodeGraph 影响数据
 
 ### 审查内容（SSD 领域专项检查）
 

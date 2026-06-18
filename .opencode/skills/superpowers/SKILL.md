@@ -36,6 +36,42 @@ The two layers are **additive, not competing**:
 When both layers apply, follow the upper layer's domain rules **on top of** the lower
 layer's engineering discipline — never one at the expense of the other.
 
+## Bootstrap 决策表（强制）
+
+**会话开始时必读**。本表告诉 AI Agent 何时加载哪个子 skill。**没有加载 = 不掌握该 skill 的纪律**，铁律退化为了手动清单。
+
+### 场景 → Skill 映射
+
+| 触发场景 | 必加载 skill | 缺失后果 |
+|----------|-------------|----------|
+| 会话开始 / 收到新需求 | `using-superpowers` | 上下文无纪律约束 |
+| 涉及 bug、test failure、异常行为 | `systematic-debugging` | 凭直觉打补丁 |
+| 写生产代码（Path A 纯逻辑） | `test-driven-development` | 无失败测试、无回归保护 |
+| 写生产代码（Path B 硬件依赖） | `test-driven-development` | BUILD 编译通过 ≠ 系统正确 |
+| 进入 BUILD 阶段 | `executing-plans` + `verification-before-completion` | 跳过任务、跳过验证 |
+| 复杂任务（多文件、多模块） | `subagent-driven-development` | 上下文爆炸、需求漂移 |
+| 2+ 独立可并行任务 | `dispatching-parallel-agents` | 串行浪费 |
+| 合并前 / 用户说「review my work」 | `requesting-code-review` | AI 自批自审 |
+| 收到审查反馈 | `receiving-code-review` | 表演性认同 / 盲目实现 |
+| 所有任务完成，准备合并 | `finishing-a-development-branch` | 直接合并不清理 |
+| 宣称「完成 / 修复 / 通过」 | `verification-before-completion` | 无证据断言 |
+
+### 阶段转换触发器
+
+| 阶段转换 | 自动加载 |
+|----------|----------|
+| KNOW → PLAN | `openspec-workflow` |
+| PLAN → BUILD | `test-driven-development` + `executing-plans` + `verification-before-completion` |
+| BUILD → FEEDBACK | `requesting-code-review` |
+| FEEDBACK → Archive | `finishing-a-development-branch` |
+
+### 红线自检（每次动作前问自己）
+
+- [ ] 我即将「声称完成」吗？→ 加载 `verification-before-completion` 并实际跑命令
+- [ ] 我即将「修 bug」吗？→ 加载 `systematic-debugging` 并完成根因调查
+- [ ] 我即将「写生产代码」吗？→ 加载 `test-driven-development` 并按 Path A/B 走
+- [ ] 我即将「合并」吗？→ 加载 `requesting-code-review` 并完成 Review Gate
+
 ## Iron rules (non-negotiable)
 
 These are the absolute rules from the Superpowers framework. Violating the letter is
