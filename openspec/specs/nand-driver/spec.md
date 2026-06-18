@@ -128,7 +128,7 @@ The NAND driver MUST scan the factory-marked bad blocks at init time and MUST up
 
 ### Requirement: DMA and IRQ Coordination
 
-The NAND driver MUST use DMA for all data transfers larger than the configured threshold and MUST coordinate completion via interrupts. Polling MAY be used as a fallback.
+The NAND driver MUST use DMA for all data transfers larger than the configured threshold and MUST coordinate completion via interrupts. Polling MUST be used as a fallback.
 
 #### Scenario: DMA-driven transfer
 

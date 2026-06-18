@@ -43,9 +43,6 @@ fi
 
 SRC_DIR="$(realpath "$SRC_DIR")"
 PROJECT_ROOT="$(dirname "$SRC_DIR")"
-HAS_NODE="false"
-HAS_CODEGRAPH="false"
-
 echo "=============================================="
 echo " SSD 固件 CodeGraph 工具链一键部署"
 echo "=============================================="
@@ -72,7 +69,6 @@ else
     nvm use 22
     echo "  ✓ Node.js $(node -v) 安装完成"
 fi
-HAS_NODE="true"
 
 # ============================================================
 # Step 2: codegraph
@@ -87,7 +83,6 @@ else
     npm install -g @optave/codegraph
     echo "  ✓ codegraph $(codegraph --version) 安装完成"
 fi
-HAS_CODEGRAPH="true"
 
 # 构建/更新 codegraph 索引
 CODEGRAPH_DIR="$SRC_DIR/.codegraph"
@@ -137,15 +132,12 @@ fi
 echo ""
 echo "=== [4/6] doxygen + graphviz (架构文档) ==="
 
-DOXY_INSTALLED="false"
 if command -v doxygen &>/dev/null; then
     echo "  ✓ doxygen $(doxygen --version) 已安装"
-    DOXY_INSTALLED="true"
 else
     echo "  → apt install doxygen graphviz ..."
     sudo apt-get install -y doxygen graphviz
     echo "  ✓ doxygen $(doxygen --version) 安装完成"
-    DOXY_INSTALLED="true"
 fi
 
 if command -v dot &>/dev/null; then
@@ -253,7 +245,6 @@ else
 fi
 
 # 验证 OpenSpec 适配 Skill（随 zsf 仓库分发）
-# 验证 OpenSpec 适配 Skill（随 zsf 仓库分发）
 if [ -f ".opencode/skills/openspec-workflow/SKILL.md" ]; then
     echo "  ✓ openspec-workflow Skill 已就位 (propose/explore/apply/sync/archive 五合一)"
 else
@@ -329,7 +320,7 @@ echo "=============================================="
 # Step 7: 项目根环境验证
 #   部署工具链后，验证 rules / specs / graphify 三项就位
 # ============================================================
-PROJECT_ROOT="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT_ROOT="$(cd "$(dirname "$0")" && pwd)"
 ERR=0
 
 echo ""
@@ -340,7 +331,7 @@ echo "=============================================="
 echo -n "  [1/3] Rules (6 files)... "
 MISS=0
 for r in architecture concurrency_rules coding_style design_rules review_rules testing_rules; do
-    [ -f "$PROJECT_ROOT/.opencode/memory/${r}.md" ] || MISS=$((MISS+1))
+    [ -f "$SCRIPT_ROOT/.opencode/memory/${r}.md" ] || MISS=$((MISS+1))
 done
 if [ "$MISS" -eq 0 ]; then echo "✓ 6/6"; else echo "✗ $MISS missing"; ERR=$((ERR+1)); fi
 
@@ -354,7 +345,7 @@ else
 fi
 
 echo -n "  [3/3] Graphify plugin... "
-[ -r "$PROJECT_ROOT/.opencode/plugins/graphify.js" ] && echo "✓ exists" || \
+[ -r "$SCRIPT_ROOT/.opencode/plugins/graphify.js" ] && echo "✓ exists" || \
 { echo "✗ missing"; ERR=$((ERR+1)); }
 
 if [ "$ERR" -gt 0 ]; then

@@ -114,7 +114,7 @@ The error handling layer MUST ensure that the firmware can recover to a consiste
 - **WHEN** the firmware reboots
 - **THEN** the FTL MUST detect the partially migrated block
 - **AND THEN** it MUST either complete the migration or roll back the affected pages
-- **AND THEN** no mapping table entry MAY reference a partially written page
+- **AND THEN** no mapping table entry MUST NOT reference a partially written page
 
 #### Scenario: Spare area integrity check
 

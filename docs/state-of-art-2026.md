@@ -1,263 +1,258 @@
-# AI 辅助编程方法论调研 — 2025 年底/2026 年现状
+# State of AI-Assisted Programming — Late 2025 / 2026 Survey
 
-**日期**：2026-06-18
-**范围**：外部方法论现状 vs. zsf 方法论（OpenSpec + Superpowers + CodeGraph + Graphify）
-**方法**：11 个并行网络搜索，对照一手来源（Anthropic、OpenAI、Microsoft、Princeton/SWE-agent、Cognition/Devin、Vercel、GitHub Blog、InfoQ、agentskills.io、agents.md，外加六个新图谱/知识 MCP 工具）
+**Date:** 2026-06-18
+**Scope:** External state of the art vs. zsf methodology (OpenSpec + Superpowers + CodeGraph + Graphify)
+**Method:** 11 parallel web searches against primary sources (Anthropic, OpenAI, Microsoft, Princeton/SWE-agent, Cognition/Devin, Vercel, GitHub Blog, InfoQ, agentskills.io, agents.md, plus six new graph/knowledge-MCP tools)
 
-> **TL;DR — zsf 站位良好。** 已落地 2026 年最佳实践的四大支柱（AGENTS.md、Skills、Spec-driven、图谱化 KNOW）。最大差距在 *context engineering*（无首类 compaction/clearing/memory 层）和 *agent 验证自动化*（三条铁律已文档化但无确定性 Stop-hook gate）。Microsoft Spec Kit 是唯一有可比端到端 SDD 流水线的同类竞品（112K★、165 次发布），其设计与 zsf 趋同——差异化在采用率，不在架构。
-
----
-
-## 主题 1 — AGENTS.md 作为新标准
-
-**状态：匹配/前沿**（你已经有 `AGENTS.md`；厂商原生支持已成默认）。
-
-### 关键进展（2025 年底 → 2026）
-
-1. **Linux Foundation 接管，2025-12-09。** OpenAI 与 Anthropic 联合将 AGENTS.md 捐赠给新成立的 **Agentic AI Foundation (AAIF)**，连同 Anthropic 的 MCP 与 Block 的 Goose。Platinum 成员：OpenAI、Anthropic、Block。支持成员：Google、Microsoft、AWS、Bloomberg、Cloudflare。该标准不再是单一厂商产物。来源：[tessl.io 博客 2025-12-09](https://tessl.io/blog/openai-anthropic-and-others-unite-behind-agentic-ai-foundation-for-open-standards/)；[CIO Dive 2025-12-10](https://www.ciodive.com/news/big-tech-develop-open-standards-agentic-ai/807608/)。
-
-2. **6 万+ 仓库，22K★ 参考仓库，HN 837 分上线。** AGENTS.md 8 个月内从 0 增至 6 万+。参考仓库 [github.com/agentsmd/agents.md](https://github.com/agentsmd/agents.md)（截至调研 22,184★）。约定："纯 Markdown，无自定义语法，厂商中立，最近文件自动发现。"
-
-3. **多厂商原生支持。** Codex、Cursor、GitHub Copilot、Gemini CLI、Google Jules、VS Code agent 模式、Aider、Zed、Warp、RooCode、Devin、Amp (Sourcegraph)、Junie、opencode、UiPath Autopilot、Factory CLI。**唯一主流例外是 Anthropic Claude Code**，仍优先 `CLAUDE.md`（issue #6235 是最高反应数之一）。来源：[agents.md](https://agents.md/)、[AgentMarketCap 2026-04-17](https://agentmarketcap.ai/blog/2026/04/17/agents-md-60k-adoption-aaif-donation-standards-floor)。
-
-4. **Vercel 评测：AGENTS.md 33/33 击败 skills 31/33**（2026-01-29）。首次公开头对头对比：永远在上下文里的指令，对"agent 必然会用到的事实"比按需触发的 skills 更优。来源：[EarlyTerms](https://earlyterms.com/term/agents-md)、[Vercel 博客，EarlyTerms 引用]。
-
-5. **GitHub 2,500 仓库研究（2025-11）。** 经验性回答"如何写一份好的 AGENTS.md"——章节、长度、命令块对 agent 成功率的实际相关性。来源：[github.blog，EarlyTerms 引用](https://github.blog/ai-and-ml/generative-ai/spec-driven-development-with-ai-get-started-with-a-new-open-source-toolkit/)。
-
-### 判定：**领跑**
-
-zsf 已交付符合标准格式的 AGENTS.md。AAIF 规范强制"最近文件优先"语义，可在 `openspec/` 和 `docs/` 放置子目录 `AGENTS.md` 来限定单区域指令。**具体行动：** 当前 52 行 `AGENTS.md` 良好但未使用共识章节排序（Dev / Testing / PR instructions）——建议对齐 `agentsmd/agents.md` 示例模板。
+> **TL;DR — zsf is well-positioned.** It already implements the four pillars of 2026 best practice (AGENTS.md, skills, spec-driven, graph-based KNOW). The biggest gaps are around *context engineering* (no first-class compaction/clearing/memory layer) and *agent verification automation* (the three iron rules are documented but no deterministic Stop-hook gate). Microsoft's Spec Kit is the only mainstream competitor that has shipped a comparable end-to-end SDD pipeline (112K★, 165 releases), and its design converges on what zsf already does — adoption is the differentiator, not architecture.
 
 ---
 
-## 主题 2 — Skills：Anthropic Skills vs OpenCode Skills vs 纯 Markdown
+## Topic 1 — AGENTS.md as emerging standard
 
-**状态：与新兴开放标准匹配**（你的 `.opencode/skills/` 是 SKILL.md 风格技能集，但项目尚未按开放 `agentskills.io` 规范对外暴露）。
+**Status: matches / on the leading edge** (you already have an `AGENTS.md`; vendor support is now default).
 
-### 关键进展
+### Key developments (late 2025 → 2026)
 
-1. **Anthropic Agent Skills 规范现已是 [agentskills.io](https://agentskills.io/specification) 上的开放标准**（2025-10-16 发布；规范托管于 [github.com/agentskills/agentskills](https://github.com/agentskills/agentskills)，20K★）。一个 skill 是一个文件夹，内含 `SKILL.md`（YAML frontmatter：`name`、`description`；可选 `license`、`compatibility`、`metadata`、`allowed-tools`），外加可选的 `scripts/`、`references/`、`assets/`。格式与实现无关。
+1. **Linux Foundation stewardship, Dec 9 2025.** OpenAI and Anthropic jointly donated AGENTS.md to the newly formed **Agentic AI Foundation (AAIF)**, alongside Anthropic's MCP and Block's Goose. Platinum members: OpenAI, Anthropic, Block. Supporting: Google, Microsoft, AWS, Bloomberg, Cloudflare. The standard is no longer a single-vendor artifact. Source: [tessl.io blog, 2025-12-09](https://tessl.io/blog/openai-anthropic-and-others-unite-behind-agentic-ai-foundation-for-open-standards/); [CIO Dive, 2025-12-10](https://www.ciodive.com/news/big-tech-develop-open-standards-agentic-ai/807608/).
 
-2. **渐进式披露是主流设计模式。** 三级加载：(1) metadata ≈100 tokens，永远在上下文；(2) `SKILL.md` 正文 < 5000 tokens，激活时加载；(3) 捆绑资源，按需加载。**Anthropic 硬性规则：`SKILL.md` < 500 行**；拆分为被引用的子文件。来源：[Anthropic 工程博客 2025-10-16](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)；[Anthropic 完整技能构建指南 PDF](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf)。
+2. **60,000+ repos, 22K★ reference repo, 837-point HN launch.** AGENTS.md went from 0 → 60K in ~8 months. Reference repo at [github.com/agentsmd/agents.md](https://github.com/agentsmd/agents.md) (22,184★ as of survey). The convention is "plain markdown, no custom syntax, vendor-neutral, automatic nearest-file discovery."
 
-3. **OpenCode 的 `.opencode/skills/` 用同样的模式**，但早于公开规范发布。你的项目已有三个 skill（`openspec-workflow`、`sd-firmware-copilot`、`superpowers`），每个作为 `.opencode/skills/` 下的子目录，含 `SKILL.md`。功能上等同于 `agentskills.io` 合规 skill，但 `SKILL.md` 文件本身没有标准 YAML frontmatter。
+3. **Multi-vendor native support.** Codex, Cursor, GitHub Copilot, Gemini CLI, Google Jules, VS Code agent mode, Aider, Zed, Warp, RooCode, Devin, Amp (Sourcegraph), Junie, opencode, UiPath Autopilot, Factory CLI. **The only major holdout is Anthropic's Claude Code**, which still prioritizes `CLAUDE.md` (open issue #6235 is among the most-reacted). Source: [agents.md](https://agents.md/), [AgentMarketCap 2026-04-17](https://agentmarketcap.ai/blog/2026/04/17/agents-md-60k-adoption-aaif-donation-standards-floor).
 
-4. **行业大汇聚。** Claude Code、Claude Agent SDK、Claude API（`container.skills[]` 参数），以及第三方 agent 运行时都读取同样的 SKILL.md 文件夹模式。Claude API 单请求最多支持 **8 个 skill**（`container` 参数 + `beta: skills-2025-10-02` 头）。来源：[Claude API Skills 指南](https://platform.claude.com/docs/en/build-with-claude/skills-guide)。
+4. **Vercel eval: AGENTS.md beats skills 33/33 vs 31/33** (Jan 29 2026). The first public, head-to-head measurement: always-in-context instructions outperform on-demand skill triggers for facts the agent will need. Source: [EarlyTerms, AGENTS.md conventions](https://earlyterms.com/term/agents-md); [Vercel blog, cited in EarlyTerms].
 
-5. **`description` 是首要触发器。** "是什么 + 何时用" 必须放进 YAML `description` 字段，不能在正文。Anthropic 编写指南：≤1024 字符，无 XML 标签，必须包含用户会说的触发短语。
+5. **GitHub 2,500-repo study (Nov 2025).** Empirical answer to "how to write a great AGENTS.md" — sections, length, and command blocks that actually correlate with agent success. Source: [github.blog, cited in EarlyTerms](https://github.blog/ai-and-ml/generative-ai/spec-driven-development-with-ai-get-started-with-a-new-open-source-toolkit/).
 
-### 判定：**匹配**
+### Verdict: **leads**
 
-zsf 的 skill 格式与行业 **趋同** 但尚未与开放规范 **合规**。唯一差距是 `SKILL.md` 文件的 YAML frontmatter。
-
-**具体行动：** 给 `.opencode/skills/` 下三个 `SKILL.md` 加 `name` 和 `description` YAML frontmatter。skill 名称已遵循 kebab-case；description 需重写以遵循 Anthropic 的"是什么 + 何时用"模式。审查 `SKILL.md` 正文长度：`superpowers` skill 正文可能 > 500 行，应拆分为被引用的子文件。
+zsf already ships an AGENTS.md that is in the standard format. Because the AAIF spec mandates "nearest file wins" semantics, you can drop subdirectory `AGENTS.md` files in `openspec/` and `docs/` to scope per-area instructions. **Concrete action:** the current 52-line `AGENTS.md` is good but doesn't yet use the consensus section ordering (Dev / Testing / PR instructions) — consider aligning to the `agentsmd/agents.md` example template.
 
 ---
 
-## 主题 3 — Spec-driven 开发
+## Topic 2 — Skills: Anthropic Skills vs. OpenCode Skills vs. plain markdown
 
-**状态：匹配；OpenSpec 是多种可行 SDD 框架之一；Microsoft Spec Kit 是主流首选。**
+**Status: matches the emerging open standard** (your `.opencode/skills/` is a SKILL.md-style skill set, but the project is not yet exposed via the open `agentskills.io` spec).
 
-### 关键进展
+### Key developments
 
-1. **Microsoft GitHub Spec Kit 是 2026 年主流 SDD 工具链。** [github/spec-kit](https://github.com/github/spec-kit) 达到 **112,852★ / 9,961 fork / 165 次发布**；v0.11.0 于 2026-06-16 发布。生命周期：**Constitution → Specify → Clarify → Plan → Tasks → Implement → Validate**。三个斜杠命令（`/specify`、`/plan`、`/tasks`）驱动 agent。来源：[github.com/github/spec-kit](https://github.com/github/spec-kit)；[Microsoft for Developers 2025-09-15](https://developer.microsoft.com/blog/spec-driven-development-spec-kit)；[Microsoft for Developers 2026-06-10](https://developer.microsoft.com/blog/spec-driven-development-ai-native-engineering)。
+1. **Anthropic Agent Skills spec is now an open standard at [agentskills.io](https://agentskills.io/specification)** (released Oct 16 2025; spec hosted in [github.com/agentskills/agentskills](https://github.com/agentskills/agentskills), 20K★). A skill is a folder with `SKILL.md` (YAML frontmatter: `name`, `description`; optional `license`, `compatibility`, `metadata`, `allowed-tools`) plus optional `scripts/`, `references/`, `assets/`. The format is implementation-agnostic.
 
-2. **30+ agent 集成，105 社区扩展，22 预设。** Spec Kit 兼容 Copilot、Gemini CLI、Codex、Windsurf、Zed、Claude Code、Forge、Kiro 等。社区已构建完全不同的 SDD 流程（AIDE 7 步、Canon 基线驱动、Product Forge PM 导向、FX→.NET 迁移、MAQA 多 agent QA）。来源：[Spec Kit 文档](https://github.github.com/spec-kit/)。
+2. **Progressive disclosure is the dominant design pattern.** Three load levels: (1) metadata ≈100 tokens, always in context; (2) `SKILL.md` body < 5000 tokens, loaded on activation; (3) bundled resources, loaded as needed. **Anthropic's hard rule: `SKILL.md` < 500 lines**; split into referenced files. Source: [Anthropic engineering blog, 2025-10-16](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills); [Anthropic Complete Guide PDF](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf).
 
-3. **Constitution 阶段是差异化所在。** "Constitution"（原则、标准、护栏）是 Spec Kit 最被低估的部分，最接近你的"三条铁律"/"代码优先链"/"小任务原则"。跳过 Constitution 的团队漂移最快。
+3. **OpenCode's `.opencode/skills/` uses the same pattern** but predates the public spec. Your project already has three skills (`openspec-workflow`, `sd-firmware-copilot`, `superpowers`), each as a directory under `.opencode/skills/` with a `SKILL.md`. They are functionally equivalent to `agentskills.io`-compliant skills, but their `SKILL.md` files don't carry the standard YAML frontmatter.
 
-4. **OpenSpec CLI v1.4.1（你的选择）也是可行替代。** OpenSpec 设计更轻量，更贴近 FOSS CLI 工作流。你的项目 `openspec/specs/` + `openspec/changes/{id}/` 映射在概念上等同于 Spec Kit 的 `spec.md` + `plan.md` + `tasks.md`，外加显式门禁执行（Proposal → Design → Review → Archive）。
+4. **Convergence across the industry.** Claude Code, the Claude Agent SDK, the Claude API (`container.skills[]` parameter), and third-party agent runtimes all read the same folder-of-SKILL.md pattern. The Claude API supports up to **8 skills per request** via the `container` parameter with a `beta: skills-2025-10-02` header. Source: [Claude API Skills guide](https://platform.claude.com/docs/en/build-with-claude/skills-guide).
 
-5. **其他 spec-driven 工具尚未汇聚。**
-   - **OpenAPI / AsyncAPI** 是 API 契约规范，不是完整 SDD 生命周期。位于不同层。
-   - **Pydantic AI** 是类型安全 LLM agent 构建框架，不是 spec-driven 方法论。
-   - **AWS Kiro** 是闭源 agentic IDE，实现自有的 spec-driven 流程。
+5. **`description` is the primary trigger.** "What + when" must go in the YAML `description` field, not the body. Anthropic's authoring guide: ≤1024 chars, no XML tags, must include trigger phrases users would say.
 
-   OpenSpec 最近的开放竞品就是 **Fission AI 的 OpenSpec**（即 zsf 用的）；Spec Kit 是参考标杆。两者共享 80% 概念模型。最大差异：Spec Kit 自带斜杠命令，OpenSpec 需要用户编写工作流 skill。
+### Verdict: **matches**
 
-### 判定：**架构匹配**，**采用面滞后**（Microsoft 生态 100× 于 zsf）。
+zsf's skill format is **convergent** with the industry but not yet **conformant** with the open spec. The only gap is YAML frontmatter on `SKILL.md` files.
 
-**具体行动：**
-- 显式文档化你的"Constitution"。三条铁律 + 代码优先链 + 小任务原则正是 Spec Kit 所说的 `constitution.md`；将它们升级为 `openspec/` 下的首类工件。
-- 考虑写一个薄兼容垫片，让 `spec-kit` 风格的 `/specify` 斜杠命令能跑在 OpenSpec CLI 上。让已经熟悉 Spec Kit 操作习惯的团队可平滑迁移到 zsf。
+**Concrete action:** Add `name` and `description` YAML frontmatter to the three `SKILL.md` files in `.opencode/skills/`. The skill names already follow kebab-case; descriptions need to be rewritten to follow Anthropic's "what + when" pattern. Audit `SKILL.md` body length: the `superpowers` skill body is likely > 500 lines and should be split into referenced sub-files.
 
 ---
 
-## 主题 4 — Agent 验证模式
+## Topic 3 — Spec-driven development
 
-**状态：哲学匹配；自动化滞后（无 Stop-hook 风格确定性门禁）。**
+**Status: matches; OpenSpec is one of multiple viable SDD frameworks; Microsoft Spec Kit is the dominant mainstream option.**
 
-### 关键进展
+### Key developments
 
-1. **"给 Claude 一种验证自己工作的方法"是 Anthropic 头号最佳实践。** 来自 [code.claude.com/docs/en/best-practices](https://code.claude.com/docs/en/best-practices)："给 Claude 一个产出通过或失败的东西，循环自然闭合。" 四种门禁类型：prompt 内、`/goal` 条件、**确定性 Stop hook**、第二意见 subagent。Stop hook 阻挡回合结束直到检查通过；连续 8 次阻挡后 Claude 强制覆写。
+1. **Microsoft GitHub Spec Kit is the dominant 2026 SDD toolchain.** [github/spec-kit](https://github.com/github/spec-kit) reached **112,852★ / 9,961 forks / 165 releases**; v0.11.0 shipped 2026-06-16. Lifecycle: **Constitution → Specify → Clarify → Plan → Tasks → Implement → Validate**. Three slash commands (`/specify`, `/plan`, `/tasks`) drive the agent. Source: [github.com/github/spec-kit](https://github.com/github/spec-kit); [Microsoft for Developers, 2025-09-15](https://developer.microsoft.com/blog/spec-driven-development-spec-kit); [Microsoft for Developers, 2026-06-10](https://developer.microsoft.com/blog/spec-driven-development-ai-native-engineering).
 
-2. **Vercel 工程手册 TDD 模式（2026-05）。** 红到绿循环必须 < 2 分钟。"不要改测试" 的 pin 原则：没有它，Claude 会放松断言以匹配错误实现。测试必须测契约而非调用图（`expect(fn).toHaveBeenCalledWith(...)` 是一种异味）。来源：[engineering-playbook.vercel.app/claude-code/test-driven-development](https://engineering-playbook.vercel.app/claude-code/test-driven-development)。
+2. **30+ agent integrations, 105 community extensions, 22 presets.** Spec Kit works with Copilot, Gemini CLI, Codex, Windsurf, Zed, Claude Code, Forge, Kiro, plus 23 more. Community has built completely different SDD processes (AIDE 7-step, Canon baseline-driven, Product Forge PM-oriented, FX→.NET migration, MAQA multi-agent QA). Source: [Spec Kit docs](https://github.github.com/spec-kit/).
 
-3. **Opus 4.7 的 `/go` skill 是典范的"验证优先"模式。** Anthropic 工程师 Boris Cherny 的工作流：一个 30 行自定义 skill 放在 `.claude/skills/ /SKILL.md`，串起"端到端测试 → 跑 `/simplify` → 提 PR"。`/simplify` 派生并行审查 subagent 检查变更代码的复用、质量、效率、CLAUDE.md 合规性。来源：[aitoolskit.io 2026-04-16](https://www.aitoolskit.io/news/claude-opus-4-7-claude-code-workflow-boris-cherny-2026)；[ai.georgeliu.com 2026-04-17](https://ai.georgeliu.com/p/six-things-to-change-in-your-claude)。
+3. **Constitution phase is the differentiator.** The "Constitution" (principles, standards, guardrails) is the most under-appreciated part of Spec Kit and is the closest analog to your "three iron rules" / "code priority chain" / "small task principle." Teams that skip Constitution drift fastest.
 
-4. **Cognition Devin 拥有最工业级的验证闭环。** Devin Review（2026-01）不只是标记 bug 的代码审查工具——**它通过逐项修复发现来闭合循环，直到 diff 干净为止。** Devin Test 模式（2026）要求在跑任何测试前先有**基于源码的测试计划**；这是"预对齐"模式，防止 agent 在测试中途"发现遗漏"。来源：[cognition.ai/blog/testing-development](https://cognition.ai/blog/testing-development)；[aidevsetup.com 2026-03-19](https://aidevsetup.com/insider/devin-closes-the-feedback-loop-autonomous-code-review-integration)。
+4. **OpenSpec CLI v1.4.1 (your choice) is a viable alternative.** OpenSpec's design is more lightweight and stays closer to a FOSS CLI workflow. Your project's `openspec/specs/` + `openspec/changes/{id}/` mapping is conceptually equivalent to Spec Kit's `spec.md` + `plan.md` + `tasks.md`, with the addition of explicit gate enforcement (Proposal → Design → Review → Archive).
 
-5. **SWE-agent / mini-SWE-agent — SWE-bench 上的开源 SOTA。** Mini-SWE-agent 在 SWE-bench Verified 跑出 **>74%，代码量 ~100 行 Python**；SWE-agent 1.0 + Claude 3.7 在完整 SWE-bench 持有开源权重 SOTA。关键洞察：可靠的验证器必须"奖励真实修复而拒绝伪造方案，且足够健壮以应对执行中的变数和基础设施抖动。" 来源：[princeton-nlp/SWE-agent](https://github.com/princeton-nlp/SWE-agent)；[swebench.com](https://www.swebench.com/)。
+5. **Other spec-driven tooling has not converged.**
+   - **OpenAPI / AsyncAPI** are API contract specs, not full lifecycle SDD. They live at a different layer.
+   - **Pydantic AI** is a framework for type-safe LLM agent construction; not a spec-driven methodology.
+   - **AWS Kiro** is a closed-source agentic IDE that implements its own spec-driven flow.
 
-### 判定：**哲学匹配，自动化滞后**
+   The closest open competitor to OpenSpec is **OpenSpec by Fission AI** (which is what zsf uses); [Spec Kit is the canonical reference]. The two share 80% of the conceptual model. The big difference: Spec Kit ships with slash commands; OpenSpec requires the user to write the workflow skill.
 
-zsf 的三条铁律（verification-before-completion、test-driven-development、systematic-debugging）**正是** 2026 年最佳实践同样的纪律。zsf 还没有的是 *自动化层* —— 没有 Stop hook、没有 `/simplify` 风格并行审查器、BUILD 启动前没有首类"基于源码的测试计划"要求。
+### Verdict: **matches** (architecturally), **lags on adoption surface** (Microsoft has 100× your ecosystem).
 
-**具体行动：**
-- 加一个 **Stop hook**（OpenCode 通过插件系统支持，像你的 `graphify.js` 一样），跑配置好的测试命令并在回合结束前阻止失败。这是单一最高杠杆改动。
-- 对 SSD 固件，定义一个类比 Devin test plan 的 "BUILD 完成门禁"：agent 必须先读相关源码，枚举要跑的测试用例，在执行前获得人类批准。这对 Path B（硬件依赖）代码至关重要——"看起来完成"是误导信号。
-- 考虑把 `/simplify` 类比写成一个 skill：并行审查模式，diff 变更与 spec 并标记偏差。
-
----
-
-## 主题 5 — 知识图谱 + AST 应用于 AI
-
-**状态：在小众赛道领跑。** Graphify + CodeGraph 覆盖"god nodes / 社区结构"轴；2026 生态在补"实时 / MCP 服务"轴。
-
-### 关键进展
-
-1. **赛道正在爆发 —— 几乎所有新工具都用同一套栈。** Tree-sitter AST + 知识图谱 + MCP server + 混合（BM25 + 向量）搜索 + PageRank。模式已经清楚。值得注意的新进入者（均为 2026）：
-   - [cortex-works/cortex-ast](https://github.com/cortex-works/cortex-ast) — Rust MCP server，34 种语言，AST 时间旅行，可热重载 WASM 解析器
-   - [ajankurjain/central-code-knowledge-graph](https://github.com/ajankurjain/central-code-knowledge-graph) — Neo4j + Tree-sitter + MCP，多仓库，GraphQL + REST
-   - [distillation-labs/contextro](https://github.com/distillation-labs/contextro) — 本地 MCP，PageRank 加权调用图，"图谱共识增强"
-   - [Charan-place/ASTra-MCP](https://github.com/Charan-place/ASTra-MCP) — 声称 98.9% token 削减，NetworkX + Personalized PageRank
-   - [optave/ops-codegraph-tool](https://github.com/optave/ops-codegraph-tool) — 30 个 MCP 工具，34 种语言，数据流 + CFG + 协同变更分析
-   - [sdsrss/code-graph-mcp](https://github.com/sdsrss/code-graph-mcp) — 语义搜索，HTTP 路由追踪，影响分析
-   - [the-muses-ltd/GraphRepo](https://github.com/the-muses-ltd/GraphRepo) — Graphology 内存图谱 + Louvain 社区检测 + Transformers.js
-
-2. **新赢家的公式是"图 + MCP"而非"图 + CLI"。** 上面 6 个新工具全部带 MCP server。MCP server 接口才是让代码图谱 *可被 agent 消费* 的关键——agent 查询图谱而不是 grep/Read/循环。来源：[MCP 协议](https://modelcontextprotocol.io)（Anthropic，2025-12-09 捐赠给 AAIF）。
-
-3. **语义漂移 / 时序图谱是新功能。** ASTra MCP 的"时序知识图谱"追踪调用关系在 git 历史中的 *变化*，支持编辑前风险评分（`get_volatility`、`semantic_audit`）。这是继静态图谱之后的下一维度。
-
-4. **Vercel 正在发布"agent 编程语言"** — [ZeroLang](https://www.aitoolskit.io/news/claude-opus-4-7-claude-code-workflow-boris-cherny-2026) — 暗示业界也在反思通用编程语言是否还是 agent 上下文的合适单位。值得观察。
-
-5. **Graphify 是列表中唯一为"整 monorepo 图谱 + 自然语言可查询"优化的工具。** 大多数竞品聚焦单仓库 + MCP 查询接口。Graphify 的 `query` / `path` / `explain` CLI 是其独特定位。
-
-### 判定：**概念领先，接口滞后**
-
-Graphify 的 `query`/`path`/`explain` CLI 独一无二，与 MCP server 模式互补。2026 生态正向"MCP server + tree-sitter"作为 *接口* 收敛；Graphify 是 *后端*，概念模型最佳（god nodes、社区、跨文件关系）。
-
-**具体行动：**
-- 给 Graphify 加 MCP server 接口，让 agent 直接调 `graphify.query` 而非 shell CLI。你的 `AGENTS.md` 已经在引导 agent "优先用 `graphify query \" \"`"——MCP 接口会让这一步快 10×。
-- 加"时序图谱"/"语义漂移"特性：追踪图谱在 git 版本间的变化。2026 生态正从"静态图谱"走向"了解历史的图谱"。
-- 考虑把 Louvain 社区检测的输出作为 CLI 的首类概念暴露（GraphRepo 思路），因为 god nodes 和模块边界正是 SSD 固件团队需要理解的。
+**Concrete actions:**
+- Document your "Constitution" explicitly. The three iron rules + the code-priority chain + the small-task rule are exactly what Spec Kit calls `constitution.md`; promote them to a first-class artifact in `openspec/`.
+- Consider writing a thin compatibility shim so a `spec-kit`-style `/specify` slash command works against OpenSpec's CLI. This would let teams adopt zsf who already know the Spec Kit ergonomics.
 
 ---
 
-## 主题 6 — Context Engineering
+## Topic 4 — Agent verification patterns
 
-**状态：滞后。** zsf 没有首类 context-engineering 层。
+**Status: matches on philosophy; lags on automated gating (no Stop-hook-style deterministic gate).**
 
-### 关键进展
+### Key developments
 
-1. **Anthropic 的三个原语已成行业标准。** 来自 [Claude Cookbook 2026-03-20](https://platform.claude.com/cookbook/tool-use-context-engineering-context-engineering-tools) 和 [Anthropic 工程博客 2025-09-29](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)：
-   - **Compaction** = 全会话操作；摘要窗口，用摘要重新初始化。一等 API：`compact_20260112`。
-   - **Tool-result clearing** = 子会话操作；将过期的 `tool_result` 块替换为占位符，保留 `tool_use` 记录。一等 API：`clear_tool_uses`。
-   - **Memory** = 跨窗口持久化；agent 写 NOTES.md，重置后读回。
+1. **"Give Claude a way to verify its work" is the #1 Anthropic best practice.** From [code.claude.com/docs/en/best-practices](https://code.claude.com/docs/en/best-practices): "Give Claude something that produces a pass or fail, and the loop closes on its own." Four gate types: in-prompt, `/goal` condition, **deterministic Stop hook**, second-opinion subagent. The Stop hook blocks the turn from ending until the check passes; Claude overrides after 8 consecutive blocks.
 
-   心智模型："compaction 压缩整窗口，clearing 丢弃窗口内可重取的过期数据，memory 把信息搬出窗口使其跨会话存活。"
+2. **Vercel Engineering Playbook TDD pattern (May 2026).** Red-to-green cycle **must be < 2 minutes**. The "don't change the test" pin principle: without it, Claude will relax the assertion to match a wrong implementation. Tests must test the contract, not the call graph (`expect(fn).toHaveBeenCalledWith(...)` is a smell). Source: [engineering-playbook.vercel.app/claude-code/test-driven-development](https://engineering-playbook.vercel.app/claude-code/test-driven-development).
 
-2. **Claude Code 在 95% 上下文窗口时自动 compact**，使用默认摘要 prompt；用户可通过 `compact_20260112` API 的 `instructions` 参数覆盖。默认阈值：150K tokens，最小 50K。来源：[Claude API compaction 文档](https://platform.claude.com/docs/en/build-with-claude/compaction)。
+3. **Opus 4.7's `/go` skill is the canonical "verification-first" pattern.** Anthropic engineer Boris Cherny's workflow: a 30-line custom skill at `.claude/skills/ /SKILL.md` that chains "test end-to-end → run `/simplify` → open PR." `/simplify` spawns parallel review sub-agents to check changed code for reuse, quality, efficiency, and CLAUDE.md compliance. Source: [aitoolskit.io, 2026-04-16](https://www.aitoolskit.io/news/claude-opus-4-7-claude-code-workflow-boris-cherny-2026); [ai.georgeliu.com, 2026-04-17](https://ai.georgeliu.com/p/six-things-to-change-in-your-claude).
 
-3. **"更大的上下文窗口无用。"** Anthropic 的明确立场："可预见的未来，所有尺寸的上下文窗口都会受上下文污染和信息相关性影响。" 2026 年共识是上下文 *质量* 重要于 *数量*。Vercel 关于 AGENTS.md-vs-skills 的研究（33/33 vs 31/33）是首个公开证据。
+4. **Cognition Devin ships the most production-grade verification loop.** Devin Review (Jan 2026) is a code-review tool that doesn't just flag bugs — **it closes the loop by fixing each finding until the diff is clean.** Devin Test mode (2026) requires a **test plan grounded in source** before any test runs; this is a "pre-alignment" pattern that prevents the agent from "discovering something missing halfway through the test." Source: [cognition.ai/blog/testing-development](https://cognition.ai/blog/testing-development); [aidevsetup.com, 2026-03-19](https://aidevsetup.com/insider/devin-closes-the-feedback-loop-autonomous-code-review-integration).
 
-4. **Subagent 是新"隔离"原语。** LangChain 的 4 桶模型（write、select、compress、isolate）被广泛采纳。Anthropic 自家定位："比 chat 多用 15× tokens" 用于多 agent —— 显式的权衡警告。来源：[LangChain 博客 2025-07-02](https://www.langchain.com/blog/context-engineering-for-agents)。
+5. **SWE-agent / mini-SWE-agent — the open-source SOTA on SWE-bench.** Mini-SWE-agent scores **>74% on SWE-bench Verified in ~100 lines of Python**; SWE-agent 1.0 + Claude 3.7 holds the open-weights SOTA on full SWE-bench. The key insight: a reliable verifier must "reward actual fixes while rejecting fabricated solutions, and it must be robust enough to handle variations in execution and potential infrastructure hiccups." Source: [princeton-nlp/SWE-agent](https://github.com/princeton-nlp/SWE-agent); [swebench.com](https://www.swebench.com/).
 
-5. **Opus 4.7 的自适应思考是 2026 模型级上下文原语。** [Claude Opus 4.7](https://www.anthropic.com/news/claude-opus-4-7) 用 `thinking.type.adaptive` 取代 `thinking.type.enabled` —— 模型 *按步* 决定是否思考。这把负担从 prompt 工程思考预算上移开。
+### Verdict: **matches on philosophy, lags on automation**
 
-### 判定：**滞后**
+zsf's three iron rules (verification-before-completion, test-driven-development, systematic-debugging) **are exactly the same discipline** as the 2026 best practice. What zsf doesn't yet have is the *automation layer* — there is no Stop hook, no `/simplify`-style parallel reviewer, and no first-class "test plan grounded in source" requirement before BUILD starts.
 
-zsf 没有文档化的 context-engineering 层。方法论假设一个长单线程会话（Graphify query → CodeGraph explore → OpenSpec propose → Superpowers TDD）；没有文档化的 compaction、clearing 或 memory 原语。
-
-**具体行动：**
-- 在 `SSD_Firmware_AI_Copilot_Methodology.md` 加显式"context engineering"章节，定义：何时用 OpenSpec 的 NOTES.md 类便笺（"memory"类比）、何时建议人工 `/clear`（"clearing"类比）、agent 应何时向 `openspec/changes/{id}/.handoff.md` 写结构化"会话交接"（"compaction"类比）。
-- 让你的 `graphify.js` 插件提供 *select* 类上下文 —— agent 提问时，Graphify 应只返回相关子图，而非整图谱。这是 LangChain 分类法中的"select"原语。
-- 文档化 Opus 4.7 自适应思考模式：在长 SSD 固件会话中，让模型决定何时思考，而非手工调 `thinking.type.enabled`。
+**Concrete actions:**
+- Add a **Stop hook** (OpenCode supports it via the plugin system, like your `graphify.js`) that runs a configured test command and blocks turn-end on failure. This is the single highest-leverage change.
+- For SSD firmware, define a "BUILD completion gate" analogous to Devin's test plan: the agent must read the relevant source code, enumerate the test cases it will run, and get human approval before executing. This is critical for Path B (hardware-dependent) code where "looks done" is a misleading signal.
+- Consider building a `/simplify` analog as a skill: a parallel-reviewer pattern that diffs the change against the spec and flags deviations.
 
 ---
 
-## 跨主题建议
+## Topic 5 — Knowledge graph + AST for AI
 
-### 采用（具体、高杠杆）
+**Status: leads the niche.** Graphify + CodeGraph covers the "god nodes / community structure" axis; the 2026 ecosystem is filling in the "real-time / MCP-served" axis.
 
-1. **将"Constitution"升级为首类工件。** 把三条铁律 + 代码优先链 + 小任务原则移到 `openspec/constitution.md`（或同等位置）。这是 Microsoft Spec Kit 所说的"最常被跳过、最重要的部分"，而你的规则已经写好。
+### Key developments
 
-2. **给三个 `SKILL.md` 文件加 YAML frontmatter**（仅 `name` 和 `description`）。让 skill 符合 `agentskills.io` 开放规范，为 Claude Code 预先铺路，并启用基于用户 prompt 的自动触发。
+1. **The space is exploding — almost every new tool uses the same stack.** Tree-sitter AST + knowledge graph + MCP server + hybrid (BM25 + vector) search + PageRank. The pattern is now obvious. Notable entries (all 2026):
+   - [cortex-works/cortex-ast](https://github.com/cortex-works/cortex-ast) — Rust MCP server, 34 languages, AST time-travel, hot-reloadable WASM parsers
+   - [ajankurjain/central-code-knowledge-graph](https://github.com/ajankurjain/central-code-knowledge-graph) — Neo4j + Tree-sitter + MCP, multi-repo, GraphQL + REST
+   - [distillation-labs/contextro](https://github.com/distillation-labs/contextro) — local MCP, PageRank-weighted call graph, "graph consensus boosting"
+   - [Charan-place/ASTra-MCP](https://github.com/Charan-place/ASTra-MCP) — 98.9% token reduction claim, NetworkX + Personalized PageRank
+   - [optave/ops-codegraph-tool](https://github.com/optave/ops-codegraph-tool) — 30 MCP tools, 34 languages, dataflow + CFG + co-change analysis
+   - [sdsrss/code-graph-mcp](https://github.com/sdsrss/code-graph-mcp) — semantic search, HTTP route tracing, impact analysis
+   - [the-muses-ltd/GraphRepo](https://github.com/the-muses-ltd/GraphRepo) — Graphology in-memory + Louvain community detection + Transformers.js
 
-3. **在 `.opencode/plugins/` 构建 Stop-hook gate 插件**（紧挨着 `graphify.js`），在回合结束前跑配置好的测试命令。这是 zsf 声明的纪律与自动化之间的最大差距。没有它，"完成前验证"仍只是手动步骤。
+2. **The new winning formula is "graph + MCP" not "graph + CLI."** Of the 6 new tools above, all 6 ship an MCP server. The MCP-server interface is what makes a code graph *consumable by agents* — agents query the graph instead of `grep`/`Read`/cycling. Source: the [MCP protocol](https://modelcontextprotocol.io) (Anthropic, donated to AAIF 2025-12-09).
 
-### 避免（具体风险）
+3. **Semantic drift / temporal graphs are the new feature.** ASTra MCP's "Temporal Knowledge Graph" tracks how call relationships *change* over git history, enabling pre-edit risk scoring (`get_volatility`, `semantic_audit`). This is the next dimension beyond static graphs.
 
-1. **不要像 Spec Kit 那样交付 30+ agent 集成。** Spec Kit 之所以有 30+ 集成，因为它没有自己的方法论 —— 是斜杠命令上的薄层。zsf 的价值在四工具方法论，不在集成数。
+4. **Vercel is releasing a "programming language for agents"** — [ZeroLang](https://www.aitoolskit.io/news/claude-opus-4-7-claude-code-workflow-boris-cherny-2026) — which suggests the industry is also rethinking whether general-purpose languages are even the right unit of context for agents. Worth watching.
 
-2. **不要用 Spec Kit 替换 OpenSpec CLI。** OpenSpec 更轻量，有显式门禁执行，团队已部署。Spec Kit 112K★ 的星数虽亮，不代表它对 SSD 固件更优 —— 用户群是通用 Web/企业，不是嵌入式。
+5. **Graphify is the only one in this list optimized for "graph of a whole monorepo, queryable as natural language."** Most competitors focus on a single repo and an MCP query interface. Graphify's `query` / `path` / `explain` CLI is its unique selling point.
 
-3. **不加更多图谱工具（CodeGraph、Graphify、contextro、ASTra）而不先整合。** 2026 生态碎片化；选一个后端用 MCP 暴露才是赢面。Graphify + CodeGraph 已经是强后端。下一步是 MCP 接口，不是第三个工具。
+### Verdict: **leads on concept, lags on interface**
 
-### 关注清单（3-6 个月）
+Graphify's `query`/`path`/`explain` CLI is unique and complements the MCP-server pattern. The 2026 ecosystem is converging on "MCP server + tree-sitter" as the *interface*; Graphify is the *backend* with the best conceptual model (god nodes, communities, cross-file relationships).
 
-- **MCP 采用曲线。** MCP 已是 Linux Foundation 项目。预计所有图谱/知识工具都会汇聚到 MCP 作为标准接口。
-- **Anthropic Skills 跨厂商采用。** 若 `agentskills.io` 被 Codex、Cursor、Copilot 等采纳（目前仅 Claude），zsf 的 `SKILL.md` skills 将跨平台可移植。
-- **Spec Kit 的 "constitution.md" 模式。** Microsoft 在 2026 版本给 Constitution 阶段加更多权重。zsf 应与该术语对齐。
-- **ZeroLang / agent 原生语言。** Vercel 的发布是可能的信号转变——agent 原生 DSL 若流行，方法论（不是代码）成为真相来源——这正是 zsf 假设的。
-- **SWE-rebench vs SWE-bench。** [arXiv 2510.08996](https://arxiv.org/html/2510.08996v2) "Saving SWE-Bench" 论文显示现有基准高估 agent 能力约 20%。现实评估正向"全新、专有、突变驱动"任务倾斜。若对 zsf 做基准测试，优先 SWE-rebench。
+**Concrete actions:**
+- Add an MCP server interface to Graphify so agents can call `graphify.query` directly instead of shelling out to a CLI. Your `AGENTS.md` already nudges agents to "prefer scoped queries like `graphify query \" \"`" — an MCP interface would make this 10× faster.
+- Add a "temporal graph" / "semantic drift" feature: track how the graph changes across git revisions. The 2026 ecosystem is moving from "static graph" to "graph that knows about history."
+- Consider exposing the Louvain community-detection output as a first-class concept in the CLI (the GraphRepo approach), since god nodes and module boundaries are exactly what SSD firmware teams need to understand.
 
 ---
 
-## 来源（完整引用列表）
+## Topic 6 — Context engineering
+
+**Status: lags.** zsf has no first-class context-engineering layer.
+
+### Key developments
+
+1. **Anthropic's three primitives are now an industry standard.** From the [Claude Cookbook, 2026-03-20](https://platform.claude.com/cookbook/tool-use-context-engineering-context-engineering-tools) and [Anthropic engineering blog, 2025-09-29](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents):
+   - **Compaction** = whole-transcript operation; summarize the window, reinit with summary. First-party API: `compact_20260112`.
+   - **Tool-result clearing** = sub-transcript operation; replace stale `tool_result` blocks with placeholders, keep the `tool_use` record. First-party API: `clear_tool_uses`.
+   - **Memory** = out-of-window persistence; agent writes NOTES.md, reads it back after reset.
+
+   The mental model: "compaction compresses the whole window, clearing drops stale re-fetchable data inside the window, memory moves information out of the window so it survives across sessions."
+
+2. **Claude Code auto-compacts at 95% of context window** with a default summary prompt; users can override with a custom `instructions` parameter on the `compact_20260112` API. Default threshold: 150K tokens, minimum 50K. Source: [Claude API compaction docs](https://platform.claude.com/docs/en/build-with-claude/compaction).
+
+3. **"Larger context windows don't help."** Anthropic's explicit position: "for the foreseeable future, context windows of all sizes will be subject to context pollution and information relevance concerns." The 2026 consensus is that the *quality* of context matters more than the *quantity*. The Vercel research on AGENTS.md-vs-skills (33/33 vs 31/33) is the first published evidence.
+
+4. **Subagents are the new "isolate" primitive.** LangChain's 4-bucket model (write, select, compress, isolate) is widely adopted. Anthropic's own positioning: "up to 15× more tokens than chat" for multi-agent — explicit trade-off warning. Source: [LangChain blog, 2025-07-02](https://www.langchain.com/blog/context-engineering-for-agents).
+
+5. **Opus 4.7's adaptive thinking is a 2026 model-level context primitive.** [Claude Opus 4.7](https://www.anthropic.com/news/claude-opus-4-7) replaces `thinking.type.enabled` with `thinking.type.adaptive` — the model decides *per step* whether to think. This shifts the burden away from prompt-engineering the thinking budget.
+
+### Verdict: **lags**
+
+zsf has no documented context-engineering layer. Your methodology assumes a long single-thread conversation (Graphify query → CodeGraph explore → OpenSpec propose → Superpowers TDD); there is no documented compaction, clearing, or memory primitive.
+
+**Concrete actions:**
+- Add an explicit "context engineering" section to `SSD_Firmware_AI_Copilot_Methodology.md` that defines: when to use OpenSpec's NOTES.md-like scratchpad (analog of "memory"), when to suggest a manual `/clear` (analog of "clearing"), and when the agent should write a structured "session handoff" to `openspec/changes/{id}/.handoff.md` (analog of "compaction").
+- Wire your `graphify.js` plugin to provide *select*-style context — when an agent asks a question, Graphify should return only the relevant subgraph, not the whole graph. This is the "select" primitive in LangChain's taxonomy.
+- Document the Opus 4.7 adaptive thinking pattern: in long SSD firmware sessions, let the model decide when to think rather than tuning `thinking.type.enabled` manually.
+
+---
+
+## Cross-cutting recommendations
+
+### Adopt (concrete, high-leverage)
+
+1. **Promote the "Constitution" to a first-class artifact.** Move the three iron rules + the code-priority chain + the small-task rule to `openspec/constitution.md` (or equivalent). This is what Microsoft Spec Kit calls the most-skipped, most-important part of SDD, and your rules are already written.
+
+2. **Add YAML frontmatter to your three `SKILL.md` files** (just `name` and `description`). This makes your skills compliant with the `agentskills.io` open spec, future-proofs them for Claude Code, and enables auto-trigger based on user prompt.
+
+3. **Build a Stop-hook gate plugin** in `.opencode/plugins/` (alongside `graphify.js`) that runs a configured test command before turn-end. This is the single biggest gap between zsf's stated discipline and its automation. Without it, "verification before completion" is still a manual step.
+
+### Avoid (concrete risks)
+
+1. **Don't try to ship 30+ agent integrations like Spec Kit.** Spec Kit has 30+ integrations because it has no methodology of its own — it's a thin layer over slash commands. zsf's value is the four-tool methodology, not integration count.
+
+2. **Don't replace OpenSpec CLI with Spec Kit.** OpenSpec is more lightweight, has explicit gate enforcement, and your team already has it deployed. Spec Kit's 112K★ star count is impressive but doesn't mean it's a better tool for SSD firmware — the user base is general web/enterprise, not embedded systems.
+
+3. **Don't add more graph tools (CodeGraph, Graphify, contextro, ASTra) without consolidating.** The 2026 ecosystem is fragmented; choosing a single backend and exposing it via MCP is the winning play. Graphify + CodeGraph is already a strong backend. The next step is an MCP interface, not a third tool.
+
+### Watchlist (3-6 months)
+
+- **MCP adoption curve.** MCP is now a Linux Foundation project. Expect all graph/knowledge tools to converge on MCP as the standard interface.
+- **Anthropic Skills cross-vendor adoption.** If `agentskills.io` is adopted by Codex, Cursor, Copilot, etc. (currently only Claude), zsf's `SKILL.md` skills become cross-platform portable.
+- **Spec Kit's "constitution.md" pattern.** Microsoft is putting more weight on the Constitution phase in 2026 releases. Your zsf should align with this terminology.
+- **ZeroLang / agent-native languages.** Vercel's release signals a possible shift away from general-purpose languages as the unit of agent context. If agent-native DSLs gain traction, the methodology (not the code) becomes the source of truth — which is what zsf already assumes.
+- **SWE-rebench vs SWE-bench.** The [arXiv 2510.08996](https://arxiv.org/html/2510.08996v2) "Saving SWE-Bench" paper shows existing benchmarks overestimate agent capability by ~20%. Real-world evaluation is shifting toward "fresh, private, mutation-based" tasks. If you're benchmarking zsf, prefer SWE-rebench.
+
+---
+
+## Sources (full citation list)
 
 ### AGENTS.md
-
-- [Linux Foundation / Agentic AI Foundation 发布（2025-12-09）](https://tessl.io/blog/openai-anthropic-and-others-unite-behind-agentic-ai-foundation-for-open-standards/)
-- [CIO Dive 报道 AAIF 发布（2025-12-10）](https://www.ciodive.com/news/big-tech-develop-open-standards-agentic-ai/807608/)
-- [agents.md 官方](https://agents.md/)
-- [agentsmd/agents.md 参考仓库（22K★）](https://github.com/agentsmd/agents.md)
-- [AgentMarketCap 6 万采用分析（2026-04-17）](https://agentmarketcap.ai/blog/2026/04/17/agents-md-60k-adoption-aaif-donation-standards-floor)
-- [EarlyTerms AGENTS.md 约定](https://earlyterms.com/term/agents-md)
-- [Ry Walker AGENTS.md 标准研究](https://rywalker.com/research/agents-md-standard)
-- [Anthropic Claude Code AGENTS.md 特性请求 #6235](https://github.com/anthropics/claude-code)
+- [Linux Foundation / Agentic AI Foundation announcement (2025-12-09)](https://tessl.io/blog/openai-anthropic-and-others-unite-behind-agentic-ai-foundation-for-open-standards/)
+- [CIO Dive on AAIF launch (2025-12-10)](https://www.ciodive.com/news/big-tech-develop-open-standards-agentic-ai/807608/)
+- [agents.md official](https://agents.md/)
+- [agentsmd/agents.md reference repo (22K★)](https://github.com/agentsmd/agents.md)
+- [AgentMarketCap 60K adoption analysis (2026-04-17)](https://agentmarketcap.ai/blog/2026/04/17/agents-md-60k-adoption-aaif-donation-standards-floor)
+- [EarlyTerms AGENTS.md conventions](https://earlyterms.com/term/agents-md)
+- [Ry Walker research on AGENTS.md standard](https://rywalker.com/research/agents-md-standard)
+- [Anthropic Claude Code AGENTS.md feature request #6235](https://github.com/anthropics/claude-code)
 
 ### Skills
+- [Anthropic engineering blog, Agent Skills (2025-10-16)](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
+- [Anthropic Complete Guide to Building Skills (PDF)](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf)
+- [Anthropic Skills reference repo](https://github.com/anthropics/skills)
+- [agentskills.io official spec](https://agentskills.io/specification)
+- [agentskills/agentskills spec repo (20K★)](https://github.com/agentskills/agentskills)
+- [Claude API Skills guide](https://platform.claude.com/docs/en/build-with-claude/skills-guide)
+- [Claude Agent SDK Skills docs](https://code.claude.com/docs/en/agent-sdk/skills)
 
-- [Anthropic 工程博客，Agent Skills（2025-10-16）](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
-- [Anthropic 完整技能构建指南（PDF）](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf)
-- [Anthropic Skills 参考仓库](https://github.com/anthropics/skills)
-- [agentskills.io 官方规范](https://agentskills.io/specification)
-- [agentskills/agentskills 规范仓库（20K★）](https://github.com/agentskills/agentskills)
-- [Claude API Skills 指南](https://platform.claude.com/docs/en/build-with-claude/skills-guide)
-- [Claude Agent SDK Skills 文档](https://code.claude.com/docs/en/agent-sdk/skills)
+### Spec-driven dev
+- [github/spec-kit (112K★)](https://github.com/github/spec-kit)
+- [Microsoft for Developers, Spec Kit launch (2025-09-15)](https://developer.microsoft.com/blog/spec-driven-development-spec-kit)
+- [Microsoft for Developers, SDD as AI-native engineering (2026-06-10)](https://developer.microsoft.com/blog/spec-driven-development-ai-native-engineering)
+- [GitHub Blog, Spec Kit open source toolkit (2025-09-02)](https://github.blog/ai-and-ml/generative-ai/spec-driven-development-with-ai-get-started-with-a-new-open-source-toolkit/)
+- [Spec Kit docs](https://github.github.com/spec-kit/)
+- [Visual Studio Magazine, Spec Kit ecosystem expansion (2026-05-12)](https://visualstudiomagazine.1105cms01.com/articles/2026/05/12/github-spec-kit-takes-off-as-antidote-to-piecemeal-vibe-coding.aspx)
 
-### Spec-driven 开发
-
-- [github/spec-kit（112K★）](https://github.com/github/spec-kit)
-- [Microsoft for Developers，Spec Kit 发布（2025-09-15）](https://developer.microsoft.com/blog/spec-driven-development-spec-kit)
-- [Microsoft for Developers，SDD 作为 AI 原生工程（2026-06-10）](https://developer.microsoft.com/blog/spec-driven-development-ai-native-engineering)
-- [GitHub Blog，Spec Kit 开源工具包（2025-09-02）](https://github.blog/ai-and-ml/generative-ai/spec-driven-development-with-ai-get-started-with-a-new-open-source-toolkit/)
-- [Spec Kit 文档](https://github.github.com/spec-kit/)
-- [Visual Studio Magazine，Spec Kit 生态扩张（2026-05-12）](https://visualstudiomagazine.1105cms01.com/articles/2026/05/12/github-spec-kit-takes-off-as-antidote-to-piecemeal-vibe-coding.aspx)
-
-### Agent 验证
-
-- [Claude Code 最佳实践](https://code.claude.com/docs/en/best-practices)
-- [Vercel Claude Code TDD 手册（2026-05-17）](https://engineering-playbook.vercel.app/claude-code/test-driven-development)
+### Agent verification
+- [Claude Code best practices](https://code.claude.com/docs/en/best-practices)
+- [Vercel Claude Code TDD playbook (2026-05-17)](https://engineering-playbook.vercel.app/claude-code/test-driven-development)
 - [Vercel Claude Code bug hunting](https://engineering-playbook.vercel.app/claude-code/bug-hunting)
-- [Claude Opus 4.7 最佳实践（2026-04-16）](https://claude.com/blog/best-practices-for-using-claude-opus-4-7-with-claude-code)
-- [Claude Opus 4.7 介绍（2026-04-16）](https://www.anthropic.com/news/claude-opus-4-7)
-- [Six Things to Change in Your Claude Code Workflow（2026-04-17）](https://ai.georgeliu.com/p/six-things-to-change-in-your-claude)
-- [Boris Cherny / Anthropic 工程师工作流](https://www.aitoolskit.io/news/claude-opus-4-7-claude-code-workflow-boris-cherny-2026)
-- [Cognition / Devin：大规模测试](https://cognition.ai/blog/testing-development)
-- [Cognition / Devin：闭合 agent 反馈循环（自动修复审查意见）](https://aidevsetup.com/insider/devin-closes-the-feedback-loop-autonomous-code-review-integration)
-- [SWE-agent（Princeton，NeurIPS 2024）](https://github.com/princeton-nlp/SWE-agent)
+- [Claude Opus 4.7 best practices (2026-04-16)](https://claude.com/blog/best-practices-for-using-claude-opus-4-7-with-claude-code)
+- [Introducing Claude Opus 4.7 (2026-04-16)](https://www.anthropic.com/news/claude-opus-4-7)
+- [Six Things to Change in Your Claude Code Workflow (2026-04-17)](https://ai.georgeliu.com/p/six-things-to-change-in-your-claude)
+- [Boris Cherny / Anthropic engineering workflow](https://www.aitoolskit.io/news/claude-opus-4-7-claude-code-workflow-boris-cherny-2026)
+- [Cognition / Devin: Testing at Scale](https://cognition.ai/blog/testing-development)
+- [Cognition / Devin: Closing the agent loop (auto-fix review comments)](https://aidevsetup.com/insider/devin-closes-the-feedback-loop-autonomous-code-review-integration)
+- [SWE-agent (Princeton, NeurIPS 2024)](https://github.com/princeton-nlp/SWE-agent)
 - [mini-SWE-agent 74% on SWE-bench Verified](https://www.swebench.com/)
-- [arXiv 2510.08996，Saving SWE-Bench（基准突变）](https://arxiv.org/html/2510.08996v2)
-- [Chris Dzombak：从 Claude Code 拿好结果](https://www.dzombak.com/blog/2025/08/getting-good-results-from-claude-code/)
-- [SFEIR Claude Code 调试指南](https://institute.sfeir.com/en/claude-code/claude-code-advanced-best-practices/debugging/)
-- [Claude Kit：TDD + systematic debugging + verification](https://duthaho.github.io/claudekit/workflows/testing-and-debugging/)
+- [arXiv 2510.08996, Saving SWE-Bench (benchmark mutation)](https://arxiv.org/html/2510.08996v2)
+- [Chris Dzombak: Getting Good Results from Claude Code](https://www.dzombak.com/blog/2025/08/getting-good-results-from-claude-code/)
+- [SFEIR Claude Code debugging guide](https://institute.sfeir.com/en/claude-code/claude-code-advanced-best-practices/debugging/)
+- [Claude Kit: TDD + systematic debugging + verification](https://duthaho.github.io/claudekit/workflows/testing-and-debugging/)
 - [pytest-claude-agent-sdk](https://github.com/amyodov/pytest-claude-agent-sdk)
-- [Claude Lab：自定义自治 agent 循环](https://claudelab.net/en/articles/claude-code/claude-code-sdk-custom-autonomous-agent-loop-guide)
+- [Claude Lab: Custom Autonomous Agent Loop](https://claudelab.net/en/articles/claude-code/claude-code-sdk-custom-autonomous-agent-loop-guide)
 
-### 知识图谱 / AST
-
+### Knowledge graph / AST
 - [cortex-works/cortex-ast](https://github.com/cortex-works/cortex-ast)
 - [ajankurjain/central-code-knowledge-graph](https://github.com/ajankurjain/central-code-knowledge-graph)
 - [distillation-labs/contextro](https://github.com/distillation-labs/contextro)
@@ -267,15 +262,14 @@ zsf 没有文档化的 context-engineering 层。方法论假设一个长单线�
 - [the-muses-ltd/GraphRepo](https://github.com/the-muses-ltd/GraphRepo)
 - [safishamsi/graphify](https://github.com/safishamsi/graphify/)
 
-### Context Engineering
-
-- [Anthropic：AI agent 的有效 context engineering（2025-09-29）](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)
-- [Anthropic：为 AI agent 编写有效工具（2025-09-11）](https://www.anthropic.com/engineering/writing-tools-for-agents)
-- [Claude Cookbook：memory、compaction、tool clearing（2026-03-20）](https://platform.claude.com/cookbook/tool-use-context-engineering-context-engineering-tools)
-- [Claude API compaction 文档](https://platform.claude.com/docs/en/build-with-claude/compaction)
-- [Anthropic cookbook：automatic-context-compaction.ipynb](https://github.com/anthropics/claude-cookbooks/blob/main/tool_use/automatic-context-compaction.ipynb)
-- [LangChain：agent 的 context engineering（2025-07-02）](https://www.langchain.com/blog/context-engineering-for-agents)
-- [01.me：Claude 的 Context Engineering 秘密（2025-12-01）](https://01.me/en/2025/12/context-engineering-from-claude/)
-- [Cohere North Mini Code（Artificial Analysis Coding Index 33.4 分，2026-06-11）](https://www.marktechpost.com/2026/06/11/meet-north-mini-code-coheres-30b-open-weight-mixture-of-experts-model-with-3b-active-parameters-for-agentic-coding/)
-- [StartupHub.ai 关于 SWE-rebench（2026-06-04）](https://www.startuphub.ai/ai-news/ai-research/2026/evaluating-coding-agents-lessons-from-swe-rebench)
-- [Open-Source Coding Agents 2026（DEV）](https://dev.to/jovan_chan_9500711396d4e6/open-source-coding-agents-2026-which-one-to-run-5g14)
+### Context engineering
+- [Anthropic: Effective context engineering for AI agents (2025-09-29)](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)
+- [Anthropic: Writing effective tools for AI agents (2025-09-11)](https://www.anthropic.com/engineering/writing-tools-for-agents)
+- [Claude Cookbook: memory, compaction, tool clearing (2026-03-20)](https://platform.claude.com/cookbook/tool-use-context-engineering-context-engineering-tools)
+- [Claude API compaction docs](https://platform.claude.com/docs/en/build-with-claude/compaction)
+- [Anthropic cookbook: automatic-context-compaction.ipynb](https://github.com/anthropics/claude-cookbooks/blob/main/tool_use/automatic-context-compaction.ipynb)
+- [LangChain: context engineering for agents (2025-07-02)](https://www.langchain.com/blog/context-engineering-for-agents)
+- [01.me: Claude's Context Engineering Secrets (2025-12-01)](https://01.me/en/2025/12/context-engineering-from-claude/)
+- [Cohere North Mini Code (33.4 on Artificial Analysis Coding Index, 2026-06-11)](https://www.marktechpost.com/2026/06/11/meet-north-mini-code-coheres-30b-open-weight-mixture-of-experts-model-with-3b-active-parameters-for-agentic-coding/)
+- [StartupHub.ai on SWE-rebench (2026-06-04)](https://www.startuphub.ai/ai-news/ai-research/2026/evaluating-coding-agents-lessons-from-swe-rebench)
+- [Open-Source Coding Agents 2026 (DEV)](https://dev.to/jovan_chan_9500711396d4e6/open-source-coding-agents-2026-which-one-to-run-5g14)

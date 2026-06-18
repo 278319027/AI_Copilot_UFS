@@ -174,13 +174,13 @@ The <layer> SHALL <behavior>.
 
 **3 个不可违反的规则**：(1) Scenario 强制 4 个 `#`（3 个 `#` 静默失败）；(2) 规范词 SHALL / MUST，避免 should / may；(3) 每个 Scenario 必须是潜在测试用例。
 
-**三级门禁**（Proposal → Design → Review） → 详见 [openspec-workflow §工件模板与门禁流程](../openspec-workflow/SKILL.md)。**简化规则**：单文件 bugfix 跳 Proposal 人工；文档/注释跳全部门禁；其他完整流程。
+**四级门禁**（Proposal → Design → Review → Archive） → 详见 [openspec-workflow §工件模板与门禁流程](../openspec-workflow/SKILL.md)。**简化规则**：单文件 bugfix 跳 Proposal 人工；文档/注释跳全部门禁；其他完整流程。
 
 ### 跨规则关系
 
 | 规则 | 关系 |
 |------|------|
-| `memory/design_rules.md` | 三级门禁统一定义 |
+| `memory/design_rules.md` | 四级门禁统一定义 |
 | `memory/{review,testing,architecture}_rules.md` | 门禁检查项引用 / 可验证性落地 / CodeGraph 查询 |
 | `openspec-workflow/SKILL.md` | CLI 与 zsf 流程衔接 |
 | 本 Skill BUILD 阶段 | 开发工件对应规格层 |

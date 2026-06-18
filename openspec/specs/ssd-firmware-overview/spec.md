@@ -81,11 +81,11 @@ When understanding a piece of firmware behavior, AI agents MUST follow this fixe
 - **GIVEN** an AI agent needs to understand what a firmware module does
 - **WHEN** the agent begins investigation
 - **THEN** it MUST first read the relevant baseline spec from `openspec/specs/`
-- **AND THEN** it MAY use CodeGraph to verify call relationships for ambiguous behavior
-- **AND THEN** it MAY read the source code only if the spec and CodeGraph leave a question unanswered
+- **AND THEN** it MUST use CodeGraph to verify call relationships for ambiguous behavior
+- **AND THEN** it MUST read the source code when the spec and CodeGraph leave a question unanswered
 
 #### Scenario: CodeGraph as supplement
 
 - **WHEN** the baseline spec already describes the behavior precisely
-- **THEN** the AI agent SHOULD NOT re-query CodeGraph for routine understanding
+- **THEN** the AI agent MUST NOT re-query CodeGraph for routine understanding
 - **AND THEN** CodeGraph MUST only be invoked when validating impact of a proposed change

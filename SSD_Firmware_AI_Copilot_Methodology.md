@@ -157,7 +157,6 @@ graphify merge-graphs hw/femu/graphify-out/graph.json \
 ### 6.1 Review（查证式）
 
 由 Review Skill 调度 Superpowers `requesting-code-review` 产出 `review.md`：
-由 Superpowers `requesting-code-review` 产出 `review.md`：
 - 对照 `specs/` 增量查证代码行为一致性
 - SSD 专项检查（并发/NVMe/FTL/NAND）
 - 问题按 Critical / Important / Minor 风险分级
@@ -265,7 +264,7 @@ zsf/
 | **小任务原则** | 每次 200-500 行，不扩大需求，tasks.md 强制粒度约束 |
 | **修改前必查 CodeGraph** | 修改函数签名/结构体/头文件前必须查询影响范围 |
 | **AI 辅助不替代** | 人负责架构决策、设计确认、风险判断、最终责任 |
-| **三级门禁不跳过** | Proposal Gate → Design Gate → Review Gate，单文件 bugfix 可跳过 Proposal Gate |
+| **四级门禁不跳过** | Proposal Gate → Design Gate → Review Gate → Archive Gate，单文件 bugfix 可跳过 Proposal Gate |
 | **规格优先于记忆** | Specs（基线规范）描述系统当前行为，查询优先级：基线 → CodeGraph → 代码 |
 | **全部工件版本化** | proposal / design / tasks / review / specs 纳入 Git，不可丢弃 |
 

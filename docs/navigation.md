@@ -89,7 +89,7 @@ zsf/
 1. **代码优先**：`Source Code > Design Docs > Specs > Memory > Prompt`。代码是真实实现。
 2. **小任务原则**：单次变更 200-500 行。
 3. **修改前必查 CodeGraph**：用 `codegraph impact` 确认影响范围。
-4. **三级门禁**：Proposal → Design → Review，每一步有工件（`proposal.md` / `design.md` / `tasks.md` / `review.md`）。
+4. **四级门禁**：Proposal Gate → Design Gate → Review Gate → Archive Gate，每一步有工件（`proposal.md` / `design.md` / `tasks.md` / `review.md`）。
 5. **三条铁律**：无失败测试不写实现 / 无根因不修 bug / 不验证不宣称完成。
 6. **AI 辅助不替代人**：架构决策与风险判断由人负责。
 
