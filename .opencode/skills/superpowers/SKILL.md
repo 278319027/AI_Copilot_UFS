@@ -58,7 +58,7 @@ violating the spirit.
 |-------|----------------|--------------------|
 | `using-superpowers/SKILL.md` | **Start of every conversation.** Bootstrap that decides which other skills apply. | Skill-aware behaviour |
 | `systematic-debugging/SKILL.md` | Any bug, test failure, or unexpected behaviour — **before** proposing fixes. | Root cause first |
-| `test-driven-development/SKILL.md` | Any new feature, bug fix, refactor, or behaviour change. | Failing test first |
+| `test-driven-development/SKILL.md` | Any new feature, bug fix, refactor, or behaviour change. | Path A (test first) or Path B (compile + FEEDBACK) |
 | `verification-before-completion/SKILL.md` | **Before** any claim of completion, success, or "passing". | Evidence before assertion |
 | `executing-plans/SKILL.md` | When you have a written plan and want to run it (sequential, with checkpoints). | Plan-execute-verify |
 | `subagent-driven-development/SKILL.md` | When you have a plan with mostly independent tasks and want parallel subagent execution with per-task review. | Fresh subagent per task + review |

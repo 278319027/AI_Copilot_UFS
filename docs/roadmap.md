@@ -74,7 +74,7 @@
 | 任务 | 状态 | 产出 |
 |------|------|------|
 | `/opsx:propose` 试点真实需求 | 🔲 | 验证 propose→apply→archive 闭环 |
-| 强制 TDD（红→绿→重构） | 🔲 | 验证 test-driven-development |
+| 强制 TDD（Path A 红→绿→重构 / Path B 编译→FEEDBACK） | 🔲 | 验证 test-driven-development 双路径 |
 | 强制 verification-before-completion | 🔲 | 验证完成纪律 |
 | 收集 Superpowers 拦截数据 | 🔲 | TDD 覆盖率、verification 失败次数等 |
 

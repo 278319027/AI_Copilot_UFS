@@ -4,7 +4,7 @@
 
 Superpowers 三条铁律适用于**所有** AI 输出、跨越全部四个阶段：
 - **不验证不宣称完成** — 完成前必须实际运行测试/命令验证，使用 `verification-before-completion` Skill
-- **无失败测试不写实现** — TDD（红 → 绿 → 重构），使用 `test-driven-development` Skill
+- **无验证不写实现** — 纯逻辑代码走 Path A（红→绿→重构），硬件依赖代码走 Path B（编译验证 + FEEDBACK 系统测试），均需调用 `test-driven-development` Skill
 - **无根因不修 bug** — 使用 `systematic-debugging` Skill，禁止凭直觉打补丁
 
 ## graphify
@@ -42,7 +42,7 @@ Superpowers 三条铁律适用于**所有** AI 输出、跨越全部四个阶段
 本项目包含 **Superpowers** 技能框架（`.opencode/skills/superpowers/`，10 个子技能）作为项目无关的工程纪律层。Superpowers 位于 `sd-firmware-copilot`（SSD 固件领域规则）之下。
 
 规则：
-- **写任何生产代码前**，调用 `test-driven-development` — 先写失败测试。
+- **写任何生产代码前**，调用 `test-driven-development` — 纯逻辑走 Path A（先写失败测试），硬件依赖走 Path B（编译验证 + FEEDBACK 系统测试）。
 - **修任何 bug 前**，调用 `systematic-debugging` — 完成根因调查、收集证据、再修。
 - **宣称完成前**，调用 `verification-before-completion` — 实际运行测试/编译/命令并确认结果。
 - **代码审查**，使用 `requesting-code-review`（发送审查）和 `receiving-code-review`（接收反馈）。

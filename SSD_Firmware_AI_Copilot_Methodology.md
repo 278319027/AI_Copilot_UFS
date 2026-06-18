@@ -128,7 +128,7 @@ graphify merge-graphs hw/femu/graphify-out/graph.json \
 
 | 铁律 | Skill | 说明 |
 |------|-------|------|
-| **无失败测试不写实现** | `test-driven-development` | 先写失败测试（红），再写最小实现让它通过（绿），最后重构 |
+| **无验证不写实现** | `test-driven-development` | **Path A**（纯逻辑：红→绿→重构，先写失败测试）；**Path B**（硬件依赖：BUILD 编译验证 + FEEDBACK 系统测试） |
 | **无根因不修 bug** | `systematic-debugging` | 禁止凭直觉打补丁；必须先复现、读错误、查变更、形成假设、最小验证 |
 | **不验证不宣称完成** | `verification-before-completion` | 完成前必须实际运行测试/编译/命令并验证结果，禁止「应该没问题」 |
 
@@ -148,7 +148,7 @@ graphify merge-graphs hw/femu/graphify-out/graph.json \
 /opsx:apply <change-id>
 ```
 
-按 `tasks.md` 逐项执行。每项任务独立执行 Superpowers TDD 流程。
+按 `tasks.md` 逐项执行。每项任务按代码性质选 Path A（纯逻辑）或 Path B（硬件依赖）。
 
 ---
 
@@ -196,7 +196,7 @@ codegraph explore <代码区域>
 
 # ─── BUILD：TDD 实现 ───
 /opsx:apply my-change
-# → Superpowers 自动执行 TDD（红→绿→重构）
+# → Superpowers 自动执行 Path A（红→绿→重构）或 Path B（编译+FEEDBACK）
 
 # ─── FEEDBACK：Review + 归档 ───
 # → Review Skill 产出 review.md
