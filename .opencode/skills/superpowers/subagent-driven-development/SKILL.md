@@ -3,6 +3,9 @@ name: subagent-driven-development
 description: Use when executing implementation plans with independent tasks in the current session
 ---
 
+> **嵌入式适配**：本文档中的示例命令已从 Web/Node.js 风格替换为嵌入式 C 等价命令。
+
+
 # Subagent-Driven Development
 
 Execute plan by dispatching a fresh implementer subagent per task, a task review (spec compliance + code quality) after each, and a broad whole-branch review at the end.

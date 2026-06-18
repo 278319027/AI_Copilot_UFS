@@ -3,6 +3,9 @@ name: receiving-code-review
 description: Use when receiving code review feedback, before implementing suggestions, especially if feedback seems unclear or technically questionable - requires technical rigor and verification, not performative agreement or blind implementation
 ---
 
+> **嵌入式适配**：本文档中的示例命令已从 Web/Node.js 风格替换为嵌入式 C 等价命令。
+
+
 # Code Review Reception
 
 ## Overview

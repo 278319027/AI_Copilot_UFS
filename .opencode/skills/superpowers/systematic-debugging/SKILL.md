@@ -4,6 +4,8 @@ description: Use when encountering any bug, test failure, or unexpected behavior
 ---
 
 # Systematic Debugging
+> **嵌入式适配**：已增加硬件调试技术（gdb、寄存器、JTAG 等）。
+
 
 ## Overview
 
@@ -211,6 +213,62 @@ You MUST complete each phase before proceeding to the next.
    **Discuss with your human partner before attempting more fixes**
 
    This is NOT a failed hypothesis - this is a wrong architecture.
+
+## Embedded C / Hardware Debugging
+
+> For QEMU/FEMU development, GDB remote debugging is the primary tool. Most crashes manifest as segfaults, assertion failures, or infinite loops — start with `-s -S` QEMU flags to pause at startup.
+
+### GDB 远程调试
+
+- Connect to QEMU/FEMU with `gdb -ex "target remote :1234"`
+- Set breakpoints via symbol name: `break nvme_admin_cmd`
+- Inspect variables with `print`: `print *req->sqe`
+- Step through with `next` (over) / `step` (into)
+- Use `bt` for backtrace on crash
+
+### 寄存器转储
+
+- GDB: `info registers` for CPU state at crash
+- QEMU monitor: `info registers` for CPU context
+- QEMU monitor: `info pci` for PCI/NVMe device state
+- QEMU monitor: `info qtree` for device configuration
+- Check BAR0/CC/CSTS for NVMe controller status
+
+### MMIO 追踪
+
+- QEMU: `-trace events=/tmp/events` to log MMIO access
+- Trace NVMe BAR0 register reads/writes: `nvme_mmio_read`, `nvme_mmio_write`
+- Combine with `-d in_asm,cpu` for instruction-level trace
+- Use `info mtree` to inspect memory map
+
+### 逻辑分析仪/波形
+
+- When running on real hardware (FPGA/ASIC), capture NAND bus signals
+- Compare timing diagrams against ONFI/Toggle spec
+- Verify CE/RE/WE/RB# timing relationships
+- Check for setup/hold violations
+
+### JTAG 片上调试
+
+- For bare-metal ARM/RISC-V targets, use OpenOCD + GDB
+- Halt CPU, inspect registers, set breakpoints
+- Flash inspection: `flash read_address 0x08000000 0x1000`
+- Use `openocd -f interface.cfg -f target.cfg` to connect
+
+### 打印调试（嵌入式风格）
+
+- Use `fprintf(stderr, ...)` or `printf()` to QEMU console
+- Prefer structured logs over ad-hoc prints (include timestamp, level, module)
+- Add `#ifdef DEBUG` guards to compile out debug logs in release
+- Avoid printf in hot paths — use dedicated logging macros
+
+### 内存转储
+
+- GDB: `x/64bx 0xADDR` for byte-by-byte inspection
+- GDB: `x/i $pc` to disassemble around current PC
+- QEMU monitor: `pmemsave 0xADDR 0xSIZE /tmp/dump.bin` to dump physical memory
+- QEMU monitor: `xp /64bx 0xADDR` for physical memory read
+- Offline analysis: `xxd dump.bin | less` or `binwalk`
 
 ## Red Flags - STOP and Follow Process
 

@@ -3,6 +3,9 @@ name: executing-plans
 description: Use when you have a written implementation plan to execute in a separate session with review checkpoints
 ---
 
+> **嵌入式适配**：本文档中的示例命令已从 Web/Node.js 风格替换为嵌入式 C 等价命令。
+
+
 # Executing Plans
 
 ## Overview

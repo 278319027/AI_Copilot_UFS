@@ -44,9 +44,7 @@ violating the spirit.
 - **NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE** — never say "done" /
   "fixed" / "passes" / "works" without having just run the verifying command and read
   its output. See `verification-before-completion/SKILL.md`.
-- **NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST** — write the test, watch it fail
-  for the right reason, then write the minimum code to pass. See
-  `test-driven-development/SKILL.md`.
+- **NO PRODUCTION CODE WITHOUT VERIFICATION** — For pure-logic code: write the test, watch it fail for the right reason, then write the minimum code to pass (see `test-driven-development/SKILL.md` Path A). For hardware-dependent code: compile cleanly first (BUILD), then run system tests at FEEDBACK (see `test-driven-development/SKILL.md` Path B).
 - **NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST** — reproduce, read errors, check
   recent changes, form a hypothesis, test it minimally. See
   `systematic-debugging/SKILL.md`.

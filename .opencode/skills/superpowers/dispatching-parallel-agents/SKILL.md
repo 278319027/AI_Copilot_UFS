@@ -3,6 +3,9 @@ name: dispatching-parallel-agents
 description: Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies
 ---
 
+> **嵌入式适配**：本文档中的示例命令已从 Web/Node.js 风格替换为嵌入式 C 等价命令。
+
+
 # Dispatching Parallel Agents
 
 ## Overview
@@ -68,9 +71,9 @@ Each agent gets:
 Issue all three subagent dispatches in the same response — they run in parallel:
 
 ```text
-Subagent (general-purpose): "Fix agent-tool-abort.test.ts failures"
-Subagent (general-purpose): "Fix batch-completion-behavior.test.ts failures"
-Subagent (general-purpose): "Fix tool-approval-race-conditions.test.ts failures"
+Subagent (general-purpose): "Fix test_agent_tool_abort.c failures"
+Subagent (general-purpose): "Fix test_batch_completion_behavior.c failures"
+Subagent (general-purpose): "Fix test_tool_approval_race_conditions.c failures"
 # All three run concurrently.
 ```
 
@@ -92,7 +95,7 @@ Good agent prompts are:
 3. **Specific about output** - What should the agent return?
 
 ```markdown
-Fix the 3 failing tests in src/agents/agent-tool-abort.test.ts:
+Fix the 3 failing tests in tests/test_agent_tool_abort.c:
 
 1. "should abort tool with partial output capture" - expects 'interrupted at' in message
 2. "should handle mixed completed and aborted tools" - fast tool aborted instead of completed
@@ -115,7 +118,7 @@ Return: Summary of what you found and what you fixed.
 ## Common Mistakes
 
 **❌ Too broad:** "Fix all the tests" - agent gets lost
-**✅ Specific:** "Fix agent-tool-abort.test.ts" - focused scope
+**✅ Specific:** "Fix test_agent_tool_abort.c" - focused scope
 
 **❌ No context:** "Fix the race condition" - agent doesn't know where
 **✅ Context:** Paste the error messages and test names
@@ -138,17 +141,17 @@ Return: Summary of what you found and what you fixed.
 **Scenario:** 6 test failures across 3 files after major refactoring
 
 **Failures:**
-- agent-tool-abort.test.ts: 3 failures (timing issues)
-- batch-completion-behavior.test.ts: 2 failures (tools not executing)
-- tool-approval-race-conditions.test.ts: 1 failure (execution count = 0)
+- test_agent_tool_abort.c: 3 failures (timing issues)
+- test_batch_completion_behavior.c: 2 failures (tools not executing)
+- test_tool_approval_race_conditions.c: 1 failure (execution count = 0)
 
 **Decision:** Independent domains - abort logic separate from batch completion separate from race conditions
 
 **Dispatch:**
 ```
-Agent 1 → Fix agent-tool-abort.test.ts
-Agent 2 → Fix batch-completion-behavior.test.ts
-Agent 3 → Fix tool-approval-race-conditions.test.ts
+Agent 1 → Fix test_agent_tool_abort.c
+Agent 2 → Fix test_batch_completion_behavior.c
+Agent 3 → Fix test_tool_approval_race_conditions.c
 ```
 
 **Results:**
