@@ -19,7 +19,7 @@ Superpowers 三条铁律适用于**所有** AI 输出、跨越全部四个阶段
 - 运行 graphify update . 后，如果 graphify-out/wiki/index.md 已生成，优先用它做广泛导航，而非直接浏览源码。
 - 运行 graphify update . 后，如果 graphify-out/GRAPH_REPORT.md 已生成，则仅在 query/path/explain 不足时才读取它（用于广泛架构审查）。
 - 修改代码后，运行 `graphify update .` 保持图谱最新（AST-only，无 API 成本）。
-- **大项目**（10K+ 文件）：只在相关子目录运行 `graphify update <subdir>`，再 `graphify merge-graphs g1 g2 --out graph.json` 合并。全仓库 `graphify update .` 会因遍历 `.o` `.d` 等中间产物而超时，且零进度反馈无法判断死/活。
+- **大项目**（15K+ 文件）：先在相关子目录运行 `graphify update <subdir>`，再 `graphify merge-graphs` 合并。中等项目（5K~15K）可先 `make clean` 清理构建产物再跑全量。全仓库直跑 `graphify update .` 会因遍历大量无关文件而超时（零进度反馈无法判断死/活）。
 
 ## openspec
 

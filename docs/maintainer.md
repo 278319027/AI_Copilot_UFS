@@ -68,7 +68,7 @@ Skill 是 `.opencode/skills/` 下的目录，标准结构：
 graphify update .
 ```
 
-**⚠️ 大项目（10K+ 文件）必须限定子目录**：`graphify update .` 会遍历 `.o`/`.d` 等中间产物并超时。
+**⚠️ 大项目（15K+ 文件）限定子目录**：`graphify update .` 遍历所有文件，即使 `make clean` 清理 `.o`/`.d` 后仍有大量无关文件（FEMU: 清理后仍有 118K）。子目录限定为首选。中等项目（5K~15K）可先 `make clean && graphify update .`。
 
 ```bash
 # 正确做法：子目录分构建 + 合并

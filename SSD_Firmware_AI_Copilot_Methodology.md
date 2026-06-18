@@ -63,24 +63,33 @@
 
 ### 3.4 Graphify 最佳实践（避免超时）
 
-**问题**：全仓库 `graphify update .` 对大项目（QEMU/FEMU 88,239 文件）会遍历 `.o`/`.d` 等中间产物，零进度反馈导致 5 分钟内无输出，无法判断死/活。
+**根因**：graphify 为每个文件启动 tree-sitter 解析器，大项目文件总量决定耗时。以 FEMU（123K 文件，34K `.c/.h`）为例：子目录 `hw/femu/`+`hw/nvme/` 仅 ~150 文件（< 3s），全仓库即使剔除 `.o/.d` 仍有 118K 文件，实际不可行。
 
-**解决**：
-1. **不限全仓库**：`graphify update .` 仅适用于 <10K 文件的小项目
-2. **子目录分构建**：
-   ```bash
-   graphify update hw/femu/      # FEMU SSD 代码（< 100 文件，< 3s）
-   graphify update hw/nvme/      # NVMe 层（< 50 文件，< 2s）
-   ```
-3. **合并子图**：
-   ```bash
-   graphify merge-graphs hw/femu/graphify-out/graph.json \
-                       hw/nvme/graphify-out/graph.json \
-                       --out graph.json
-   ```
-4. **回退**：项目根图谱为空时，`graphify query` 会优雅降级，代码内联分析仍可用。
+**分场景策略**：
 
-**验证**：子目录构建 ≤ 3 秒/目录，合并后图谱完整可用（如 FEMU: 1110 节点）。
+| 项目规模 | 策略 | 命令 |
+|----------|------|------|
+| < 5K 文件 | 直接全量 | `graphify update .` |
+| 5K~15K 文件 | 先清理再全量 | `make clean && graphify update .` |
+| > 15K 文件 | **子目录限定**（推荐） | 见下 |
+
+**子目录分构建 + 合并**（最通用，任何规模可用）：
+
+```bash
+# 1. 清理构建产物（可选但推荐，减少无关文件扫描）
+make clean
+
+# 2. 仅在相关子目录构建
+graphify update hw/femu/      # FEMU SSD 代码（< 100 文件，< 3s）
+graphify update hw/nvme/      # NVMe 层（< 50 文件，< 2s）
+
+# 3. 合并子图为项目根图谱
+graphify merge-graphs hw/femu/graphify-out/graph.json \
+                    hw/nvme/graphify-out/graph.json \
+                    --out graph.json
+```
+
+**回退**：项目根图谱为空时，`graphify query` 会优雅降级，代码内联分析（CodeGraph、grep）仍可用。
 ---
 
 ## 4. PLAN 阶段：规格化变更
