@@ -11,7 +11,7 @@ metadata:
 
 SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 TODO 可跟踪；每个决策都有 OpenSpec 工件。
 
-> 所有 AI 输出 MUST 先通过 Superpowers 铁律（TDD + 根因调试 + 验证完成）再输出。
+> 所有 AI 输出 MUST 先通过 Superpowers 四条铁律（TDD + 根因调试 + 验证完成 + 未审查不合并）再输出。
 
 ## 快速入口
 
@@ -27,11 +27,23 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
 ## 核心流程
 
 ```
-需求 → proposal.md → specs/增量 → Design Gate → CodeGraph查询 → design.md → tasks.md
-                                    ↓                                              ↓
-                               Proposal Gate                               Review Gate → review.md
-                                                                                 ↓
-                                                                           归档合并 → baseline
+需求 → proposal.md + specs/增量
+              ↓
+         Proposal Gate（动机 OK）
+              ↓
+         CodeGraph 查询
+              ↓
+         design.md + tasks.md
+              ↓
+         Design Gate（架构 OK）
+              ↓
+         编码（BUILD）
+              ↓
+         Review Gate（代码匹配 spec）
+              ↓
+         Archive Gate（归档合并）
+              ↓
+         baseline
 ```
 
 > 详细步骤 → [openspec-workflow](../openspec-workflow/SKILL.md)。每个门禁都有对应工件（`proposal.md` / `design.md` / `tasks.md`，加上 `specs/` 增量作为第 4 个产出）。
