@@ -117,6 +117,8 @@ graphify merge-graphs hw/femu/graphify-out/graph.json \
 |------|------|-----------|
 | **Proposal Gate** | proposal.md 完成后 | 动机是否清晰、范围是否正确 |
 | **Design Gate** | design.md 完成后 | 架构假设是否正确、CodeGraph 影响范围是否完整、是否有更简单的替代方案 |
+| **Review Gate** | 编码完成后 | 代码是否匹配 design、是否通过测试、是否引入回归 |
+| **Archive Gate** | Review 通过后 | specs 增量是否合并、commit 格式是否正确 |
 
 > Design Gate 通过后，方可进入编码阶段。
 
@@ -231,7 +233,7 @@ zsf/
 ├── SSD_Firmware_AI_Copilot_Methodology.md  # 本文件
 ├── opencode.json                      # OpenCode 配置（MCP + Graphify 插件）
 ├── deploy_tools.sh                    # 一键部署工具链
-├── verify.sh                          # 一键健康检查（8 项）
+├── verify.sh                          # 一键健康检查（12 项）
 ├── .gitignore
 ├── docs/
 │   ├── navigation.md                  # 项目导航（文件地图 + 按角色找入口）
@@ -274,7 +276,7 @@ zsf/
 ## 10. 下一步
 
 - **部署工具链**：`bash deploy_tools.sh /path/to/c-source`（CodeGraph + cscope + Doxygen + Graphify + OpenSpec CLI）
-- **验证环境**：`bash verify.sh`，确认 8/8 通过
+- **验证环境**：`bash verify.sh`，确认 12/12 通过
 - **阅读规格工作流**：`.opencode/skills/openspec-workflow/SKILL.md`（五阶段流程：propose → explore → apply → sync → archive）
 - **查看路线图**：`docs/roadmap.md`
 - **理解工程纪律**：`.opencode/skills/superpowers/SKILL.md`

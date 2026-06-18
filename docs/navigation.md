@@ -80,7 +80,7 @@ zsf/
 │
 ├── 🚀 入口脚本
 │   ├── deploy_tools.sh              ← 一键部署工具链
-│   ├── verify.sh                    ← 一键健康检查（8 项）
+│   ├── verify.sh                    ← 一键健康检查（12 项）
 │
 *graphify-out/ 存在于目标代码库（如 FEMU），zsf 根目录无此目录*
 ```

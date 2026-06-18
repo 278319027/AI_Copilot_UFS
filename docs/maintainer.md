@@ -52,15 +52,15 @@ bash deploy_tools.sh /path/to/your/c/source
 # 2. 一键健康检查
 bash verify.sh
 
-# 3. 确认 8/8 通过
-#   [1/8] OpenSpec specs validation
-#   [2/8] CodeGraph MCP config
-#   [3/8] Graphify plugin
-#   [4/8] Memory rules (6 files present)
-#   [5/8] deploy_tools.sh syntax
-#   [6/8] Essential tools on PATH
-#   [7/8] Memory rules format (6 files)
-#   [8/8] openspec/config.yaml
+# 3. 确认 12/12 通过
+#   [1/12] OpenSpec specs validation
+#   [2/12] CodeGraph MCP config
+#   [3/12] Graphify plugin
+#   [4/12] Memory rules (6 files present)
+#   [5/12] deploy_tools.sh syntax
+#   [6/12] Essential tools on PATH
+#   [7/12] Memory rules format (6 files)
+#   [8/12] openspec/config.yaml
 ```
 
 ## 日常操作
@@ -121,7 +121,7 @@ bash verify.sh    # 只读检查，不修改任何文件
 | 路径 | 一句话说明 |
 |------|-----------|
 | `deploy_tools.sh` | 一键部署六件套工具链 |
-| `verify.sh` | 一键健康检查（8 项） |
+| `verify.sh` | 一键健康检查（12 项） |
 | `openspec/` | 规格层：基线 `specs/` + 活跃变更 `changes/` |
 | `.opencode/skills/superpowers/` | 工程纪律层（10 子技能），入口见 `SKILL.md` |
 | `.opencode/skills/openspec-workflow/` | OpenSpec 五合一工作流（propose/explore/apply/sync/archive） |
