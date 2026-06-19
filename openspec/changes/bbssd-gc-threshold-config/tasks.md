@@ -32,3 +32,24 @@
 - [x] 5.3 在 QEMU 命令行中实测：`-device femu,gc-thres-lines=50,gc-thres-lines-high=30`
 - [x] 5.4 运行 `graphify update .` 更新知识图谱
 - [x] 5.5 在 `tasks.md` 中勾选所有完成的任务
+
+## 6. 代码审查与修复
+
+### 审查结果（FEEDBACK 阶段）
+- [x] 6.1 代码审查完成
+- [x] 6.2 修复 `printf()` → `warn_report()`（5 处）
+- [x] 6.3 修复边界条件：`gc_thres_lines <= 2` 时显式处理
+- [x] 6.4 修复 `spp->gc_thres_pcent` 在绝对值路径下的未初始化问题
+- [x] 6.5 添加 `qemu/error-report.h` include
+- [x] 6.6 重新编译验证通过（0 警告/错误）
+
+### 审查发现的问题
+| 严重度 | 问题 | 修复方式 |
+|--------|------|----------|
+| Important | 使用 `printf()` 而非 QEMU 日志系统 | 替换为 `warn_report()` |
+| Important | `gc_thres_lines=1` 时 high 阈值会与 normal 相等 | 添加 `<=2` 显式分支 |
+| Important | 绝对值路径下 `gc_thres_pcent` 未初始化 | 在赋值时同步计算 |
+| Minor | `int` vs `int32_t` 类型语义 | 保持与现有代码一致，未修改 |
+
+### 提交记录
+- femu: `d902ef160` — `fix(bbssd): address code review feedback for GC threshold config`
