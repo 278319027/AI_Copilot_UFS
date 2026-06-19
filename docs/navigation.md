@@ -84,6 +84,43 @@ zsf/
 │
 *graphify-out/ 存在于目标代码库（如 FEMU），zsf 根目录无此目录*
 ```
+
+
+### zsf 与目标代码库的关系
+
+本项目采用**方法论层与目标代码库解耦**的架构设计：
+
+```
+zsf 项目 (/home/tcb/AI_Proj/zsf/)
+├─ .opencode/skills/      ← Superpowers 工程纪律（随仓库分发）
+├─ .opencode/memory/      ← 架构/并发/编码风格规则
+├─ openspec/specs/        ← 规格基线（SSD 域知识）
+├─ openspec/changes/      ← 变更追踪与审计
+└─ opencode.json          ← Agent 配置（指向目标代码库）
+
+目标代码库 (/home/tcb/AI_Proj/femu/hw/femu/)
+├─ *.c / *.h              ← 实际固件源码（唯一可变源）
+├─ graphify-out/          ← 代码知识图谱（版本强绑定）
+└─ my-docs/               ← 代码自带的设计文档
+```
+
+#### 设计理由
+
+| 考量 | 说明 |
+|------|------|
+| **不污染代码库** | femu 是 QEMU fork，有自己的 Git 历史和上游同步需求；避免 `.opencode/` 和 `openspec/` 混入其提交历史 |
+| **一套方法论 → 多目标** | 通过 `opencode.json` 的 `FEMU_ROOT` 变量可切换任意 SSD 固件代码库，无需重复部署 |
+| **职责分离** | zsf 是"驾驶舱"（方法论、配置、变更追踪），femu 是"引擎"（源码、构建、运行） |
+| **分析产物就近** | `graphify-out/` 放在 femu 中是因为它与代码版本强绑定，重建时需定位到代码根目录 |
+
+#### 常见问题
+
+**Q：为什么 `verify.sh` 通过，但 femu 目录下没有 `.opencode/` 和 `openspec/`？**
+A：这是有意为之。`.opencode/` 和 `openspec/` 位于 zsf（方法论仓库），而非 femu（目标代码库）。Agent 从 zsf 加载配置与技能，通过 `FEMU_ROOT` 指向 femu 进行代码分析与修改。
+
+**Q：能否把 zsf 的方法论文件复制/软链接到 femu 中？**
+A：不推荐。这会污染 femu 的 Git 状态，与上游 QEMU 同步时产生冲突。保持分离是更干净的设计。
+
 ## 几条重要约定
 
 1. **代码优先**：`Source Code > Design Docs > Specs > Memory > Prompt`。代码是真实实现。
