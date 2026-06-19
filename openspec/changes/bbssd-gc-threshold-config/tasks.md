@@ -9,12 +9,12 @@
 
 - [x] 2.1 在 `femu.c` 的 `FemuCtrl` 属性表中添加 `gc-thres-lines`（`uint32`，默认 0 表示未设置）
 - [x] 2.2 添加 `gc-thres-lines-high`（`uint32`，默认 0 表示未设置）
-- [ ] 2.3 在属性定义注释中注明默认值来源（20% / 10% of total lines）
+- [x] 2.3 在属性定义注释中注明默认值来源（20% / 10% of total lines）
 
 ## 3. 数据结构准备（nvme.h）
 
 - [x] 3.1 在 `struct FemuCtrl` 中添加 `uint32_t gc_thres_lines` 和 `uint32_t gc_thres_lines_high` 字段（或复用现有机制）
-- [ ] 3.2 确认字段初始化位置（`femu_realize()` 或设备 reset）
+- [x] 3.2 确认字段初始化位置（`femu_realize()` 或设备 reset）
 
 ## 4. FTL 初始化修改（bbssd/ftl.c）
 
@@ -29,6 +29,6 @@
 
 - [x] 5.1 编译 femu 项目，确认无编译警告/错误
 - [x] 5.2 运行 `bash verify.sh`，确认 12/12 通过
-- [ ] 5.3 在 QEMU 命令行中实测：`-device femu,gc-thres-lines=50,gc-thres-lines-high=30`
+- [x] 5.3 在 QEMU 命令行中实测：`-device femu,gc-thres-lines=50,gc-thres-lines-high=30`
 - [x] 5.4 运行 `graphify update .` 更新知识图谱
-- [ ] 5.5 在 `tasks.md` 中勾选所有完成的任务
+- [x] 5.5 在 `tasks.md` 中勾选所有完成的任务
