@@ -77,12 +77,12 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
 
 ### 实现流程 — 强制加载 Superpowers
 
-> **🚨 在写第一行代码前**加载 `superpowers` 主框架及其子 skill（通过 superpowers 插件的 `use_skill` 工具自动加载）：
+> **🚨 在写第一行代码前**加载 `superpowers` 主框架及其子 skill（通过 superpowers 插件自动注册，直接用 `skill()` 工具加载）：
 > 1. `skill(name="superpowers")` — 加载框架决策表
-`use_skill(name="executing-plans")` — 按 tasks.md 顺序，逐条勾选
-`use_skill(name="verification-before-completion")` — 完成前验证命令 + 读输出
-`use_skill(name="subagent-driven-development")` 或 `use_skill(name="dispatching-parallel-agents")` — 多任务/并行调度（按需）
-`use_skill(name="test-driven-development")` — Path A 纯逻辑 / Path B 硬件依赖（按需）
+`skill(name="executing-plans")` — 按 tasks.md 顺序，逐条勾选
+`skill(name="verification-before-completion")` — 完成前验证命令 + 读输出
+`skill(name="subagent-driven-development")` 或 `skill(name="dispatching-parallel-agents")` — 多任务/并行调度（按需）
+`skill(name="test-driven-development")` — Path A 纯逻辑 / Path B 硬件依赖（按需）
 > 缺一（上述 2-3）= 铁律失效。触发场景 → [superpowers/SKILL.md §Bootstrap 决策表](../superpowers/SKILL.md)。
 
 ### 子代理调度策略
@@ -110,9 +110,9 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
 ### 审查前 — 强制加载
 
 > 1. `skill(name="superpowers")` — 加载主框架
-`use_skill(name="requesting-code-review")` — 发起正式审查
-`use_skill(name="verification-before-completion")` — 确保验证命令可跑
-`use_skill(name="receiving-code-review")` — 接收反馈时用
+`skill(name="requesting-code-review")` — 发起正式审查
+`skill(name="verification-before-completion")` — 确保验证命令可跑
+`skill(name="receiving-code-review")` — 接收反馈时用
 > 5. 收集所有已变更文件的 CodeGraph 影响数据。
 
 ### 审查内容
@@ -130,14 +130,14 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
 
 ### 接收反馈
 
-1. `use_skill(name="receiving-code-review")` — 接收反馈时用
+1. `skill(name="receiving-code-review")` — 接收反馈时用
 2. 分类：严重 → 设计 → 代码质量 → 可选
 3. 先止血后修复：严重问题立即解决；设计问题走 openspec
 4. 每个修复经 `tests/unit/` 验证
 
 ### 审查后
 
-- `use_skill(name="finishing-a-development-branch")` — 清理并合并分支
+- `skill(name="finishing-a-development-branch")` — 清理并合并分支
 - 所有严重和设计问题验证通过
 - 归档审查结果和修复记录
 

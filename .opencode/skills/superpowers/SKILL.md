@@ -61,16 +61,16 @@ layer's engineering discipline — never one at the expense of the other.
 | 阶段转换 | 应读取并遵循 |
 |----------|----------|
 | KNOW → PLAN | `openspec-workflow`（顶级 skill，可通过 `skill()` 加载） |
-| PLAN → BUILD | `use_skill(name="test-driven-development")` + `use_skill(name="executing-plans")` + `use_skill(name="verification-before-completion")` |
-| BUILD → FEEDBACK | `use_skill(name="requesting-code-review")` |
-| FEEDBACK → Archive | `use_skill(name="finishing-a-development-branch")` |
+| PLAN → BUILD | `skill(name="test-driven-development")` + `skill(name="executing-plans")` + `skill(name="verification-before-completion")` |
+| BUILD → FEEDBACK | `skill(name="requesting-code-review")` |
+| FEEDBACK → Archive | `skill(name="finishing-a-development-branch")` |
 
 ### 红线自检（每次动作前问自己）
 
-- [ ] 我即将「声称完成」吗？→ 使用 `use_skill(name="verification-before-completion")` 并实际跑命令
-- [ ] 我即将「修 bug」吗？→ 使用 `use_skill(name="systematic-debugging")` 并完成根因调查
-- [ ] 我即将「写生产代码」吗？→ 使用 `use_skill(name="test-driven-development")` 并按 Path A/B 走
-- [ ] 我即将「合并」吗？→ 使用 `use_skill(name="requesting-code-review")` 并完成 Review Gate
+- [ ] 我即将「声称完成」吗？→ 使用 `skill(name="verification-before-completion")` 并实际跑命令
+- [ ] 我即将「修 bug」吗？→ 使用 `skill(name="systematic-debugging")` 并完成根因调查
+- [ ] 我即将「写生产代码」吗？→ 使用 `skill(name="test-driven-development")` 并按 Path A/B 走
+- [ ] 我即将「合并」吗？→ 使用 `skill(name="requesting-code-review")` 并完成 Review Gate
 
 ## Iron rules (non-negotiable)
 
@@ -114,11 +114,11 @@ violating the spirit.
 
 ## How to invoke
 
-In an OpenCode session, load the superpowers plugin first, then use the `use_skill` tool (registered by the plugin) to load individual sub-skills. Example:
+In an OpenCode session, load the superpowers plugin first, then use the native `skill` tool (skills are auto-registered by the plugin). Example:
 
 ```
 skill(name="superpowers")    // loads main framework
-use_skill(name="test-driven-development")  // loads a sub-skill
+skill(name="test-driven-development")  // loads a sub-skill
 ```
 
 The full SKILL.md content of that sub-skill is then injected into the context
