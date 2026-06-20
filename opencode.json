@@ -12,9 +12,14 @@
     ".opencode/plugins/graphify.js",
     "superpowers@git+https://github.com/obra/superpowers.git"
   ],
-"instructions": [
+  "skills": {
+    "paths": [
+      "/home/tcb/.config/opencode/superpowers/skills"
+    ]
+  },
+  "instructions": [
     ".opencode/skills/superpowers/SKILL.md",
     ".opencode/skills/openspec-workflow/SKILL.md",
     ".opencode/skills/sd-firmware-copilot/SKILL.md"
-]
+  ]
 }
