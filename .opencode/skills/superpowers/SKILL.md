@@ -61,16 +61,16 @@ layer's engineering discipline — never one at the expense of the other.
 | 阶段转换 | 应读取并遵循 |
 |----------|----------|
 | KNOW → PLAN | `openspec-workflow`（顶级 skill，可通过 `skill()` 加载） |
-| PLAN → BUILD | `skill(name="test-driven-development")` + `skill(name="executing-plans")` + `skill(name="verification-before-completion")` |
-| BUILD → FEEDBACK | `skill(name="requesting-code-review")` |
-| FEEDBACK → Archive | `skill(name="finishing-a-development-branch")` |
+| PLAN → BUILD | `skill(name="superpowers-test-driven-development")` + `skill(name="superpowers-executing-plans")` + `skill(name="superpowers-verification-before-completion")` |
+| BUILD → FEEDBACK | `skill(name="superpowers-requesting-code-review")` |
+| FEEDBACK → Archive | `skill(name="superpowers-finishing-a-development-branch")` |
 
 ### 红线自检（每次动作前问自己）
 
-- [ ] 我即将「声称完成」吗？→ 使用 `skill(name="verification-before-completion")` 并实际跑命令
-- [ ] 我即将「修 bug」吗？→ 使用 `skill(name="systematic-debugging")` 并完成根因调查
-- [ ] 我即将「写生产代码」吗？→ 使用 `skill(name="test-driven-development")` 并按 Path A/B 走
-- [ ] 我即将「合并」吗？→ 使用 `skill(name="requesting-code-review")` 并完成 Review Gate
+- [ ] 我即将「声称完成」吗？→ 使用 `skill(name="superpowers-verification-before-completion")` 并实际跑命令
+- [ ] 我即将「修 bug」吗？→ 使用 `skill(name="superpowers-systematic-debugging")` 并完成根因调查
+- [ ] 我即将「写生产代码」吗？→ 使用 `skill(name="superpowers-test-driven-development")` 并按 Path A/B 走
+- [ ] 我即将「合并」吗？→ 使用 `skill(name="superpowers-requesting-code-review")` 并完成 Review Gate
 
 ## Iron rules (non-negotiable)
 
@@ -118,7 +118,7 @@ In an OpenCode session, load the superpowers plugin first, then use the native `
 
 ```
 skill(name="superpowers")    // loads main framework
-skill(name="test-driven-development")  // loads a sub-skill
+skill(name="superpowers-test-driven-development")  // loads a sub-skill
 ```
 
 The full SKILL.md content of that sub-skill is then injected into the context
