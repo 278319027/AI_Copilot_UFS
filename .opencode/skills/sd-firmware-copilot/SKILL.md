@@ -56,6 +56,17 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
 - **只读文件不修改**：测试框架、构建脚本、适配层
 - **cscope 补充**（函数指针 / 宏 / 头文件包含）— CodeGraph 基于 AST，cscope 补盲区
 
+## KNOW 阶段
+
+进入 PLAN 前必须完成：
+
+1. `bash verify.sh` — 环境就绪
+2. `graphify update .` — 知识图谱最新
+3. CodeGraph 探索 — 影响范围明确
+4. **读取 `.opencode/memory/` 全部规则文件** — 架构、并发、风格、设计、审查、测试共 6 个约束文件
+
+---
+
 ## BUILD 阶段
 
 ### 前置检查
@@ -66,7 +77,13 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
 
 ### 实现流程 — 强制加载 Superpowers
 
-> **🚨 在写第一行代码前**通过 skill tool 加载：`test-driven-development`（Path A 纯逻辑 / Path B 硬件依赖）→ `executing-plans`（按 tasks.md 顺序）→ `subagent-driven-development` 或 `dispatching-parallel-agents` → `verification-before-completion`。缺一 = 铁律失效。触发场景 → [superpowers/SKILL.md §Bootstrap 决策表](../superpowers/SKILL.md)。
+> **🚨 在写第一行代码前**加载 `superpowers` 主框架及其子 skill（通过 superpowers 插件的 `use_skill` 工具自动加载）：
+> 1. `skill(name="superpowers")` — 加载框架决策表
+`use_skill(name="executing-plans")` — 按 tasks.md 顺序，逐条勾选
+`use_skill(name="verification-before-completion")` — 完成前验证命令 + 读输出
+`use_skill(name="subagent-driven-development")` 或 `use_skill(name="dispatching-parallel-agents")` — 多任务/并行调度（按需）
+`use_skill(name="test-driven-development")` — Path A 纯逻辑 / Path B 硬件依赖（按需）
+> 缺一（上述 2-3）= 铁律失效。触发场景 → [superpowers/SKILL.md §Bootstrap 决策表](../superpowers/SKILL.md)。
 
 ### 子代理调度策略
 
@@ -86,12 +103,17 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
 - 代码在 `src/`，单元测试在 `tests/unit/`
 - 禁止：`as any`、`@ts-ignore`、空 catch、抑制类型错误
 - 变量/函数名用英文，注释/文档用中文
+- 硬件依赖验证（如 QEMU 运行时测试）：若 KVM/root/硬件环境暂不可用，编译通过 + `verify.sh` 可视作阶段验证完成，待环境就绪后补测
 
 ## FEEDBACK 阶段
 
 ### 审查前 — 强制加载
 
-> 加载 `requesting-code-review`（发起正式审查）→ `verification-before-completion`（确保验证命令可跑）→ `receiving-code-review`（接收反馈时用）。收集所有已变更文件的 CodeGraph 影响数据。
+> 1. `skill(name="superpowers")` — 加载主框架
+`use_skill(name="requesting-code-review")` — 发起正式审查
+`use_skill(name="verification-before-completion")` — 确保验证命令可跑
+`use_skill(name="receiving-code-review")` — 接收反馈时用
+> 5. 收集所有已变更文件的 CodeGraph 影响数据。
 
 ### 审查内容
 
@@ -108,14 +130,14 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
 
 ### 接收反馈
 
-1. 加载 `receiving-code-review`
+1. `use_skill(name="receiving-code-review")` — 接收反馈时用
 2. 分类：严重 → 设计 → 代码质量 → 可选
 3. 先止血后修复：严重问题立即解决；设计问题走 openspec
 4. 每个修复经 `tests/unit/` 验证
 
 ### 审查后
 
-- `finishing-a-development-branch`：清理并合并分支
+- `use_skill(name="finishing-a-development-branch")` — 清理并合并分支
 - 所有严重和设计问题验证通过
 - 归档审查结果和修复记录
 
