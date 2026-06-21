@@ -1,41 +1,20 @@
 本文档是 OpenCode Agent 的运行时指令，描述 graphify/codegraph/openspec/superpowers 四工具的使用规则。
 
-## superpowers 四条铁律
+> **AI 完整工作流**（4 阶段闭环、4 Iron Rules、Bootstrap 决策表、Skill map）见 `.opencode/skills/sd-firmware-copilot/SKILL.md` —— 本文档仅含项目特有的 OpenCode 启动配置（环境变量、插件规则、CLI 命令清单）。
 
-Superpowers 四条铁律适用于**所有** AI 输出、跨越全部四个阶段：
-- **不验证不宣称完成** — 完成前必须实际运行测试/命令验证，遵循 `verification-before-completion/SKILL.md`
-- **无验证不写实现** — 纯逻辑代码走 Path A（红→绿→重构），硬件依赖代码走 Path B（编译验证 + FEEDBACK 系统测试），均需遵循 `test-driven-development/SKILL.md`
-- **无根因不修 bug** — 遵循 `systematic-debugging/SKILL.md`，禁止凭直觉打补丁
-- **未审查不合并** — 遵循 `requesting-code-review/SKILL.md`，禁止绕过审查直接合入主干
 ## codegraph 与 FEMU_ROOT
-
-
 
 CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其目标路径通过 `opencode.json` 的 `mcp.codegraph.command` 数组配置，路径形式为 `${FEMU_ROOT:-/home/tcb/AI_Proj/femu}/hw/femu`。
 
-
-
 | 项 | 值 |
-
 |----|----|
-
 | **环境变量名** | `FEMU_ROOT` |
-
 | **默认值** | `/home/tcb/AI_Proj/femu` |
-
 | **拼接路径** | `<FEMU_ROOT 或默认值>/hw/femu` |
-
 | **用途** | CodeGraph MCP 服务的 `--path` 参数 (被 opencode.json ${VAR:-default} 展开) |
-
 | **验证命令** | `bash verify.sh` 中的 `[10/12] FEMU_ROOT` 检查 (或直接 `test -d ${FEMU_ROOT:-/home/tcb/AI_Proj/femu}/hw/femu`) |
 
-
-
 覆盖示例: `export FEMU_ROOT=/opt/ssd-firmware` — 则 CodeGraph 索引 `/opt/ssd-firmware/hw/femu`。
-
-
-
-## graphify
 
 ## graphify
 
@@ -55,7 +34,7 @@ CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其�
 
 本项目使用 **OpenSpec CLI v1.4.1** 做规格驱动开发。活规格基线位于 `openspec/specs/`；活跃变更位于 `openspec/changes/{id}/`。
 
-当用户输入 `/opsx:*` 时，调用对应的 `opsx-*` 命令（或直接调用 `openspec` CLI 作为后备）。
+当用户输入 `/opsx:*` 时，调用 `.opencode/commands/` 下对应 `opsx-{propose,explore,apply,sync,archive}.md`（或直接调用 `openspec` CLI 作为后备）。
 
 规则：
 - **Spec 变更是「系统做什么」的权威来源。** 修改影响已文档化行为的代码前，必须先读 `openspec/specs/`。
@@ -69,14 +48,4 @@ CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其�
 
 ## superpowers
 
-本项目包含 **Superpowers** 技能框架（13 个子技能，`.opencode/skills/superpowers-*/`）作为项目无关的工程纪律层。Superpowers 框架入口整合至 `sd-firmware-copilot/SKILL.md §Superpowers 框架整合`（含 4 Iron Rules、Bootstrap 决策表、Skill map）。
-
-规则：
-- **写任何生产代码前**，遵循 `test-driven-development/SKILL.md` — 纯逻辑走 Path A（先写失败测试），硬件依赖走 Path B（编译验证 + FEEDBACK 系统测试）。
-- **修任何 bug 前**，遵循 `systematic-debugging/SKILL.md` — 完成根因调查、收集证据、再修。
-- **宣称完成前**，遵循 `verification-before-completion/SKILL.md` — 实际运行测试/编译/命令并确认结果。
-- **代码审查**，遵循 `requesting-code-review/SKILL.md`（发送审查）和 `receiving-code-review/SKILL.md`（接收反馈）。
-- **多任务工作**，遵循 `subagent-driven-development/SKILL.md` 或 `dispatching-parallel-agents/SKILL.md` 保持上下文隔离。
-- **执行 tasks.md 项**，遵循 `executing-plans/SKILL.md`。**分支清理**，遵循 `finishing-a-development-branch/SKILL.md`。
-- 铁律在 KNOW/PLAN/BUILD/FEEDBACK 全四阶段不可协商。
-- 完整铁律索引见 `sd-firmware-copilot/SKILL.md §Superpowers 框架整合`。
+本项目包含 **Superpowers** 技能框架（13 个子技能，`.opencode/skills/superpowers-*/`）作为项目无关的工程纪律层。完整索引（4 Iron Rules + Bootstrap 决策表 + Skill map）整合至 `sd-firmware-copilot/SKILL.md §Superpowers 框架整合`。

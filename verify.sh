@@ -147,8 +147,13 @@ fi
 CMD_COUNT=$(ls -1 "$PROJECT_ROOT/.opencode/commands/opsx-"*.md 2>/dev/null | wc -l)
 [ "$CMD_COUNT" -eq 5 ] && ok "5 opsx-* slash commands present" || bad "$CMD_COUNT opsx-* commands found (expected 5)"
 
+# [13/13] .omo/ cleanliness check (stale task files should not accumulate)
+hdr "13/13" ".omo/ cleanliness (agent state should be empty or gitignored)"
+OMO_FILES=$(find "$PROJECT_ROOT/.omo" -type f 2>/dev/null | grep -v '/archive/' | wc -l)
+[ "$OMO_FILES" -eq 0 ] && ok ".omo/ clean (no stale task files)" || bad ".omo/ contains $OMO_FILES non-archived file(s) — clean up or move to .omo/archive/"
+
 # Summary
 printf "\n==============================================\n"
-printf "  Summary: %d/12 checks passed\n" "$P"
+printf "  Summary: %d/13 checks passed\n" "$P"
 printf "==============================================\n"
 [ "$F" -eq 0 ] && exit 0 || exit 1
