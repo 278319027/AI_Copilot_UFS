@@ -36,6 +36,12 @@ The two layers are **additive, not competing**:
 When both layers apply, follow the upper layer's domain rules **on top of** the lower
 layer's engineering discipline — never one at the expense of the other.
 
+> **🚨 项目启动必读**：本文档是工程纪律层（"How"）。在开始任何任务前，加载上层领域规则（"What"）：
+> ```
+> skill(name="sd-firmware-copilot")
+> ```
+> 该技能包含完整的 **KNOW → PLAN → BUILD → FEEDBACK** 工作流、**四级门禁 checklist**、OpenSpec 规格管理规则、CodeGraph 查询要求。没有它 = 没有项目方法论。
+
 ## Bootstrap 决策表（强制）
 
 **会话开始时必读**。本表告诉 AI Agent 何时加载哪个子 skill。**没有加载 = 不掌握该 skill 的纪律**，铁律退化为了手动清单。
