@@ -123,8 +123,9 @@ bash verify.sh    # 只读检查，不修改任何文件
 | `deploy_tools.sh` | 一键部署六件套工具链 |
 | `verify.sh` | 一键健康检查（12 项） |
 | `openspec/` | 规格层：基线 `specs/` + 活跃变更 `changes/` |
-| `.opencode/skills/superpowers/` | 工程纪律层（10 子技能），入口见 `SKILL.md` |
-| `.opencode/skills/openspec-workflow/` | OpenSpec 五合一工作流（propose/explore/apply/sync/archive） |
+| `.opencode/skills/superpowers/` | 工程纪律层（13 子技能），入口见 `SKILL.md` |
+| `.opencode/skills/openspec-workflow/` | OpenSpec 概念层（Iron Rules + 5 phase 路由），5 phase skill 见 `openspec-{phase}/` |
+| `.opencode/commands/opsx-*.md` | 5 个原生 slash 命令（propose/explore/apply/sync/archive） |
 | `.opencode/skills/sd-firmware-copilot/` | SSD 领域规则 + 规格管理 |
 | `.opencode/memory/` | 6 个编码规则文件（架构/并发/编码/设计/审查/测试） |
 | `docs/` | 人类文档：navigation.md、roadmap.md、本文档 |
@@ -169,9 +170,10 @@ OPENSPEC_TELEMETRY=0 openspec validate --strict --specs
 |------|------|------|
 | Phase 6 | 5 个 OpenSpec 适配 Skill 合并为 1 个 `openspec-workflow`（五合一） | 减少技能碎片，统一入口 `/opsx:*` |
 | Phase 6 | `openspec/` 目录初始化：新增 `changes/` + `specs/` + `config.yaml` | 规格与代码分离，支持增量变更 |
-| Phase 7 | 引入 Superpowers（10 子技能）作为工程纪律层 | 强制 TDD / 根因调试 / 验证完成 |
+| Phase 7 | 引入 Superpowers（13 子技能）作为工程纪律层 | 强制 TDD / 根因调试 / 验证完成 |
 | Phase 7 | 升级为四工具架构（Graphify + CodeGraph + OpenSpec + Superpowers） | 文档与 AGENTS.md 同步更新 |
 | 近期 | `spec_workflow.md` 合并入 `openspec-workflow/SKILL.md` | 消除重复，维护单一真相源 |
+| 近期 | `openspec-workflow` 拆分为 1 概念层 + 5 phase skill + 5 原生 slash 命令 | 触发精准、token 按需加载、对齐 `agentskills.io` progressive disclosure |
 
 ---
 

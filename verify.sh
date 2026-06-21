@@ -127,10 +127,26 @@ for s in ssd-firmware-overview nvme-commands ftl-mapping nand-driver error-handl
 done
 [ "$EMPTY_SPECS" -eq 0 ] && ok "all 5 spec files exist and non-empty" || bad "$EMPTY_SPECS/5 spec files missing or empty"
 
-# [12/12] Superpowers 10 sub-skill directories
-hdr "12/12" "Superpowers sub-skills"
-SP_COUNT=$(ls -1d "$PROJECT_ROOT/.opencode/skills/superpowers-"*/ 2>/dev/null | wc -l)
-[ "$SP_COUNT" -eq 13 ] && ok "all 13 superpowers sub-skills present" || bad "superpowers has $SP_COUNT sub-skill dirs (expected 13)"
+# [12/12] Skill directories: 5 openspec-* + 1 openspec-workflow + 13 superpowers-* + 1 superpowers + 1 sd-firmware-copilot = 21
+hdr "12/12" "Skill directories (21 expected: 5 openspec-* + 1 openspec-workflow + 13 superpowers-* + 1 superpowers + 1 sd-firmware-copilot)"
+SKILL_BAD=0
+SP_OS_PHASE_COUNT=0
+for phase_dir in openspec-propose openspec-explore openspec-apply openspec-sync-specs openspec-archive-change; do
+    [ -d "$PROJECT_ROOT/.opencode/skills/$phase_dir" ] && SP_OS_PHASE_COUNT=$((SP_OS_PHASE_COUNT+1))
+done
+[ "$SP_OS_PHASE_COUNT" -eq 5 ] || SKILL_BAD=$((SKILL_BAD+1))
+[ -d "$PROJECT_ROOT/.opencode/skills/openspec-workflow" ] || SKILL_BAD=$((SKILL_BAD+1))
+SP_POW_COUNT=$(ls -1d "$PROJECT_ROOT/.opencode/skills/superpowers-"*/ 2>/dev/null | wc -l)
+[ "$SP_POW_COUNT" -eq 13 ] || SKILL_BAD=$((SKILL_BAD+1))
+[ -d "$PROJECT_ROOT/.opencode/skills/superpowers" ] || SKILL_BAD=$((SKILL_BAD+1))
+[ -d "$PROJECT_ROOT/.opencode/skills/sd-firmware-copilot" ] || SKILL_BAD=$((SKILL_BAD+1))
+if [ "$SKILL_BAD" -eq 0 ]; then
+    ok "all 21 skill dirs present (openspec-phase=$SP_OS_PHASE_COUNT, openspec-workflow=1, superpowers-*=$SP_POW_COUNT, superpowers=1, sd-firmware-copilot=1)"
+else
+    bad "skill dir mismatch: openspec-phase=$SP_OS_PHASE_COUNT (expect 5), openspec-workflow=$([ -d "$PROJECT_ROOT/.opencode/skills/openspec-workflow" ] && echo 1 || echo 0), superpowers-*=$SP_POW_COUNT (expect 13), superpowers=$([ -d "$PROJECT_ROOT/.opencode/skills/superpowers" ] && echo 1 || echo 0), sd-firmware-copilot=$([ -d "$PROJECT_ROOT/.opencode/skills/sd-firmware-copilot" ] && echo 1 || echo 0)"
+fi
+CMD_COUNT=$(ls -1 "$PROJECT_ROOT/.opencode/commands/opsx-"*.md 2>/dev/null | wc -l)
+[ "$CMD_COUNT" -eq 5 ] && ok "5 opsx-* slash commands present" || bad "$CMD_COUNT opsx-* commands found (expected 5)"
 
 # Summary
 printf "\n==============================================\n"

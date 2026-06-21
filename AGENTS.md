@@ -61,7 +61,7 @@ CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其�
 - **Spec 变更是「系统做什么」的权威来源。** 修改影响已文档化行为的代码前，必须先读 `openspec/specs/`。
 - **每次变更必须经过门禁**：Proposal Gate → Design Gate → Review Gate → Archive。
 - **永不删除 `openspec/changes/` 条目** — 它们构成审计追踪。
-- **OpenSpec 流程**使用 `.opencode/skills/openspec-workflow/SKILL.md`（五阶段完整工作流：propose → explore → apply → sync → archive）。
+- **OpenSpec 流程**：`openspec-workflow/` 是概念层（Iron Rules + 跨切约束 + 5 phase 路由），执行具体 phase 请加载对应 `openspec-{propose,explore,apply,sync-specs,archive-change}/`。
 - 规格层规则见 `.opencode/skills/sd-firmware-copilot/SKILL.md`（`## Spec 规则` 一节）。
 
 - 可跳过 Proposal Gate 的场景：仅单文件 bugfix。文档/注释变更不需要 OpenSpec 工件。
@@ -69,7 +69,7 @@ CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其�
 
 ## superpowers
 
-本项目包含 **Superpowers** 技能框架（`.opencode/skills/superpowers/`，10 个子技能）作为项目无关的工程纪律层。Superpowers 位于 `sd-firmware-copilot`（SSD 固件领域规则）之下。
+本项目包含 **Superpowers** 技能框架（`.opencode/skills/superpowers/`，13 个子技能）作为项目无关的工程纪律层。Superpowers 位于 `sd-firmware-copilot`（SSD 固件领域规则）之下。
 
 规则：
 - **写任何生产代码前**，遵循 `test-driven-development/SKILL.md` — 纯逻辑走 Path A（先写失败测试），硬件依赖走 Path B（编译验证 + FEEDBACK 系统测试）。

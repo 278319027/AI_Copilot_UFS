@@ -70,8 +70,14 @@ zsf/
 │   └── skills/                      ← 四阶段执行引擎
 │       ├── sd-firmware-copilot/     ← 顶层：BUILD + FEEDBACK 内联
 │       │   └── SKILL.md              ← 主体（含 Spec 规则）
-│       ├── superpowers/             ← 工程纪律层（10 子技能）
-│       ├── openspec-workflow/       ← OpenSpec 完整工作流（propose→archive）
+│       ├── superpowers/             ← 工程纪律层（13 子技能）
+│       ├── openspec-workflow/       ← OpenSpec 概念层（Iron Rules + 5 phase 路由）
+│       ├── openspec-propose/        ← Stage 1
+│       ├── openspec-explore/        ← Stage 2
+│       ├── openspec-apply/          ← Stage 3
+│       ├── openspec-sync-specs/     ← Stage 4
+│       └── openspec-archive-change/ ← Stage 5
+│   └── commands/                     ← 原生 slash 命令（5 个 opsx-*）
 │
 ├── 📐 规格层
 │   └── openspec/

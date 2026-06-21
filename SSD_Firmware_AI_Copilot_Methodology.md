@@ -139,7 +139,7 @@ graphify merge-graphs hw/femu/graphify-out/graph.json \
 
 在 Superpowers 之上叠加 SSD 固件领域约束：
 
-*Superpowers 是独立开源项目 (obra/superpowers, MIT)，非 SSD 专用。10 个子技能提供通用工程纪律（TDD/验证/调试/审查/并行调度），本项目仅调用它们。SSD 固件领域约束由以下内容叠加。*
+*Superpowers 是独立开源项目 (obra/superpowers, MIT)，非 SSD 专用。13 个子技能提供通用工程纪律（TDD/验证/调试/审查/并行调度），本项目仅调用它们。SSD 固件领域约束由以下内容叠加。*
 - **并发安全**：volatile、ISR 边界、锁、DMA 一致性、多核可见性
 - **NVMe 错误处理**：状态码完整、重试策略、断电恢复
 - **FTL 不变量**：LBA→PBA 原子性、GC 互斥、磨损均衡
@@ -247,10 +247,11 @@ zsf/
 │   ├── memory/                        # 项目规则（6 文件，运行时自动加载）
 │   ├── plugins/graphify.js            # 知识图谱插件
 │   └── skills/                        # 三个独立 Skill
-│       ├── superpowers/               # 通用工程纪律引擎（10 子技能，独立开源 MIT）
-│       ├── openspec-workflow/         # OpenSpec 五阶段完整工作流
+│       ├── superpowers/               # 通用工程纪律引擎（13 子技能，独立开源 MIT）
+│       ├── openspec-workflow/         # OpenSpec 概念层 + 跨切约束
+│       ├── openspec-{propose,explore,apply,sync-specs,archive-change}/  # 5 phase skill
 │       └── sd-firmware-copilot/       # SSD 固件领域规则 + BUILD/FEEDBACK 编排
-│           └── SKILL.md               # 唯一主体文件
+│   └── commands/                      # 5 个 opsx-* 原生 slash 命令
 ```
 
 *graphify-out/ 目录在首次运行 graphify update . 后自动生成*
@@ -277,7 +278,8 @@ zsf/
 
 - **部署工具链**：`bash deploy_tools.sh /path/to/c-source`（CodeGraph + cscope + Doxygen + Graphify + OpenSpec CLI）
 - **验证环境**：`bash verify.sh`，确认 12/12 通过
-- **阅读规格工作流**：`.opencode/skills/openspec-workflow/SKILL.md`（五阶段流程：propose → explore → apply → sync → archive）
+- **阅读 OpenSpec 概念层**：`.opencode/skills/openspec-workflow/SKILL.md`（Iron Rules + 跨切约束 + 5 phase 路由）
+- **执行具体 phase**：`.opencode/skills/openspec-{propose,explore,apply,sync-specs,archive-change}/SKILL.md`
 - **查看路线图**：`docs/roadmap.md`
 - **理解工程纪律**：`.opencode/skills/superpowers/SKILL.md`
 - **了解项目结构**：`docs/navigation.md`（完整文件地图 + 按角色找入口）
