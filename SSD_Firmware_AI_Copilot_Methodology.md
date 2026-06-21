@@ -97,8 +97,7 @@ zsf/
 ├── docs/
 │   ├── navigation.md                  # 项目导航（文件地图 + 按角色找入口）
 │   ├── roadmap.md                     # 实施路线图与指标
-│   ├── maintainer.md                  # 维护者日常操作指南
-│   └── state-of-art-2026.md           # 2026 行业调研
+│   └── maintainer.md                  # 维护者日常操作指南
 ├── openspec/
 │   ├── config.yaml                    # OpenSpec 上下文配置（C 语言/SSD 域）
 │   ├── changes/                       # 活跃变更（archive/ 为历史归档）
