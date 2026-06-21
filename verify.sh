@@ -36,6 +36,17 @@ else
     bad "openspec CLI not installed (npm i -g @fission-ai/openspec)"
 fi
 
+# ---------------------------------------------------------------------------
+# codegraph 安装说明（2026-06-22 验证）：
+#   deploy_tools.sh 默认安装的 codegraph 可能是不支持 C 语言的旧版本（如 v3.3.1）。
+#   若 `codegraph build` 报 "Found 0 files to parse"，升级到最新版本即可：
+#
+#       npm install -g @optave/codegraph@latest   # 或指定版本 @3.13.0
+#       cd <FEMU_ROOT>/hw/femu && rm -rf .codegraph && codegraph build .
+#
+#   v3.13.0 支持 34 种语言（含 C/C++ .c/.h），build 后检查：
+#       codegraph stats   # 预期：Nodes > 0，Edges > 0
+# ---------------------------------------------------------------------------
 # [2/12] CodeGraph MCP
 hdr "2/12" "CodeGraph MCP config"
 if [ -f "$PROJECT_ROOT/opencode.json" ] && grep -q '"codegraph"' "$PROJECT_ROOT/opencode.json"; then
