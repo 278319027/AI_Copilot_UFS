@@ -77,7 +77,7 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
 
 ### 实现流程 — 强制加载 Superpowers
 
-> **🚨 在写第一行代码前**加载 `superpowers` 主框架及其子 skill（通过 superpowers 插件自动注册，直接用 `skill()` 工具加载）：
+> **🚨 在写第一行代码前**加载 `superpowers` 主框架及其子 skill（通过 `skill()` 工具逐一显式加载）：
 > 1. `skill(name="superpowers")` — 加载框架决策表
 `skill(name="superpowers-executing-plans")` — 按 tasks.md 顺序，逐条勾选
 `skill(name="superpowers-verification-before-completion")` — 完成前验证命令 + 读输出
@@ -207,7 +207,123 @@ The <layer> SHALL <behavior>.
 
 **3 个不可违反的规则**：(1) Scenario 强制 4 个 `#`（3 个 `#` 静默失败）；(2) 规范词 SHALL / MUST，避免 should / may；(3) 每个 Scenario 必须是潜在测试用例。
 
-**四级门禁**（Proposal → Design → Review → Archive） → 详见 [openspec-workflow/SKILL.md § Five-Stage Workflow](../openspec-workflow/SKILL.md)。**简化规则**：单文件 bugfix 跳 Proposal 人工；文档/注释跳全部门禁；其他完整流程。
+### 四级门禁（Proposal → Design → Review → Archive）
+
+每个变更必须经过四级门禁。每级门禁有**输入工件**、**通过标准（Checklist）**、**校验命令**、**人工确认点**。
+
+#### 简化豁免规则
+
+| 变更类型 | 豁免门禁 | 仍需执行 |
+|----------|----------|----------|
+| 单文件 bugfix | Proposal Gate（人工确认即可） | Design Gate（简述影响范围）、Review Gate、Archive Gate |
+| 文档/注释/配置变更 | Proposal Gate、Design Gate | Review Gate（文档 review）、Archive Gate（如影响 spec） |
+| 跨模块重构 | 无豁免 | 完整四级门禁 + CodeGraph 影响分析 |
+
+---
+
+#### Proposal Gate（动机 OK）
+
+**输入工件**：`openspec/changes/{id}/proposal.md`
+
+**Checklist**：
+- [ ] 变更动机清晰：解决什么问题、带来什么价值
+- [ ] 范围明确：修改哪些 capability、不修改哪些
+- [ ] 与基线 specs 的关系明确：ADDED / MODIFIED / REMOVED 哪个 Requirement
+- [ ] 非目标（Non-goals）已声明
+- [ ] 适用的 Superpowers 铁律已声明（TDD / 根因调试 / 验证完成）
+- [ ] 预估任务数 ≤ 5 个（每个 200-500 行）
+
+**校验命令**：
+```bash
+openspec status --change "<name>" --json | jq '.applyRequires.proposal == "done"'
+```
+
+**人工确认**：AI 完成 proposal.md 后，提示用户审阅动机和范围。
+
+---
+
+#### Design Gate（架构 OK）
+
+**输入工件**：`openspec/changes/{id}/design.md` + `openspec/changes/{id}/tasks.md`
+
+**Checklist**：
+- [ ] CodeGraph 影响分析完成：修改的函数/文件的 callers、callees、blast radius
+- [ ] 模块边界遵守：不跨层调用、不反向依赖（见 `memory/design_rules.md`）
+- [ ] 并发安全评估完成：涉及共享状态变更时，锁策略已定义
+- [ ] 错误处理路径已设计：每个新增错误码有传播路径和恢复策略
+- [ ] OpenSpec delta 计划明确：哪个 capability 的 spec.md 接收 ADDED/MODIFIED/REMOVED
+- [ ] tasks.md 每个任务有：关联 spec Requirement、测试计划、验证命令
+- [ ] 任务粒度 200-500 行/任务，blockedBy 关系无循环
+
+**校验命令**：
+```bash
+openspec status --change "<name>" --json | jq '.applyRequires.design == "done" and .applyRequires.tasks == "done"'
+```
+
+**人工确认**：AI 完成 design.md 和 tasks.md 后，提示用户审阅架构决策和任务分解。
+
+---
+
+#### Review Gate（代码匹配 spec）
+
+**输入工件**：编码完成的代码变更 + `openspec/changes/{id}/review.md`
+
+**Checklist**：
+- [ ] 代码匹配 design.md 中的设计（无未经批准的架构变更）
+- [ ] 代码匹配 OpenSpec delta（每个代码变更对应一个 spec Requirement）
+- [ ] 测试覆盖：Path A（纯逻辑）有失败测试→通过测试的完整记录；Path B（硬件依赖）有编译通过记录
+- [ ] Memory 规则检查通过：命名规范、并发规则、错误处理（见 `memory/*.md`）
+- [ ] CodeGraph 查询验证：修改的符号影响范围与设计阶段一致
+- [ ] 无回归：现有测试/编译全部通过
+- [ ] review.md 已填写：审查人、审查意见、修改记录
+
+**校验命令**：
+```bash
+# 1. 验证 spec 与代码一致性
+openspec validate --strict --changes
+
+# 2. 编译验证（Path B）
+make clean && make -j$(nproc)
+
+# 3. 测试验证（Path A）
+make test
+
+# 4. 代码风格检查（如有配置）
+```
+
+**人工确认**：
+- AI 不能自批自审。必须由人类审查员批准。
+- AI 负责准备 review.md（审查材料、测试报告、CodeGraph 影响摘要），提交审查请求。
+- 人类审查员确认后，AI 才能进入 Archive Gate。
+
+---
+
+#### Archive Gate（归档合并）
+
+**输入工件**：`openspec/changes/{id}/` 下所有 artifacts + review.md
+
+**Checklist**：
+- [ ] 所有 artifact 已完成（proposal/design/tasks/specs/review）
+- [ ] tasks.md 所有任务已勾选 `- [x]`
+- [ ] OpenSpec delta 已合并到基线（`/opsx:sync` 完成）
+- [ ] 归档目录格式正确：`openspec/changes/archive/YYYY-MM-DD-{id}/`
+- [ ] 归档 commit 格式：`chore(spec): archive {change-id}`
+
+**校验命令**：
+```bash
+# 1. 检查 artifact 完成度
+openspec status --change "<name>" --json | jq '.applyRequires | to_entries | all(.value == "done")'
+
+# 2. 检查任务勾选数
+grep -c '^\- \[x\]' openspec/changes/{id}/tasks.md
+
+# 3. 验证基线合并后 specs 有效
+openspec validate --strict --specs
+```
+
+**人工确认**：AI 提示用户确认归档，用户确认后执行 `mv` 和 `git commit`。
+
+> **详细步骤** → [openspec-workflow/SKILL.md § archive](../openspec-workflow/SKILL.md)。
 
 ### 跨规则关系
 

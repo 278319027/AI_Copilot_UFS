@@ -128,10 +128,9 @@ done
 [ "$EMPTY_SPECS" -eq 0 ] && ok "all 5 spec files exist and non-empty" || bad "$EMPTY_SPECS/5 spec files missing or empty"
 
 # [12/12] Superpowers 10 sub-skill directories
-hdr "12/12" "Superpowers 10 sub-skills"
-SP_DIR="$PROJECT_ROOT/.opencode/skills/superpowers"
-SP_COUNT=$(ls -1d "$SP_DIR"/*/ 2>/dev/null | wc -l)
-[ "$SP_COUNT" -eq 10 ] && ok "all 10 superpowers sub-skills present" || bad "superpowers has $SP_COUNT sub-skill dirs (expected 10)"
+hdr "12/12" "Superpowers sub-skills"
+SP_COUNT=$(ls -1d "$PROJECT_ROOT/.opencode/skills/superpowers-"*/ 2>/dev/null | wc -l)
+[ "$SP_COUNT" -eq 13 ] && ok "all 13 superpowers sub-skills present" || bad "superpowers has $SP_COUNT sub-skill dirs (expected 13)"
 
 # Summary
 printf "\n==============================================\n"

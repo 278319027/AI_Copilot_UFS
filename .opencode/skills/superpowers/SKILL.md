@@ -44,17 +44,17 @@ layer's engineering discipline — never one at the expense of the other.
 
 | 触发场景 | 必加载 skill | 缺失后果 |
 |----------|-------------|----------|
-| 会话开始 / 收到新需求 | `using-superpowers` | 上下文无纪律约束 |
-| 涉及 bug、test failure、异常行为 | `systematic-debugging` | 凭直觉打补丁 |
-| 写生产代码（Path A 纯逻辑） | `test-driven-development` | 无失败测试、无回归保护 |
-| 写生产代码（Path B 硬件依赖） | `test-driven-development` | BUILD 编译通过 ≠ 系统正确 |
-| 进入 BUILD 阶段 | `executing-plans` + `verification-before-completion` | 跳过任务、跳过验证 |
-| 复杂任务（多文件、多模块） | `subagent-driven-development` | 上下文爆炸、需求漂移 |
-| 2+ 独立可并行任务 | `dispatching-parallel-agents` | 串行浪费 |
-| 合并前 / 用户说「review my work」 | `requesting-code-review` | AI 自批自审 |
-| 收到审查反馈 | `receiving-code-review` | 表演性认同 / 盲目实现 |
-| 所有任务完成，准备合并 | `finishing-a-development-branch` | 直接合并不清理 |
-| 宣称「完成 / 修复 / 通过」 | `verification-before-completion` | 无证据断言 |
+| 会话开始 / 收到新需求 | `superpowers-using-superpowers` | 上下文无纪律约束 |
+| 涉及 bug、test failure、异常行为 | `superpowers-systematic-debugging` | 凭直觉打补丁 |
+| 写生产代码（Path A 纯逻辑） | `superpowers-test-driven-development` | 无失败测试、无回归保护 |
+| 写生产代码（Path B 硬件依赖） | `superpowers-test-driven-development` | BUILD 编译通过 ≠ 系统正确 |
+| 进入 BUILD 阶段 | `superpowers-executing-plans` + `superpowers-verification-before-completion` | 跳过任务、跳过验证 |
+| 复杂任务（多文件、多模块） | `superpowers-subagent-driven-development` | 上下文爆炸、需求漂移 |
+| 2+ 独立可并行任务 | `superpowers-dispatching-parallel-agents` | 串行浪费 |
+| 合并前 / 用户说「review my work」 | `superpowers-requesting-code-review` | AI 自批自审 |
+| 收到审查反馈 | `superpowers-receiving-code-review` | 表演性认同 / 盲目实现 |
+| 所有任务完成，准备合并 | `superpowers-finishing-a-development-branch` | 直接合并不清理 |
+| 宣称「完成 / 修复 / 通过」 | `superpowers-verification-before-completion` | 无证据断言 |
 
 ### 阶段转换触发器
 
@@ -79,29 +79,29 @@ violating the spirit.
 
 - **NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE** — never say "done" /
   "fixed" / "passes" / "works" without having just run the verifying command and read
-  its output. See `verification-before-completion/SKILL.md`.
-- **NO PRODUCTION CODE WITHOUT VERIFICATION** — For pure-logic code: write the test, watch it fail for the right reason, then write the minimum code to pass (see `test-driven-development/SKILL.md` Path A). For hardware-dependent code: compile cleanly first (BUILD), then run system tests at FEEDBACK (see `test-driven-development/SKILL.md` Path B).
+  its output. See `superpowers-verification-before-completion/SKILL.md`.
+- **NO PRODUCTION CODE WITHOUT VERIFICATION** — For pure-logic code: write the test, watch it fail for the right reason, then write the minimum code to pass (see `superpowers-test-driven-development/SKILL.md` Path A). For hardware-dependent code: compile cleanly first (BUILD), then run system tests at FEEDBACK (see `superpowers-test-driven-development/SKILL.md` Path B).
 - **NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST** — reproduce, read errors, check
   recent changes, form a hypothesis, test it minimally. See
-  `systematic-debugging/SKILL.md`.
+  `superpowers-systematic-debugging/SKILL.md`.
 - **NO MERGE WITHOUT CODE REVIEW** — request review on every non-trivial change;
   receive review technically, never performatively. See
-  `requesting-code-review/SKILL.md` and `receiving-code-review/SKILL.md`.
+  `superpowers-requesting-code-review/SKILL.md` and `superpowers-receiving-code-review/SKILL.md`.
 
 ## Skill map
 
 | Skill | When to invoke | Iron rule enforced |
 |-------|----------------|--------------------|
-| `using-superpowers/SKILL.md` | **Start of every conversation.** Bootstrap that decides which other skills apply. | Skill-aware behaviour |
-| `systematic-debugging/SKILL.md` | Any bug, test failure, or unexpected behaviour — **before** proposing fixes. | Root cause first |
-| `test-driven-development/SKILL.md` | Any new feature, bug fix, refactor, or behaviour change. | Path A (test first) or Path B (compile + FEEDBACK) |
-| `verification-before-completion/SKILL.md` | **Before** any claim of completion, success, or "passing". | Evidence before assertion |
-| `executing-plans/SKILL.md` | When you have a written plan and want to run it (sequential, with checkpoints). | Plan-execute-verify |
-| `subagent-driven-development/SKILL.md` | When you have a plan with mostly independent tasks and want parallel subagent execution with per-task review. | Fresh subagent per task + review |
-| `dispatching-parallel-agents/SKILL.md` | 2+ independent investigations or fixes that can run concurrently. | One domain per agent |
-| `requesting-code-review/SKILL.md` | Before merging, after each task, when stuck. | Review before merge |
-| `receiving-code-review/SKILL.md` | When receiving any code-review feedback. | Verify before implementing |
-| `finishing-a-development-branch/SKILL.md` | All tasks complete, tests pass, ready to integrate. | Verify-then-present-options |
+| `superpowers-using-superpowers/SKILL.md` | **Start of every conversation.** Bootstrap that decides which other skills apply. | Skill-aware behaviour |
+| `superpowers-systematic-debugging/SKILL.md` | Any bug, test failure, or unexpected behaviour — **before** proposing fixes. | Root cause first |
+| `superpowers-test-driven-development/SKILL.md` | Any new feature, bug fix, refactor, or behaviour change. | Path A (test first) or Path B (compile + FEEDBACK) |
+| `superpowers-verification-before-completion/SKILL.md` | **Before** any claim of completion, success, or "passing". | Evidence before assertion |
+| `superpowers-executing-plans/SKILL.md` | When you have a written plan and want to run it (sequential, with checkpoints). | Plan-execute-verify |
+| `superpowers-subagent-driven-development/SKILL.md` | When you have a plan with mostly independent tasks and want parallel subagent execution with per-task review. | Fresh subagent per task + review |
+| `superpowers-dispatching-parallel-agents/SKILL.md` | 2+ independent investigations or fixes that can run concurrently. | One domain per agent |
+| `superpowers-requesting-code-review/SKILL.md` | Before merging, after each task, when stuck. | Review before merge |
+| `superpowers-receiving-code-review/SKILL.md` | When receiving any code-review feedback. | Verify before implementing |
+| `superpowers-finishing-a-development-branch/SKILL.md` | All tasks complete, tests pass, ready to integrate. | Verify-then-present-options |
 
 ## Skill priority within this project
 
@@ -114,7 +114,7 @@ violating the spirit.
 
 ## How to invoke
 
-In an OpenCode session, load the superpowers plugin first, then use the native `skill` tool (skills are auto-registered by the plugin). Example:
+In an OpenCode session, use the native `skill` tool to load each skill explicitly. Each sub-skill is a standalone skill file in `.opencode/skills/`. Example:
 
 ```
 skill(name="superpowers")    // loads main framework

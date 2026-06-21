@@ -195,4 +195,4 @@ AI 生成测试建议时，必须按以下格式输出：
 
 **何时选哪条**：修改 .c/.h 且依赖硬件寄存器的代码 → Path B；纯算法、状态机、数据结构等无硬件依赖的代码 → Path A。
 
-详细规则见 `.opencode/skills/superpowers/test-driven-development/SKILL.md`。
+详细规则见 `.opencode/skills/superpowers-test-driven-development/SKILL.md`。
