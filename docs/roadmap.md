@@ -63,7 +63,7 @@
 
 | 任务 | 状态 | 产出 |
 |------|------|------|
-| 部署 Superpowers（13 子技能） | ✅ | `.opencode/skills/superpowers/` |
+| 部署 Superpowers（13 子技能） | ✅ | `.opencode/skills/superpowers-*/`（入口整合至 `sd-firmware-copilot`） |
 | TDD / 根因调查 / 验证后完成 铁律 | ✅ | 3 条强制铁律 |
 | 评审双向规范 | ✅ | requesting / receiving code review |
 | 并行 Agent 调度 | ✅ | subagent-driven / dispatching-parallel |

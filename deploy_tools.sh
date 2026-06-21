@@ -11,8 +11,8 @@
 #   5. graphify   — KNOW/FEEDBACK 层：知识图谱
 #   6. openspec   — PLAN/FEEDBACK 层：规格驱动开发 (Phase 1 新增)
 #
-# 注：Superpowers 是项目级 Skill 集（.opencode/skills/superpowers/），
-#     随 zsf 仓库分发，不需本脚本安装。详见 .opencode/skills/superpowers/SKILL.md。
+# 注：Superpowers 是项目级 Skill 集（.opencode/skills/superpowers-*/），
+#     随 zsf 仓库分发，不需本脚本安装。入口整合至 sd-firmware-copilot/SKILL.md §Superpowers 框架整合。
 # ------------------------------------------------------------
 # 工具链分工 / C 语言限制（合并自原 references/deploy-guide.md）
 # ------------------------------------------------------------
@@ -306,13 +306,13 @@ else
 fi
 
 # Superpowers 提示（项目级 Skill，不需本脚本安装）
-if [ -d ".opencode/skills/superpowers" ]; then
-    SP_COUNT=$(ls -1 .opencode/skills/superpowers/ 2>/dev/null | grep -v '^SKILL.md$' | wc -l)
-    echo "  ✓ Superpowers 项目级 Skill 已就位 (${SP_COUNT} 个子技能 + SKILL.md)"
-    echo "    入口: .opencode/skills/superpowers/SKILL.md"
+if compgen -G ".opencode/skills/superpowers-*" >/dev/null; then
+    SP_COUNT=$(ls -1d .opencode/skills/superpowers-*/ 2>/dev/null | wc -l)
+    echo "  ✓ Superpowers 项目级 Skill 已就位 (${SP_COUNT} 个子技能)"
+    echo "    入口: sd-firmware-copilot/SKILL.md §Superpowers 框架整合"
 else
     echo "  ⚠ Superpowers 项目级 Skill 未找到"
-    echo "    请检查 .opencode/skills/superpowers/ 目录是否完整克隆 zsf 仓库"
+    echo "    请检查 .opencode/skills/superpowers-*/ 目录是否完整克隆 zsf 仓库"
 fi
 
 # 完成
@@ -333,10 +333,10 @@ echo "    openspec   — $(openspec --version 2>&1 | head -1 | awk '{print $NF}'
 echo "    openspec/  — 规格仓库 (config.yaml + changes/ + specs/)"
 echo ""
 echo "  项目级 Skill（随 zsf 仓库分发，无需部署）:"
-SP_COUNT=$(ls -1 .opencode/skills/superpowers/ 2>/dev/null | grep -v '^SKILL.md$' | wc -l)
-echo "    openspec-workflow/  — OpenSpec 完整工作流 Skill (propose/explore/apply/sync/archive 五合一)  [PLAN/FEEDBACK]"
-echo "    superpowers/        — ${SP_COUNT} 个子技能（test-driven-development / systematic-debugging / verification-before-completion / ...）  [BUILD]"
-echo "    sd-firmware-copilot/ — SSD 固件领域规则 + 规格管理 [ALL]"
+SP_COUNT=$(ls -1d .opencode/skills/superpowers-*/ 2>/dev/null | wc -l)
+echo "    openspec-workflow/  — OpenSpec 概念层 + 5 phase skill (propose/explore/apply/sync-specs/archive-change)  [PLAN/FEEDBACK]"
+echo "    superpowers-*/      — ${SP_COUNT} 个子技能（test-driven-development / systematic-debugging / verification-before-completion / ...）  [BUILD]"
+echo "    sd-firmware-copilot/ — SSD 固件领域规则 + 规格管理 + Superpowers 框架整合 [ALL]"
 echo "  后续操作:"
 echo "    # AI 查询调用图"
 echo "    codegraph callers <函数名>"
@@ -359,7 +359,7 @@ echo "    /opsx:propose '<change-id>' '<意图>'         # 创建变更 + 生成
 echo "    /opsx:apply '<change-id>'                    # 按 tasks.md 执行"
 echo "    /opsx:archive '<change-id>'                  # 合并到 baseline"
 echo ""
-echo "    # Superpowers 铁律（BUILD）— 详见 .opencode/skills/superpowers/SKILL.md"
+echo "    # Superpowers 铁律（BUILD）— 详见 sd-firmware-copilot/SKILL.md §Superpowers 框架整合"
 echo "    test-driven-development                       # 先写失败测试"
 echo "    systematic-debugging                          # 无根因不修"
 echo "    verification-before-completion                # 不验证不宣称完成"

@@ -123,7 +123,7 @@ bash verify.sh    # 只读检查，不修改任何文件
 | `deploy_tools.sh` | 一键部署六件套工具链 |
 | `verify.sh` | 一键健康检查（12 项） |
 | `openspec/` | 规格层：基线 `specs/` + 活跃变更 `changes/` |
-| `.opencode/skills/superpowers/` | 工程纪律层（13 子技能），入口见 `SKILL.md` |
+| `.opencode/skills/superpowers-*/` | 工程纪律层（13 子技能），入口整合至 `sd-firmware-copilot/SKILL.md §Superpowers 框架整合` |
 | `.opencode/skills/openspec-workflow/` | OpenSpec 概念层（Iron Rules + 5 phase 路由），5 phase skill 见 `openspec-{phase}/` |
 | `.opencode/commands/opsx-*.md` | 5 个原生 slash 命令（propose/explore/apply/sync/archive） |
 | `.opencode/skills/sd-firmware-copilot/` | SSD 领域规则 + 规格管理 |

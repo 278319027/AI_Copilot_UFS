@@ -281,6 +281,6 @@ zsf/
 - **阅读 OpenSpec 概念层**：`.opencode/skills/openspec-workflow/SKILL.md`（Iron Rules + 跨切约束 + 5 phase 路由）
 - **执行具体 phase**：`.opencode/skills/openspec-{propose,explore,apply,sync-specs,archive-change}/SKILL.md`
 - **查看路线图**：`docs/roadmap.md`
-- **理解工程纪律**：`.opencode/skills/superpowers/SKILL.md`
+- **理解工程纪律**：`sd-firmware-copilot/SKILL.md §Superpowers 框架整合`（含 4 Iron Rules + Bootstrap 决策表 + Skill map）
 - **了解项目结构**：`docs/navigation.md`（完整文件地图 + 按角色找入口）
 - **熟悉领域规则**：`.opencode/memory/`（6 个规则文件，运行时自动加载）

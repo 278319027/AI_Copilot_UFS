@@ -69,7 +69,7 @@ CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其�
 
 ## superpowers
 
-本项目包含 **Superpowers** 技能框架（`.opencode/skills/superpowers/`，13 个子技能）作为项目无关的工程纪律层。Superpowers 位于 `sd-firmware-copilot`（SSD 固件领域规则）之下。
+本项目包含 **Superpowers** 技能框架（13 个子技能，`.opencode/skills/superpowers-*/`）作为项目无关的工程纪律层。Superpowers 框架入口整合至 `sd-firmware-copilot/SKILL.md §Superpowers 框架整合`（含 4 Iron Rules、Bootstrap 决策表、Skill map）。
 
 规则：
 - **写任何生产代码前**，遵循 `test-driven-development/SKILL.md` — 纯逻辑走 Path A（先写失败测试），硬件依赖走 Path B（编译验证 + FEEDBACK 系统测试）。
@@ -79,4 +79,4 @@ CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其�
 - **多任务工作**，遵循 `subagent-driven-development/SKILL.md` 或 `dispatching-parallel-agents/SKILL.md` 保持上下文隔离。
 - **执行 tasks.md 项**，遵循 `executing-plans/SKILL.md`。**分支清理**，遵循 `finishing-a-development-branch/SKILL.md`。
 - 铁律在 KNOW/PLAN/BUILD/FEEDBACK 全四阶段不可协商。
-- 完整铁律索引见 `.opencode/skills/superpowers/SKILL.md`。
+- 完整铁律索引见 `sd-firmware-copilot/SKILL.md §Superpowers 框架整合`。

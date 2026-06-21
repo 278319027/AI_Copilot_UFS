@@ -83,7 +83,7 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
 `skill(name="superpowers-verification-before-completion")` — 完成前验证命令 + 读输出
 `skill(name="superpowers-subagent-driven-development")` 或 `skill(name="superpowers-dispatching-parallel-agents")` — 多任务/并行调度（按需）
 `skill(name="superpowers-test-driven-development")` — Path A 纯逻辑 / Path B 硬件依赖（按需）
-> 缺一（上述 2-3）= 铁律失效。触发场景 → [superpowers/SKILL.md §Bootstrap 决策表](../superpowers/SKILL.md)。
+> 缺一（上述 2-3）= 铁律失效。触发场景 → [本 skill §Superpowers 框架整合](#superpowers-框架整合)。
 
 ### 子代理调度策略
 
@@ -339,6 +339,71 @@ openspec validate --strict --specs
 **Memory 规则**（`.opencode/memory/`）：`architecture` / `concurrency_rules` / `coding_style` / `design_rules` / `review_rules` / `testing_rules`。
 
 **硬件知识**：NVMe Admin/IO 命令、NAND 设备管理（ECC/坏块/写入放大/磨损均衡）、固件更新（安全下载/回滚/原子性）、IO 调度（读/写优先级/QoS）→ 详见 `openspec/specs/` 各 capability。
+
+## Superpowers 框架整合
+
+本 skill 是 zsf 的"sole integrating skill"。下层 Superpowers 14 个 sub-skill 协同工作：4 条 Iron Rules 强制执行，Bootstrap 决策表告诉 AI 在哪种场景下加载哪个 sub-skill，阶段转换触发器串联四阶段闭环。
+
+### Iron Rules（4 条，不可妥协）
+
+- **NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE** — 完成前必须实际运行测试/编译/命令并验证结果，禁止「应该没问题」。见 [`superpowers-verification-before-computation`](../superpowers-verification-before-completion/SKILL.md)。
+- **NO PRODUCTION CODE WITHOUT VERIFICATION** — 纯逻辑代码（Path A）先写失败测试再写实现；硬件依赖代码（Path B）BUILD 阶段编译通过，FEEDBACK 阶段系统测试。见 [`superpowers-test-driven-development`](../superpowers-test-driven-development/SKILL.md)。
+- **NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST** — 复现、读错误、查变更、形成假设、最小验证，禁止凭直觉打补丁。见 [`superpowers-systematic-debugging`](../superpowers-systematic-debugging/SKILL.md)。
+- **NO MERGE WITHOUT CODE REVIEW** — 每个非平凡变更必须经正式审查，接收反馈以技术为准不表演性认同。见 [`superpowers-requesting-code-review`](../superpowers-requesting-code-review/SKILL.md) 与 [`superpowers-receiving-code-review`](../superpowers-receiving-code-review/SKILL.md)。
+
+### Bootstrap 决策表（场景 → 必加载 skill）
+
+| 触发场景 | 必加载 skill | 缺失后果 |
+|----------|-------------|----------|
+| 会话开始 / 收到新需求 | `superpowers-using-superpowers` | 上下文无纪律约束 |
+| 涉及 bug、test failure、异常行为 | `superpowers-systematic-debugging` | 凭直觉打补丁 |
+| 写生产代码（Path A 纯逻辑 / Path B 硬件依赖） | `superpowers-test-driven-development` | 无失败测试、无回归保护 |
+| 进入 BUILD 阶段 | `superpowers-executing-plans` + `superpowers-verification-before-completion` | 跳过任务、跳过验证 |
+| 复杂任务（多文件、多模块） | `superpowers-subagent-driven-development` | 上下文爆炸、需求漂移 |
+| 2+ 独立可并行任务 | `superpowers-dispatching-parallel-agents` | 串行浪费 |
+| 合并前 / 用户说「review my work」 | `superpowers-requesting-code-review` | AI 自批自审 |
+| 收到审查反馈 | `superpowers-receiving-code-review` | 表演性认同 / 盲目实现 |
+| 所有任务完成，准备合并 | `superpowers-finishing-a-development-branch` | 直接合并不清理 |
+| 宣称「完成 / 修复 / 通过」 | `superpowers-verification-before-completion` | 无证据断言 |
+| 写计划（5+ 步骤任务） | `superpowers-writing-plans` | 无 plan 直接 coding |
+| 写新 skill | `superpowers-writing-skills` | 不符合 agentskills.io 规范 |
+| 复杂/创造性问题 | `superpowers-brainstorming` | 需求理解偏差 |
+| 隔离工作区 | `superpowers-using-git-worktrees` | 主分支污染 |
+
+### 阶段转换触发器（4 阶段闭环）
+
+| 阶段转换 | 应读取并遵循 |
+|----------|-------------|
+| **KNOW → PLAN** | `openspec-workflow` 概念层 + 具体 phase skill（propose / explore） |
+| **PLAN → BUILD** | `superpowers-test-driven-development` + `superpowers-executing-plans` + `superpowers-verification-before-completion` |
+| **BUILD → FEEDBACK** | `superpowers-requesting-code-review` |
+| **FEEDBACK → Archive** | `superpowers-finishing-a-development-branch` |
+
+### Red-line 自检（每次动作前问自己）
+
+- [ ] 即将「声称完成」？→ 使用 `superpowers-verification-before-completion` 并实际跑命令
+- [ ] 即将「修 bug」？→ 使用 `superpowers-systematic-debugging` 并完成根因调查
+- [ ] 即将「写生产代码」？→ 使用 `superpowers-test-driven-development` 并按 Path A/B 走
+- [ ] 即将「合并」？→ 使用 `superpowers-requesting-code-review` 并完成 Review Gate
+
+### Skill map 速查（14 sub-skill）
+
+| Sub-skill | 何时调用 |
+|-----------|----------|
+| `superpowers-using-superpowers` | 任何会话开始 |
+| `superpowers-brainstorming` | 创意/需求探索 |
+| `superpowers-writing-plans` | 5+ 步骤任务前写 plan |
+| `superpowers-writing-skills` | 写新 skill 前 |
+| `superpowers-test-driven-development` | 写新功能 / 修 bug 前 |
+| `superpowers-systematic-debugging` | 任何 bug / test failure / 异常行为 |
+| `superpowers-verification-before-completion` | 任何"完成"声明前 |
+| `superpowers-executing-plans` | 按 plan 顺序执行 |
+| `superpowers-subagent-driven-development` | 多文件复杂 plan 配 review |
+| `superpowers-dispatching-parallel-agents` | 2+ 独立并行任务 |
+| `superpowers-requesting-code-review` | 合并前 / 完成后 |
+| `superpowers-receiving-code-review` | 收到审查反馈时 |
+| `superpowers-finishing-a-development-branch` | 全部完成准备集成 |
+| `superpowers-using-git-worktrees` | 隔离工作区 |
 
 ## 初始化
 

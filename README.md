@@ -49,7 +49,7 @@ PLAN → BUILD → FEEDBACK: 同路径 A
 |------|------|---------|
 | **KNOW** | Graphify + CodeGraph | `bash deploy_tools.sh` |
 | **PLAN** | OpenSpec CLI v1.4.1 | `npm install -g @fission-ai/openspec` |
-| **BUILD** | Superpowers + sd-firmware-copilot | `.opencode/skills/superpowers/` |
+| **BUILD** | Superpowers + sd-firmware-copilot | `.opencode/skills/sd-firmware-copilot/` |
 | **FEEDBACK** | OpenSpec CLI + Graphify | 同 PLAN |
 
 ## 配置（opencode.json）
