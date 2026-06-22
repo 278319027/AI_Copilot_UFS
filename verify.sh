@@ -163,8 +163,32 @@ hdr "13/13" ".omo/ cleanliness (agent state should be empty or gitignored)"
 OMO_FILES=$(find "$PROJECT_ROOT/.omo" -type f 2>/dev/null | grep -v '/archive/' | wc -l)
 [ "$OMO_FILES" -eq 0 ] && ok ".omo/ clean (no stale task files)" || bad ".omo/ contains $OMO_FILES non-archived file(s) — clean up or move to .omo/archive/"
 
+# [14/14] FEMU path should not contain mis-generated .opencode/ (zsf is the canonical .opencode owner)
+hdr "14/14" "FEMU path .opencode/ cleanliness (only zsf should own .opencode/)"
+# 检查 FEMU_ROOT 路径（如果存在）下任何子目录是否有误生成的 .opencode/
+# 排除 femu 仓库根目录——deploy_tools.sh 允许在那里创建 .opencode/
+# 检查 hw/*/ 等子目录是否有误生成
+FEMU_BASE="${FEMU_ROOT:-/home/tcb/AI_Proj/femu}"
+MISGEN_OPENCODE=""
+if [ -d "$FEMU_BASE" ]; then
+    # 搜索 FEMU 仓库下任何子目录中的 .opencode/（排除 femu 仓库根和 graphify-out / .codegraph 工具产物）
+    while IFS= read -r d; do
+        # Skip if it's at femu repo root (deploy_tools.sh target location)
+        parent="$(dirname "$d")"
+        if [ "$parent" = "$FEMU_BASE" ]; then
+            continue
+        fi
+        MISGEN_OPENCODE="$MISGEN_OPENCODE $d"
+    done < <(find "$FEMU_BASE" -maxdepth 4 -type d -name ".opencode" 2>/dev/null)
+fi
+if [ -z "$MISGEN_OPENCODE" ]; then
+    ok "no mis-generated .opencode/ in FEMU subdirs"
+else
+    bad "mis-generated .opencode/ found in FEMU subdirs (only zsf should own .opencode/):$MISGEN_OPENCODE"
+fi
+
 # Summary
 printf "\n==============================================\n"
-printf "  Summary: %d/13 checks passed\n" "$P"
+printf "  Summary: %d/14 checks passed\n" "$P"
 printf "==============================================\n"
 [ "$F" -eq 0 ] && exit 0 || exit 1

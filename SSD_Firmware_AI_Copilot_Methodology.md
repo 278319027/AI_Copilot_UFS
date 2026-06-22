@@ -92,7 +92,7 @@ zsf/
 ├── SSD_Firmware_AI_Copilot_Methodology.md  # 本文件
 ├── opencode.json                      # OpenCode 配置（MCP + Graphify 插件）
 ├── deploy_tools.sh                    # 一键部署工具链
-├── verify.sh                          # 一键健康检查（13 项）
+├── verify.sh                          # 一键健康检查（14 项）
 ├── .gitignore
 ├── docs/
 │   ├── navigation.md                  # 项目导航（文件地图 + 按角色找入口）
@@ -134,7 +134,7 @@ zsf/
 ## 10. 下一步
 
 - **部署工具链**：`bash deploy_tools.sh /path/to/c-source`（CodeGraph + Doxygen + Graphify + OpenSpec CLI）
-- **验证环境**：`bash verify.sh`，确认 12/13 通过
+- **验证环境**：`bash verify.sh`，确认 14/14 通过
 - **AI 完整工作流**：`.opencode/skills/sd-firmware-copilot/SKILL.md`（域规则 + 4 Iron Rules + Bootstrap 决策表 + 4 阶段流程）
 - **OpenSpec 概念层**：`.opencode/skills/openspec-workflow/SKILL.md`（Iron Rules + 跨切约束 + 5 phase 路由）
 - **执行具体 phase**：`.opencode/skills/openspec-{propose,explore,apply,sync-specs,archive-change}/SKILL.md`

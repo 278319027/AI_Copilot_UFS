@@ -66,8 +66,22 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
 
 1. `bash verify.sh` — 环境就绪
 2. `graphify update .` — 知识图谱最新
-3. CodeGraph 探索 — 影响范围明确
+3. **概念 + 结构双源查询**（顺序固定，先概念后结构）：
+   - **Step 3a — 概念发现**：`graphify query "<概念关键词>"` 找到涉及该概念的节点、文件、社区归属。`graphify explain "<symbol>"` 看节点度数和社区。
+     - 例：`graphify query "NVMe FLIP"` → 命中 nvme-admin.c、nvme-util.c、bbssd/、do_gc_fdp_style 等节点，并给出社区编号
+     - 目的：**先在概念层面定位代码在哪里**，避免一开始就在错误层级 grep
+   - **Step 3b — 精确结构**：`codegraph where <symbol>` 列直接调用方；`codegraph impact <file>` 列影响文件；`codegraph context <func>` 看函数定义 + 复杂度。
+     - 例：`codegraph where bb_flip` → 1 caller (`bb_admin_cmd`)
+     - 目的：**在概念发现的候选范围内，验证精确的调用图与影响范围**
 4. **读取 `.opencode/memory/` 全部规则文件** — 架构、并发、风格、设计、审查、测试共 6 个约束文件
+
+### 工具分工的常见误用
+
+| 误用模式 | 后果 | 正确做法 |
+|----------|------|----------|
+| 只用 grep + read 代码，跳过 graphify query | 浪费 5-10 分钟手动找"这个概念在哪些文件" | 先 `graphify query` 一次列出候选 |
+| 只用 codegraph where，忽略社区归属 | 漏掉"看似无关但在同一社区"的文件 | `graphify explain` 看 community 字段 |
+| 用 codegraph 追踪函数指针调用 | AST 看不到，漏掉 dispatch | 已知限制：cscope + 手工读 dispatch 函数补充 |
 
 ---
 
@@ -132,7 +146,7 @@ AI 完成 BUILD Gate checklist 并声明 "BUILD Gate 通过" 后方可开始实�
 `skill(name="superpowers-requesting-code-review")` — 发起正式审查
 `skill(name="superpowers-verification-before-completion")` — 确保验证命令可跑
 `skill(name="superpowers-receiving-code-review")` — 接收反馈时用
-> 5. 收集所有已变更文件的 CodeGraph 影响数据。
+> 5. 收集所有已变更文件的 CodeGraph 影响数据 + Graphify 概念归属验证（见下）。
 
 ### 审查内容
 
@@ -146,6 +160,18 @@ AI 完成 BUILD Gate checklist 并声明 "BUILD Gate 通过" 后方可开始实�
 - **错误处理**：超时、重试、断电/崩溃恢复、数据完整性
 - **并发安全**：共享状态并发原语；中断/线程安全
 - **宏和预处理器**：条件编译块正确性
+
+### Graphify 概念归属验证（FEEDBACK 阶段强制）
+
+在 CodeGraph 验证结构未变之后，必须用 Graphify 验证**新代码的概念归属**：
+
+| 检查项 | 命令 | 期望 |
+|--------|------|------|
+| 新增符号的社区归属合理 | `graphify explain "<new_symbol>"` | 节点出现在与设计意图匹配的 community 中 |
+| 图谱完整性无回归 | `graphify diagnose multigraph` | `missing_endpoint_edges = 0`，`dangling_endpoint_edges = 0` |
+| 概念-文件映射未变 | `graphify query "<concept>"` 后对比前后结果 | 同概念命中的文件集未漂移（除本变更新增/修改的文件） |
+
+**已知限制**：Graphify 提取的是**函数/文件级别**节点（不深入到结构体字段、enum 值）。CodeGraph 抓字段。两者**互补不重叠**。
 
 ### 接收反馈
 
@@ -294,6 +320,7 @@ openspec status --change "<name>" --json | jq '.applyRequires.design == "done" a
 - [ ] 注入验证已执行：至少一条正常路径和一条错误路径经过 bug 注入→测试失败→撤销→恢复通过的验证
 - [ ] Memory 规则检查通过：命名规范、并发规则、错误处理（见 `memory/*.md`）
 - [ ] CodeGraph 查询验证：修改的符号影响范围与设计阶段一致
+- [ ] Graphify 概念归属验证：新符号的 community 归属合理（`graphify explain`），图谱完整性无回归（`graphify diagnose multigraph`）
 - [ ] 无回归：现有测试/编译全部通过
 - [ ] review.md 已填写：审查人、审查意见、修改记录
 

@@ -52,7 +52,7 @@ bash deploy_tools.sh /path/to/your/c/source
 # 2. 一键健康检查
 bash verify.sh
 
-# 3. 确认 12/12 通过
+# 3. 确认 14/14 通过
 #   [1/12] OpenSpec specs validation
 #   [2/12] CodeGraph MCP config
 #   [3/12] Graphify plugin

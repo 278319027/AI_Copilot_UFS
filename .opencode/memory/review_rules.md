@@ -125,10 +125,10 @@ SSD 固件代码 Review 规则。AI Review 代码时必须遵守，人工 Review
 
 ### 4.1 变更前必须查询
 
-1. 用 `impact` 查询变更文件的影响范围
-2. 用 `codegraph_callers` 验证修改函数的所有调用方
-3. 用 `find_by_imports` 验证修改头文件的所有包含方
-4. 用 `get_dependency_graph` 验证模块边界是否被破坏
+1. 用 `codegraph impact <file>` 查询变更文件的影响范围
+2. 用 `codegraph where <symbol>` 验证修改函数的所有调用方（v3.13.0+；旧版命令 `codegraph_callers` 已重命名）
+3. 用 `codegraph find_by_imports <header>` 验证修改头文件的所有包含方
+4. 用 `codegraph get_dependency_graph` 验证模块边界是否被破坏
 
 ### 4.2 特别关注
 
@@ -141,3 +141,20 @@ SSD 固件代码 Review 规则。AI Review 代码时必须遵守，人工 Review
 每条 Review 输出必须注明 CodeGraph 验证结果：
 - "CodeGraph 确认影响范围：3 个文件、5 个调用方"
 - "CodeGraph 未覆盖：函数指针调用 2 处（已用 symbol_search + 手工确认）"
+
+### 4.4 Graphify 概念归属验证（FEEDBACK 阶段）
+
+CodeGraph 验证**结构不变**之后，必须用 Graphify 验证**概念归属**：
+
+| 检查项 | 命令 | 期望 |
+|--------|------|------|
+| 新增符号的社区归属合理 | `graphify explain "<new_symbol>"` | 节点出现在与设计意图匹配的 community 中 |
+| 图谱完整性无回归 | `graphify diagnose multigraph` | `missing_endpoint_edges = 0`，`dangling_endpoint_edges = 0` |
+| 概念-文件映射未变 | `graphify query "<concept>"` 后对比前后结果 | 同概念命中的文件集未漂移（除本变更新增/修改的文件） |
+
+**已知限制**：Graphify 提取的是**函数/文件级别**节点（不深入到结构体字段、enum 值）。CodeGraph 抓字段。两者**互补不重叠**——单工具验证是不充分的。
+
+每条 Review 输出必须同时注明 Graphify 验证结果：
+- "Graphify 确认概念归属：新节点 `nr_gc_cycles` 在 community 35（bbssd 模块）"
+- "Graphify 图谱完整性：missing=0, dangling=0, self_loop=5（与本变更无关）"
+- "Graphify 概念漂移：query 'NVMe FLIP' 命中文件集未变"
