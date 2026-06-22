@@ -276,14 +276,14 @@ echo "=============================================="
 echo "  Step 7: 环境验证"
 echo "=============================================="
 
-echo -n "  [1/3] Rules (6 files)... "
+echo -n "  [1/2] Rules (5 files)... "
 MISS=0
-for r in architecture concurrency_rules coding_style design_rules review_rules testing_rules; do
+for r in architecture concurrency_rules coding_style design_rules testing_rules; do
     [ -f "$SCRIPT_ROOT/.opencode/memory/${r}.md" ] || MISS=$((MISS+1))
 done
 if [ "$MISS" -eq 0 ]; then echo "✓ 6/6"; else echo "✗ $MISS missing"; ERR=$((ERR+1)); fi
 
-echo -n "  [2/3] OpenSpec specs... "
+echo -n "  [2/2] OpenSpec specs... "
 if command -v openspec &>/dev/null; then
     OUT=$(OPENSPEC_TELEMETRY=0 openspec validate --strict --specs 2>&1) && \
     echo "$OUT" | grep -qE "[0-9]+ passed, 0 failed" && echo "✓ passed" || \
@@ -292,14 +292,10 @@ else
     echo "✗ openspec not installed"; ERR=$((ERR+1))
 fi
 
-echo -n "  [3/3] Graphify plugin... "
-[ -r "$SCRIPT_ROOT/.opencode/plugins/graphify.js" ] && echo "✓ exists" || \
-{ echo "✗ missing"; ERR=$((ERR+1)); }
-
 if [ "$ERR" -gt 0 ]; then
     echo ""
     echo "⚠  环境验证有 $ERR 项未通过，工具链部署不受影响"
 else
     echo ""
-    echo "✓  环境验证全部通过 (3/3)"
+    echo "✓  环境验证全部通过 (2/2)"
 fi

@@ -9,7 +9,6 @@
     }
   },
   "plugin": [
-    ".opencode/plugins/graphify.js",
     "superpowers@git+https://github.com/obra/superpowers.git"
   ]
 }

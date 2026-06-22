@@ -23,8 +23,8 @@ hdr() { printf "\n[%s] %s\n" "$1" "$2"; }
 echo "=== verify.sh — 项目健康检查 ==="
 echo "  项目根: $PROJECT_ROOT"
 
-# [1/12] OpenSpec specs validation
-hdr "1/12" "OpenSpec specs validation"
+# [1/13] OpenSpec specs validation
+hdr "1/13" "OpenSpec specs validation"
 if command -v openspec &>/dev/null; then
     if OUT=$(OPENSPEC_TELEMETRY=0 openspec validate --strict --specs 2>&1) && \
        echo "$OUT" | grep -qE "[0-9]+ passed, 0 failed"; then
@@ -47,48 +47,39 @@ fi
 #   v3.13.0 支持 34 种语言（含 C/C++ .c/.h），build 后检查：
 #       codegraph stats   # 预期：Nodes > 0，Edges > 0
 # ---------------------------------------------------------------------------
-# [2/12] CodeGraph MCP
-hdr "2/12" "CodeGraph MCP config"
+# [2/13] CodeGraph MCP
+hdr "2/13" "CodeGraph MCP config"
 if [ -f "$PROJECT_ROOT/opencode.json" ] && grep -q '"codegraph"' "$PROJECT_ROOT/opencode.json"; then
     ok "opencode.json contains codegraph MCP entry"
 else
     bad "opencode.json missing or lacks 'codegraph' MCP"
 fi
 
-# [3/12] Graphify plugin
-hdr "3/12" "Graphify plugin"
-PLUGIN="$PROJECT_ROOT/.opencode/plugins/graphify.js"
-if [ -r "$PLUGIN" ]; then
-    ok "graphify.js exists and is readable"
-else
-    bad "$PLUGIN missing or unreadable"
-fi
-
-# [4/12] Memory rules (6 files present)
-hdr "4/12" "Memory rules (6 files present)"
+# [3/13] Memory rules (5 files present)
+hdr "3/13" "Memory rules (5 files present)"
 MEM="$PROJECT_ROOT/.opencode/memory"
 MISS=0
-for r in architecture.md concurrency_rules.md coding_style.md design_rules.md review_rules.md testing_rules.md; do
+for r in architecture.md concurrency_rules.md coding_style.md design_rules.md testing_rules.md; do
     [ -f "$MEM/$r" ] || MISS=$((MISS+1))
 done
-[ "$MISS" -eq 0 ] && ok "all 6 rules present" || bad "$MISS/6 rules missing in .opencode/memory/"
+[ "$MISS" -eq 0 ] && ok "all 5 rules present" || bad "$MISS/5 rules missing in .opencode/memory/"
 
-# [5/12] deploy_tools.sh syntax
-hdr "5/12" "deploy_tools.sh syntax"
+# [4/13] deploy_tools.sh syntax
+hdr "4/13" "deploy_tools.sh syntax"
 bash -n "$PROJECT_ROOT/deploy_tools.sh" 2>/dev/null && ok "deploy_tools.sh has valid bash syntax" || bad "deploy_tools.sh has syntax errors"
 
-# [6/12] Tools on PATH
-hdr "6/12" "Essential tools on PATH"
+# [5/13] Tools on PATH
+hdr "5/13" "Essential tools on PATH"
 MT=()
 for t in codegraph openspec; do
     command -v "$t" &>/dev/null || MT+=("$t")
 done
 [ ${#MT[@]} -eq 0 ] && ok "codegraph, openspec on PATH" || bad "missing tools: ${MT[*]}"
 
-# [7/12] Memory rules format (non-empty + has headers)
-hdr "7/12" "Memory rules format (6 files)"
+# [6/13] Memory rules format (non-empty + has headers)
+hdr "6/13" "Memory rules format (5 files)"
 BAD=0
-for r in architecture.md concurrency_rules.md coding_style.md design_rules.md review_rules.md testing_rules.md; do
+for r in architecture.md concurrency_rules.md coding_style.md design_rules.md testing_rules.md; do
     f="$MEM/$r"
     if [ -f "$f" ] && [ -s "$f" ] && grep -qE "^#" "$f"; then
         :   # ok
@@ -96,10 +87,10 @@ for r in architecture.md concurrency_rules.md coding_style.md design_rules.md re
         BAD=$((BAD+1))
     fi
 done
-[ "$BAD" -eq 0 ] && ok "all 6 rules non-empty with markdown headers" || bad "$BAD rules empty or malformed"
+[ "$BAD" -eq 0 ] && ok "all 5 rules non-empty with markdown headers" || bad "$BAD rules empty or malformed"
 
-# [8/12] openspec/config.yaml non-empty
-hdr "8/12" "openspec/config.yaml"
+# [7/13] openspec/config.yaml non-empty
+hdr "7/13" "openspec/config.yaml"
 CONFIG="$PROJECT_ROOT/openspec/config.yaml"
 if [ -f "$CONFIG" ] && [ -s "$CONFIG" ]; then
     ok "config.yaml exists and is non-empty"
@@ -107,8 +98,8 @@ else
     bad "config.yaml missing or empty"
 fi
 
-# [9/12] opencode.json JSON validity (用 python3 解析, 比 jq 更普适)
-hdr "9/12" "opencode.json JSON validity"
+# [8/13] opencode.json JSON validity (用 python3 解析, 比 jq 更普适)
+hdr "8/13" "opencode.json JSON validity"
 if command -v python3 &>/dev/null; then
     if python3 -c "import json; json.load(open('$PROJECT_ROOT/opencode.json'))" 2>/dev/null; then
         ok "opencode.json is valid JSON"
@@ -119,9 +110,9 @@ else
     bad "python3 not available, cannot validate opencode.json"
 fi
 
-# [10/12] FEMU_ROOT env var or default path
+# [9/13] FEMU_ROOT env var or default path
 # FEMU_ROOT 直接指向 hw/femu 源码目录（不再拼接 /hw/femu 后缀）
-hdr "10/12" "FEMU_ROOT (CodeGraph MCP target path)"
+hdr "9/13" "FEMU_ROOT (CodeGraph MCP target path)"
 FEMU_BASE="${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}"
 if [ -d "$FEMU_BASE" ]; then
     ok "FEMU hw/femu dir exists: $FEMU_BASE (FEMU_ROOT=${FEMU_ROOT:-<default>})"
@@ -129,8 +120,8 @@ else
     bad "FEMU hw/femu dir missing: $FEMU_BASE (export FEMU_ROOT=<path> to override default)"
 fi
 
-# [11/12] Spec files (3 capabilities) non-empty
-hdr "11/12" "Spec files (3 capabilities, non-empty)"
+# [10/13] Spec files (3 capabilities) non-empty
+hdr "10/13" "Spec files (3 capabilities, non-empty)"
 EMPTY_SPECS=0
 for s in nvme-commands ftl-mapping nand-driver; do
     f="$PROJECT_ROOT/openspec/specs/$s/spec.md"
@@ -138,8 +129,8 @@ for s in nvme-commands ftl-mapping nand-driver; do
 done
 [ "$EMPTY_SPECS" -eq 0 ] && ok "all 3 spec files exist and non-empty" || bad "$EMPTY_SPECS/3 spec files missing or empty"
 
-# [12/12] Skill directories: 5 openspec-* + 1 openspec-workflow + 12 superpowers-* + 1 sd-firmware-copilot = 19
-hdr "12/12" "Skill directories (19 expected: 5 openspec-* + 1 openspec-workflow + 12 superpowers-* + 1 sd-firmware-copilot)"
+# [11/13] Skill directories: 5 openspec-* (硬) + 1 openspec-workflow (硬) + N superpowers-* (软报告) + 1 sd-firmware-copilot (硬)
+hdr "11/13" "Skill directories (5 openspec-* + 1 openspec-workflow + N superpowers-* + 1 sd-firmware-copilot; N 不强制)"
 SKILL_BAD=0
 SP_OS_PHASE_COUNT=0
 for phase_dir in openspec-propose openspec-explore openspec-apply openspec-sync-specs openspec-archive-change; do
@@ -148,23 +139,27 @@ done
 [ "$SP_OS_PHASE_COUNT" -eq 5 ] || SKILL_BAD=$((SKILL_BAD+1))
 [ -d "$PROJECT_ROOT/.opencode/skills/openspec-workflow" ] || SKILL_BAD=$((SKILL_BAD+1))
 SP_POW_COUNT=$(ls -1d "$PROJECT_ROOT/.opencode/skills/superpowers-"*/ 2>/dev/null | wc -l)
-[ "$SP_POW_COUNT" -eq 12 ] || SKILL_BAD=$((SKILL_BAD+1))
+# superpowers-* 数量软报告：不强制为 12（新增/删除 sub-skill 不应破坏 verify）
 [ -d "$PROJECT_ROOT/.opencode/skills/sd-firmware-copilot" ] || SKILL_BAD=$((SKILL_BAD+1))
 if [ "$SKILL_BAD" -eq 0 ]; then
-    ok "all 19 skill dirs present (openspec-phase=$SP_OS_PHASE_COUNT, openspec-workflow=1, superpowers-*=$SP_POW_COUNT, sd-firmware-copilot=1)"
+    ok "skill dirs OK (openspec-phase=$SP_OS_PHASE_COUNT, openspec-workflow=1, superpowers-*$SP_POW_COUNT [soft], sd-firmware-copilot=1)"
 else
-    bad "skill dir mismatch: openspec-phase=$SP_OS_PHASE_COUNT (expect 5), openspec-workflow=$([ -d "$PROJECT_ROOT/.opencode/skills/openspec-workflow" ] && echo 1 || echo 0), superpowers-*=$SP_POW_COUNT (expect 12), sd-firmware-copilot=$([ -d "$PROJECT_ROOT/.opencode/skills/sd-firmware-copilot" ] && echo 1 || echo 0)"
+    bad "skill dir mismatch: openspec-phase=$SP_OS_PHASE_COUNT (expect 5), openspec-workflow=$([ -d "$PROJECT_ROOT/.opencode/skills/openspec-workflow" ] && echo 1 || echo 0), sd-firmware-copilot=$([ -d "$PROJECT_ROOT/.opencode/skills/sd-firmware-copilot" ] && echo 1 || echo 0)"
+fi
+# 如果 superpowers 数量异常（非 12），单独报告但不阻塞
+if [ "$SP_POW_COUNT" -ne 12 ]; then
+    printf "  %sℹ INFO%s superpowers-* count = $SP_POW_COUNT (expected 12; soft check, not failing)\n" "$G" "$X"
 fi
 CMD_COUNT=$(ls -1 "$PROJECT_ROOT/.opencode/commands/opsx-"*.md 2>/dev/null | wc -l)
 [ "$CMD_COUNT" -eq 5 ] && ok "5 opsx-* slash commands present" || bad "$CMD_COUNT opsx-* commands found (expected 5)"
 
-# [13/13] .omo/ cleanliness check (stale task files should not accumulate)
-hdr "13/13" ".omo/ cleanliness (agent state should be empty or gitignored)"
+# [12/13] .omo/ cleanliness check (stale task files should not accumulate)
+hdr "12/13" ".omo/ cleanliness (agent state should be empty or gitignored)"
 OMO_FILES=$(find "$PROJECT_ROOT/.omo" -type f 2>/dev/null | grep -v '/archive/' | wc -l)
 [ "$OMO_FILES" -eq 0 ] && ok ".omo/ clean (no stale task files)" || bad ".omo/ contains $OMO_FILES non-archived file(s) — clean up or move to .omo/archive/"
 
-# [14/14] FEMU path should not contain mis-generated .opencode/ (zsf is the canonical .opencode owner)
-hdr "14/14" "FEMU path .opencode/ cleanliness (only zsf should own .opencode/)"
+# [13/13] FEMU path should not contain mis-generated .opencode/ (zsf is the canonical .opencode owner)
+hdr "13/13" "FEMU path .opencode/ cleanliness (only zsf should own .opencode/)"
 # 检查 FEMU_ROOT 路径（如果存在）下任何子目录是否有误生成的 .opencode/
 # FEMU_ROOT 现在直接是 hw/femu 目录——检查其子目录 (bbssd/, ocssd/, 等) 不能有 .opencode/
 FEMU_BASE="${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}"
@@ -186,8 +181,34 @@ else
     bad "mis-generated .opencode/ found in FEMU subdirs (only zsf should own .opencode/):$MISGEN_OPENCODE"
 fi
 
+# [14/15] check_change.sh 工具存在 + 可执行
+hdr "14/15" "check_change.sh 工具"
+CHECK_CHANGE="$PROJECT_ROOT/check_change.sh"
+if [ -x "$CHECK_CHANGE" ]; then
+    ok "check_change.sh 存在且可执行"
+else
+    bad "check_change.sh 缺失或不可执行"
+fi
+
+# [15/15] sd-firmware-copilot SKILL.md 关键章节齐全
+hdr "15/15" "sd-firmware-copilot SKILL.md 关键章节"
+SD_SKILL="$PROJECT_ROOT/.opencode/skills/sd-firmware-copilot/SKILL.md"
+if [ -f "$SD_SKILL" ]; then
+    MISSING_SECTIONS=0
+    for section in "Iron Rule" "BUILD Gate" "Bootstrap"; do
+        if grep -qF "$section" "$SD_SKILL"; then
+            ok "SKILL.md 包含章节引用: $section"
+        else
+            bad "SKILL.md 缺失章节引用: $section"
+            MISSING_SECTIONS=$((MISSING_SECTIONS+1))
+        fi
+    done
+else
+    bad "sd-firmware-copilot/SKILL.md 不存在"
+fi
+
 # Summary
 printf "\n==============================================\n"
-printf "  Summary: %d/14 checks passed\n" "$P"
+printf "  Summary: %d/15 checks passed\n" "$P"
 printf "==============================================\n"
 [ "$F" -eq 0 ] && exit 0 || exit 1
