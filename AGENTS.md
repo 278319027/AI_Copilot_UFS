@@ -12,13 +12,13 @@ CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其�
 | **默认值** | `/home/zsf/AI_Proj/femu/hw/femu` |
 | **直接路径** | `FEMU_ROOT` 即为目标 SSD 固件 `hw/femu` 源码目录（不拼接任何子路径） |
 | **用途** | CodeGraph MCP 服务的 `--path` 参数 (被 opencode.json ${VAR:-default} 展开) |
-| **验证命令** | `bash verify.sh` 中的 `[10/12] FEMU_ROOT` 检查 (或直接 `test -d ${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}`) |
+| **验证命令** | `bash verify.sh` 中的 `[9/15] FEMU_ROOT` 检查 (或直接 `test -d ${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}`) |
 
 覆盖示例: `export FEMU_ROOT=/opt/ssd-firmware/hw/femu` — 则 CodeGraph 索引 `/opt/ssd-firmware/hw/femu`。
 
 ## graphify
 
-本项目配置了 Graphify 知识图谱插件（`.opencode/plugins/graphify.js`）。在目标代码库（非 zsf 自身）运行 `graphify update <子目录>` 后，会生成 `graphify-out/` 知识图谱（god nodes、社区结构、跨文件关系）。
+在目标代码库（非 zsf 自身）运行 `graphify update <子目录>` 后，会生成 `graphify-out/` 知识图谱（god nodes、社区结构、跨文件关系）。
 
 当用户输入 `/graphify` 时，直接运行 graphify CLI 命令（graphify query/path/explain/update）。
 
@@ -32,7 +32,7 @@ CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其�
 
 ## .opencode 归属规则
 
-**zsf 是 `.opencode/` 目录的唯一所有者**。`.opencode/{commands,memory,skills,plugins}/` 是项目级方法论资产，跟随 zsf 仓库版本控制。
+**zsf 是 `.opencode/` 目录的唯一所有者**。`.opencode/{commands,memory,skills}/` 是项目级方法论资产，跟随 zsf 仓库版本控制。
 
 OpenCode Agent 在不同工作目录运行时，**应向上查找**到 zsf 仓库根目录加载 `.opencode/`，**不应**在以下位置创建 `.opencode/`：
 
@@ -40,7 +40,7 @@ OpenCode Agent 在不同工作目录运行时，**应向上查找**到 zsf 仓�
 - ❌ `<femu 仓库根>/.opencode/`（femu 仓库根，非 zsf）— 仅当 femu 是独立工作区时才允许
 - ❌ 任何目标代码库子目录内的 `.opencode/`
 
-如果发现误生成（`verify.sh [14/14]` 会自动检测），执行 `rm -rf <误生成路径>/.opencode/`，并通过在 zsf 仓库根启动 OpenCode Agent 来修复（保证向上查找找到 zsf 自己的 `.opencode/`）。
+如果发现误生成（`verify.sh [13/15]` 会自动检测），执行 `rm -rf <误生成路径>/.opencode/`，并通过在 zsf 仓库根启动 OpenCode Agent 来修复（保证向上查找找到 zsf 自己的 `.opencode/`）。
 
 **为什么不允许**：方法论层（zsf）与目标代码库（femu）解耦是核心架构原则。在 femu 子目录创建 `.opencode/` 会让 femu 仓库的"运行环境"被方法论层锁死——换 SSD 固件代码库时必须重新部署。同时误生成的副本会与 zsf 自己的 `.opencode/` 不同步（出现 skill 名字不一致、规则过时等问题）。
 

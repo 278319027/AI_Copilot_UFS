@@ -21,6 +21,8 @@ description: Stage 3 of OpenSpec 5-phase lifecycle — implement tasks.md one ta
 4. **必读 contextFiles**（不只是 `tasks.md`）
 5. 逐个 pending task：最小改动 → 勾选 `- [x]` → 验证 → 下一个
 
-**TDD 双路径**（嵌入 C）：
-- **Path A**（纯逻辑）：红→绿→重构
-- **Path B**（硬件依赖）：BUILD 编译即验证，FEEDBACK 阶段测
+**测试纪律**（test-after）：
+- 实现代码后补充测试，覆盖正常路径、边界条件、错误路径
+- 纯逻辑代码：单元测试验证
+- 硬件依赖代码（MMIO/ISR/DMA）：通过 HAL 抽象使业务逻辑可测；不可测路径在 review.md 中标注
+- 注入验证：每条测试路径至少做一次 bug 注入→测试失败→撤销→恢复通过的循环

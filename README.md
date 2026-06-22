@@ -10,7 +10,7 @@
 bash deploy_tools.sh /path/to/c-source
 
 # 2. 验证环境
-bash verify.sh    # 确认 14/14 通过
+bash verify.sh    # 确认 15/15 通过
 
 # 3. 选一条路径开始（在 OpenCode IDE 中）
 #    路径 A（有设计文档）→ /opsx:propose <change-name>
@@ -73,7 +73,7 @@ PLAN → BUILD → FEEDBACK: 同路径 A
 | 序号 | 文档 | 内容 |
 |------|------|------|
 | 1 | [项目导航](docs/navigation.md) | 完整结构地图 + 按角色找文件 + 配置索引 + **zsf 与目标代码库关系** |
-| 2 | [方法论](SSD_Firmware_AI_Copilot_Methodology.md) | 双路径、四阶段闭环、四条铁律 |
+| 2 | [方法论概览](docs/navigation.md#方法论概览) | 双路径、四阶段闭环、五级门禁、四条铁律 |
 | 3 | [路线图](docs/roadmap.md) | 实施进度与规划 |
 | 4 | [维护者指南](docs/maintainer.md) | 日常操作、FAQ、变更记录 |
 

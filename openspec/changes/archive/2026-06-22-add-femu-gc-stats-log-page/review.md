@@ -35,20 +35,20 @@
 
 ---
 
-### CodeGraph 验证 (review_rules.md §4.1)
+### CodeGraph 验证 (ssd-review-rules.md §4.1)
 
 | 查询 | 结果 |
 |------|------|
 | `codegraph where nvme_femu_gc_stats_info` | 1 caller: `nvme_get_log` (nvme-admin.c:1203) — 与设计预期一致 ✅ |
 | `codegraph impact nvme.h` | L1: 17 files. 新增 enum + struct 是 additive, **无 ABI 破坏** ✅ |
-| `codegraph where "nr_gc_cycles"` | **false positive**: 标记为 `dead-leaf` 实际有 4 个使用点 (bb.c:69,70,72 + ftl.c:887)。CodeGraph AST 不跟踪 `ssd->n->` 间接访问 (已知限制，见 review_rules.md §4.2) |
+| `codegraph where "nr_gc_cycles"` | **false positive**: 标记为 `dead-leaf` 实际有 4 个使用点 (bb.c:69,70,72 + ftl.c:887)。CodeGraph AST 不跟踪 `ssd->n->` 间接访问 (已知限制，见 ssd-review-rules.md §4.2) |
 | `codegraph where "nr_gc_data_moves"` | 同样 false positive, grep 验证 2 个使用点 (bb.c:70,72 + ftl.c:1902) ✅ |
 
 **CodeGraph 声明**: 1 caller, 0 file-level cycles, additive change, false positives 已用 grep 补充验证。
 
 ---
 
-### Graphify 概念归属验证 (review_rules.md §4.4) — 升级后方法论核心
+### Graphify 概念归属验证 (ssd-review-rules.md §4.4) — 升级后方法论核心
 
 | 检查项 | 命令 | 期望 | 实际 | 状态 |
 |--------|------|------|------|------|
@@ -59,7 +59,7 @@
 
 **Graphify 声明**: 新节点 `nvme_femu_gc_stats_info` 在 community 0 (与 `nvme_get_log` 同社区，设计意图一致)。图谱完整性保持 (missing=0, dangling=0)。概念-文件映射正确扩展，无意外漂移。
 
-**已知限制** (review_rules.md §4.4): Graphify 节点粒度是函数/文件级，不抓 enum 值或 struct 字段。CodeGraph 补抓字段。两者**互补**已用于本次审查。
+**已知限制** (ssd-review-rules.md §4.4): Graphify 节点粒度是函数/文件级，不抓 enum 值或 struct 字段。CodeGraph 补抓字段。两者**互补**已用于本次审查。
 
 ---
 
@@ -142,7 +142,7 @@ Totals: 3 passed, 0 failed (3 items)
 | KNOW 工具 | 仅 CodeGraph | **CodeGraph + Graphify 双源** | ✅ |
 | Graphify 概念归属验证 | 未做 | **必须 (3 项检查)** | ✅ |
 | CodeGraph 索引 freshness | 旧的（未重建） | **重建后再查** | ✅ |
-| false positive 标记 | 未标记 | **明确标注 (review_rules.md §4.4)** | ✅ |
+| false positive 标记 | 未标记 | **明确标注 (ssd-review-rules.md §4.4)** | ✅ |
 | Inject validation 严格度 | 仅编译通过 | **含 "编译失败 = case 必须存在" 验证** | ✅ |
 
 **关键收获**: 升级后的方法论 (dc114b3 commit) 通过 Graphify 概念归属验证，**第一次实际证明了新代码在正确的 community**。这是上轮 P0 实战**完全没做**的检查——上轮只验证了"代码与 spec 一致"和"编译通过"，但没验证"新代码与已有代码的语义关系正确"。

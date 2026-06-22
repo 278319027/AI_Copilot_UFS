@@ -62,7 +62,7 @@ The `implement-flip-reset-gc-stats` change added `nr_gc_cycles` and `nr_gc_data_
 | Host reads counters mid-GC, sees torn read (rare but possible) | Documented in spec: "values are read non-atomically; minor skew is possible if GC is in progress at the read time." Acceptable for diagnostic use case. |
 | LID 0xC0 collides with a future NVMe spec assignment | LID 0xC0 is in vendor-specific range (0xC0-0xFF); extremely low risk. |
 | Adding to `nvme_get_log` switch increases complexity (cyclomatic complexity) | New case is 1 line; switch goes from 10 cases to 11. Negligible complexity impact. |
-| CodeGraph AST doesn't track field accesses via `ssd->n->...` indirect (known false-positive "dead-leaf" report) | Documented in review.md. Use grep as supplementary verification per `memory/review_rules.md` §4.2. |
+| CodeGraph AST doesn't track field accesses via `ssd->n->...` indirect (known false-positive "dead-leaf" report) | Documented in review.md. Use grep as supplementary verification per `ssd-review-rules.md` §4.2. |
 
 ## Migration Plan
 

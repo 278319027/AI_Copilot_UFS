@@ -28,7 +28,7 @@
 | `concurrency_rules.md` (并发) | ✅ 无锁/原子/中断场景。`do_gc()` 在 poller 线程中调用，`bb_flip()` 在 NVMe admin 命令处理中调用，与现有 `nr_tt_ios` 访问模式一致（非并发） | 无需新增并发约束 |
 | `design_rules.md` (设计) | ✅ 状态机不变、模块边界不破坏（NVMe→FTL 已有 `ssd->n->...` 通道），资源管理无变化（无新 buffer/状态） | 资源管理零变化 |
 | `testing_rules.md` (测试) | ✅ 必测模块（FTL/NVMe）相关代码已变更，但本环境为 Path B（硬件依赖代码），test-after + 注入验证模式（见 Task 4 & 5 证据） | 测试场景清单已列于 tasks.md |
-| `review_rules.md` (审查) | ✅ 4 文件, 11 行, 零 P0/P1/P2 问题。所有关键检查项已覆盖 | 见本 review |
+| `ssd-review-rules.md` (审查) | ✅ 4 文件, 11 行, 零 P0/P1/P2 问题。所有关键检查项已覆盖 | 见本 review |
 
 ---
 

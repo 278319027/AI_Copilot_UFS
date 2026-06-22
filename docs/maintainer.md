@@ -52,15 +52,22 @@ bash deploy_tools.sh /path/to/your/c/source
 # 2. 一键健康检查
 bash verify.sh
 
-# 3. 确认 14/14 通过
-#   [1/12] OpenSpec specs validation
-#   [2/12] CodeGraph MCP config
-#   [3/12] Graphify plugin
-#   [4/12] Memory rules (6 files present)
-#   [5/12] deploy_tools.sh syntax
-#   [6/12] Essential tools on PATH
-#   [7/12] Memory rules format (6 files)
-#   [8/12] openspec/config.yaml
+# 3. 确认 15/15 通过
+#   [1/13] OpenSpec specs validation
+#   [2/13] CodeGraph MCP config
+#   [3/13] Memory rules (5 files present)
+#   [4/13] deploy_tools.sh syntax
+#   [5/13] Essential tools on PATH
+#   [6/13] Memory rules format (5 files)
+#   [7/13] openspec/config.yaml
+#   [8/13] opencode.json JSON validity
+#   [9/13] FEMU_ROOT
+#   [10/13] Spec files (3 capabilities)
+#   [11/13] Skill directories
+#   [12/13] .omo/ cleanliness
+#   [13/15] FEMU path .opencode/ cleanliness
+#   [14/15] check_change.sh 工具
+#   [15/15] sd-firmware-copilot SKILL.md 关键章节
 ```
 
 ## 日常操作
@@ -121,13 +128,13 @@ bash verify.sh    # 只读检查，不修改任何文件
 | 路径 | 一句话说明 |
 |------|-----------|
 | `deploy_tools.sh` | 一键部署五件套工具链 |
-| `verify.sh` | 一键健康检查（12 项） |
+| `verify.sh` | 一键健康检查（15 项） |
 | `openspec/` | 规格层：基线 `specs/` + 活跃变更 `changes/` |
 | `.opencode/skills/superpowers-*/` | 工程纪律层（12 子技能），入口整合至 `sd-firmware-copilot/SKILL.md §Superpowers 框架整合` |
 | `.opencode/skills/openspec-workflow/` | OpenSpec 概念层（Iron Rules + 5 phase 路由），5 phase skill 见 `openspec-{phase}/` |
 | `.opencode/commands/opsx-*.md` | 5 个原生 slash 命令（propose/explore/apply/sync/archive） |
 | `.opencode/skills/sd-firmware-copilot/` | SSD 领域规则 + 规格管理 |
-| `.opencode/memory/` | 6 个编码规则文件（架构/并发/编码/设计/审查/测试） |
+| `.opencode/memory/` | 5 个编码规则文件（架构/并发/编码/设计/测试）；Review 规则在 `superpowers-requesting-code-review/ssd-review-rules.md` |
 | `docs/` | 人类文档：navigation.md、roadmap.md、本文档 |
 | `AGENTS.md` | AI 运行时指令（graphify / openspec / superpowers 规则） |
 
@@ -137,8 +144,8 @@ bash verify.sh    # 只读检查，不修改任何文件
 
 - **OpenSpec 失败** → 检查 `openspec validate --strict --specs` 输出，修复 YAML 语法或缺失字段
 - **CodeGraph MCP 失败** → 确认 `opencode.json` 包含 `"codegraph"` MCP 条目
-- **Graphify plugin 失败** → 确认 `.opencode/plugins/graphify.js` 存在且可读
-- **Memory rules 失败** → 检查 `.opencode/memory/` 下 6 个 `.md` 是否齐全
+- **Graphify 失败** → 运行 `graphify update <子目录>` 检查图谱，参考 `.opencode/memory/architecture.md §5` 规则
+- **Memory rules 失败** → 检查 `.opencode/memory/` 下 5 个 `.md` 是否齐全
 - **Tools on PATH 失败** → 运行 `bash deploy_tools.sh` 重新安装缺失工具
 
 ### deploy_tools.sh 安装失败怎么办？
@@ -162,7 +169,7 @@ OPENSPEC_TELEMETRY=0 openspec validate --strict --specs
 
 ### 如何添加新的 memory/ 规则？
 
-在 `.opencode/memory/` 新建 `.md` 文件即可，Agent 会自动加载。建议遵循现有 6 文件的分类（architecture / design / coding / concurrency / review / testing），如需新增类别，同步更新 `verify.sh` 的检查列表。
+在 `.opencode/memory/` 新建 `.md` 文件即可，Agent 会自动加载。建议遵循现有 5 文件的分类（architecture / design / coding / concurrency / testing），如需新增类别，同步更新 `verify.sh` 的检查列表。Review 规则已在 `superpowers-requesting-code-review/ssd-review-rules.md`，按需加载。
 
 ## 变更记录
 

@@ -29,25 +29,26 @@
 主工具: ops-codegraph（MCP 服务器，30+ 工具）
 > 当前部署于 FEMU 项目 `../femu/hw/femu/`
 
-| 场景 | MCP 工具 |
+| 场景 | MCP 工具（v3.13.0+） |
 |------|---------|
-| 谁调用了函数 X | `codegraph_callers` |
-| 函数 X 调用了谁 | `get_callees` |
-| 结构体在哪里被使用 | `symbol_search` + `find_by_imports` |
-| 修改文件的影响范围 | `impact` |
-| 模块间依赖 | `get_dependency_graph` |
-| #include 依赖 | `find_by_imports` |
-| 宏使用 | `find_by_pattern` |
+| 谁调用了函数 X | `codegraph where <symbol>` |
+| 函数 X 调用了谁 | `codegraph callees <symbol>` |
+| 函数定义 + 复杂度 | `codegraph context <func>` |
+| 修改文件的影响范围 | `codegraph impact <file>` |
+| 结构体/符号搜索 | `codegraph symbol_search` |
+| 模块间依赖图 | `codegraph dependency_graph` |
+| #include 依赖 | `codegraph find_by_imports` |
+| 宏使用 | `codegraph find_by_pattern` |
 | 函数指针调用 | ⚠️ 有限 — 用 `symbol_search` 查注册点 + 手工读 dispatch 函数 |
 
 补充工具: ctags（命令行）
 
 ### 4.3 查询结果使用规则
 
-- 修改任何接口前，必须先查询 `impact`
-- 修改任何结构体前，必须先查询 `symbol_search` + `find_by_imports`
-|- 修改任何函数签名前，必须先查询 `codegraph_callers`
-- 新增模块前，必须先了解 `get_dependency_graph`
+- 修改任何接口前，必须先查询 `codegraph impact`
+- 修改任何结构体前，必须先查询 `codegraph symbol_search` + `codegraph find_by_imports`
+- 修改任何函数签名前，必须先查询 `codegraph where <symbol>` 列直接调用方
+- 新增模块前，必须先了解 `codegraph dependency_graph`
 - **函数指针相关查询：CodeGraph AST 不追踪间接调用，用 `symbol_search` 查注册点 + 手工读 dispatch 函数**
 
 ### 4.4 ops-codegraph 安装与配置
@@ -56,7 +57,7 @@
 - 安装: `npm install -g @optave/codegraph`
 - 构建索引: `codegraph build`
 |- 查询统计: `codegraph status`
-- MCP 服务器: `codegraph mcp`
+- MCP 服务器: `codegraph serve --mcp`（见 `opencode.json` 的 `mcp.codegraph.command`）
 
 ## 5. Graphify 查询规则
 

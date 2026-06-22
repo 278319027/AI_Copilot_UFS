@@ -18,7 +18,7 @@
 
 | 任务 | 状态 | 产出 |
 |------|------|------|
-| 编写 Memory V1 | ✅ | 6 个规则文件 |
+| 编写 Memory V1 | ✅ | 5 个规则文件（review 规则后迁至 skill） |
 | 拆分领域 Skill | 🔲 | NAND_driver/NVMe_cmd 等 |
 | 建立效果度量 | 🔲 | 度量指标定义和收集 |
 | 模型对比测试 | 🔲 | 不同规模模型对比 |
@@ -69,14 +69,14 @@
 | 并行 Agent 调度 | ✅ | subagent-driven / dispatching-parallel |
 | KNOW→PLAN→BUILD→FEEDBACK 闭环 | ✅ | 文档同步更新 |
 
-### Phase 8：四工具架构试点 🔲 待做
+### Phase 8：四工具架构试点 🟡 部分完成
 
 | 任务 | 状态 | 产出 |
 |------|------|------|
-| `/opsx:propose` 试点真实需求 | 🔲 | 验证 propose→apply→archive 闭环 |
-| 强制测试覆盖 | 🔲 | 验证 test-after 纪律（正常/边界/错误路径全覆盖） |
-| 强制 verification-before-completion | 🔲 | 验证完成纪律 |
-| 收集 Superpowers 拦截数据 | 🔲 | 测试覆盖率、verification 失败次数等 |
+| `/opsx:propose` 试点真实需求 | ✅ | 2 个 OpenSpec 变更已完成全闭环（`2026-06-22-add-femu-gc-stats-log-page`、`2026-06-22-implement-flip-reset-gc-stats`） |
+| 强制测试覆盖 | ✅ | test-after 纪律 + 注入验证已在 2 个变更中落地 |
+| 强制 verification-before-completion | ✅ | 5 级门禁（Proposal/Design/BUILD/Review/Archive）在 2 个变更中执行 |
+| 收集 Superpowers 拦截数据 | 🔲 | 测试覆盖率、verification 失败次数等（待做） |
 
 ---
 
