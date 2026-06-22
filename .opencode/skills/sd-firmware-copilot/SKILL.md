@@ -342,7 +342,7 @@ openspec validate --strict --specs
 
 ## Superpowers 框架整合
 
-本 skill 是 zsf 的"sole integrating skill"。下层 Superpowers 14 个 sub-skill 协同工作：4 条 Iron Rules 强制执行，Bootstrap 决策表告诉 AI 在哪种场景下加载哪个 sub-skill，阶段转换触发器串联四阶段闭环。
+本 skill 是 zsf 的"sole integrating skill"。下层 Superpowers 12 个 sub-skill 协同工作：4 条 Iron Rules 强制执行，Bootstrap 决策表告诉 AI 在哪种场景下加载哪个 sub-skill，阶段转换触发器串联四阶段闭环。
 
 ### Iron Rules（4 条，不可妥协）
 
@@ -384,7 +384,7 @@ openspec validate --strict --specs
 - [ ] 即将「写生产代码」？→ 使用 `superpowers-test-driven-development` 并按 Path A/B 走
 - [ ] 即将「合并」？→ 使用 `superpowers-requesting-code-review` 并完成 Review Gate
 
-### Skill map 速查（14 sub-skill）
+### Skill map 速查（12 sub-skill）
 
 | Sub-skill | 何时调用 |
 |-----------|----------|
