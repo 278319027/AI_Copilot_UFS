@@ -15,7 +15,7 @@ OpenSpec CLI 管理 `openspec/specs/`（基线）与 `openspec/changes/{id}/`（
 ## Three Iron Rules
 
 - **Spec changes are the authoritative source of system behavior.** Read `openspec/specs/` before changing documented behavior.
-- **Every change passes four gates:** Proposal Gate → Design Gate → Review Gate → Archive.
+- **Every change passes five gates:** Proposal Gate → Design Gate → BUILD Gate → Review Gate → Archive.
 - **Never delete `openspec/changes/` entries.** They form the audit trail.
 
 ## 5 Phase 路由表

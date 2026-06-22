@@ -37,7 +37,9 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
               ↓
          Design Gate（架构 OK）
               ↓
-         编码（BUILD）
+         BUILD Gate（Superpowers 纪律检查）
+              ↓
+         编码（BUILD）+ Path A/B 验证
               ↓
          Review Gate（代码匹配 spec）
               ↓
@@ -45,6 +47,8 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
               ↓
          baseline
 ```
+
+> 五门禁：Proposal → Design → BUILD → Review → Archive。BUILD Gate 是 2026-06-22 `add-gc-stats-flip` 变更暴露缺口后新增。
 
 > 详细步骤 → [openspec-workflow](../openspec-workflow/SKILL.md)。每个门禁都有对应工件（`proposal.md` / `design.md` / `tasks.md`，加上 `specs/` 增量作为第 4 个产出）。
 
@@ -69,21 +73,32 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
 
 ## BUILD 阶段
 
-### 前置检查
+### BUILD Gate（纪律 OK）
 
-1. `tasks.md` 所有 Task 就绪，blockedBy 解析
-2. CodeGraph 探索完成（影响范围明确）
-3. 理解现有代码模式（错误处理、并发、日志）
+Design Gate 通过后、**写第一行代码前**，必须通过 BUILD Gate。此门禁验证 AI 已加载所有必需的 Superpowers 工程纪律 skill——与 Proposal/Design/Review/Archive Gate 同级强制。
 
-### 实现流程 — 强制加载 Superpowers
+#### 为什么需要 BUILD Gate
 
-> **🚨 在写第一行代码前**加载 `superpowers` 主框架及其子 skill（通过 `skill()` 工具逐一显式加载）：
-> 1. `skill(name="superpowers")` — 加载框架决策表
-`skill(name="superpowers-executing-plans")` — 按 tasks.md 顺序，逐条勾选
-`skill(name="superpowers-verification-before-completion")` — 完成前验证命令 + 读输出
-`skill(name="superpowers-subagent-driven-development")` 或 `skill(name="superpowers-dispatching-parallel-agents")` — 多任务/并行调度（按需）
-`skill(name="superpowers-test-driven-development")` — Path A 纯逻辑 / Path B 硬件依赖（按需）
-> 缺一（上述 2-3）= 铁律失效。触发场景 → [本 skill §Superpowers 框架整合](#superpowers-框架整合)。
+Superpowers skill 不是"建议"，是铁律。未加载 skill 直接编码 = 无 TDD、无任务跟踪、无验证证据——这是 2026-06-22 `add-gc-stats-flip` 变更暴露的失败模式：代码正确但纪律缺失，方法论遵循度仅 70%。
+
+#### Checklist
+
+- [ ] 已加载 `superpowers-test-driven-development`（Path A 纯逻辑 / Path B 硬件依赖）
+- [ ] 已加载 `superpowers-executing-plans`（按 tasks.md 顺序逐条 `- [x]`）
+- [ ] 已加载 `superpowers-verification-before-completion`（完成前必须实际运行验证命令并捕获证据）
+- [ ] 已加载 `superpowers-subagent-driven-development` 或 `superpowers-dispatching-parallel-agents`（多任务调度，按需）
+- [ ] CodeGraph 探索完成（影响范围明确）
+- [ ] 已理解现有代码模式（错误处理、并发、日志）
+- [ ] `tasks.md` 所有 Task 就绪，blockedBy 解析无循环
+- [ ] 确认变更类型：Path A（纯逻辑 → TDD 红绿重构）/ Path B（硬件依赖 → 编译验证）
+
+**校验**：`skill()` 工具调用记录中必须包含上述 4 个 skill 的加载记录。任一缺失 = BUILD Gate 未通过，禁止编码。
+
+#### 人工确认
+
+AI 完成 BUILD Gate checklist 并声明 "BUILD Gate 通过" 后方可开始实现。AI 必须在声明中列出已加载的 skill 名称。
+
+---
 
 ### 子代理调度策略
 
@@ -104,6 +119,7 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
 - 禁止：`as any`、`@ts-ignore`、空 catch、抑制类型错误
 - 变量/函数名用英文，注释/文档用中文
 - 硬件依赖验证（如 QEMU 运行时测试）：若 KVM/root/硬件环境暂不可用，编译通过 + `verify.sh` 可视作阶段验证完成，待环境就绪后补测
+- **Path B 编译验证后**：必须运行 `graphify update . --force` 更新知识图谱
 
 ## FEEDBACK 阶段
 
@@ -207,9 +223,9 @@ The <layer> SHALL <behavior>.
 
 **3 个不可违反的规则**：(1) Scenario 强制 4 个 `#`（3 个 `#` 静默失败）；(2) 规范词 SHALL / MUST，避免 should / may；(3) 每个 Scenario 必须是潜在测试用例。
 
-### 四级门禁（Proposal → Design → Review → Archive）
+### 五级门禁（Proposal → Design → BUILD → Review → Archive）
 
-每个变更必须经过四级门禁。每级门禁有**输入工件**、**通过标准（Checklist）**、**校验命令**、**人工确认点**。
+每个变更必须经过五级门禁。每级门禁有**输入工件**、**通过标准（Checklist）**、**校验命令**、**人工确认点**。BUILD Gate 不产生新 spec 工件，但强制 AI 在编码前加载所有必需的 Superpowers 纪律 skill。
 
 #### 简化豁免规则
 
@@ -217,7 +233,7 @@ The <layer> SHALL <behavior>.
 |----------|----------|----------|
 | 单文件 bugfix | Proposal Gate（人工确认即可） | Design Gate（简述影响范围）、Review Gate、Archive Gate |
 | 文档/注释/配置变更 | Proposal Gate、Design Gate | Review Gate（文档 review）、Archive Gate（如影响 spec） |
-| 跨模块重构 | 无豁免 | 完整四级门禁 + CodeGraph 影响分析 |
+| 跨模块重构 | 无豁免 | 完整五级门禁 + CodeGraph 影响分析 |
 
 ---
 
@@ -329,7 +345,7 @@ openspec validate --strict --specs
 
 | 规则 | 关系 |
 |------|------|
-| `memory/design_rules.md` | 四级门禁统一定义 |
+| `memory/design_rules.md` | 五级门禁统一定义 |
 | `memory/{review,testing,architecture}_rules.md` | 门禁检查项引用 / 可验证性落地 / CodeGraph 查询 |
 | `openspec-workflow/SKILL.md` | CLI 与 zsf 流程衔接 |
 | 本 Skill BUILD 阶段 | 开发工件对应规格层 |

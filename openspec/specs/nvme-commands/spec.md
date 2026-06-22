@@ -193,3 +193,43 @@ The NVMe command layer MUST depend only on the FTL public interface and the plat
 - **WHEN** an AI agent inspects the include graph
 - **THEN** there MUST be no `#include` of any NAND driver header from the NVMe layer
 - **AND THEN** the only allowed dependency on flash operations MUST go through `ftl_*` calls
+
+### Requirement: FEMU FLIP Admin Command Dispatch
+
+The NVMe command layer SHALL support `NVME_ADM_CMD_FEMU_FLIP` (opcode 0xef) to dynamically toggle FEMU runtime behaviors. The command SHALL interpret cdw10 as the FLIP operation selector.
+
+The supported cdw10 operation codes SHALL be:
+
+| cdw10 Value | Operation | Behavior |
+|-------------|-----------|----------|
+| 1 | FEMU_ENABLE_GC_DELAY | Enable GC delay emulation |
+| 2 | FEMU_DISABLE_GC_DELAY | Disable GC delay emulation |
+| 3 | FEMU_ENABLE_DELAY_EMU | Enable NAND latency emulation |
+| 4 | FEMU_DISABLE_DELAY_EMU | Disable NAND latency emulation |
+| 5 | FEMU_RESET_ACCT | Reset IO accounting counters (nr_tt_ios, nr_tt_late_ios) |
+| 6 | FEMU_ENABLE_LOG | Enable detailed logging |
+| 7 | FEMU_DISABLE_LOG | Disable detailed logging |
+| 8 | FEMU_RESET_GC_STATS | Reset GC statistics counters (nr_gc_cycles, nr_gc_data_moves) |
+
+#### Scenario: FEMU_RESET_GC_STATS resets GC counters to zero
+
+- **GIVEN** the SSD has completed N GC cycles and moved M pages during GC
+- **AND** `nr_gc_cycles > 0` and `nr_gc_data_moves > 0`
+- **WHEN** the host issues `NVME_ADM_CMD_FEMU_FLIP` with cdw10 = 8 (FEMU_RESET_GC_STATS)
+- **THEN** `nr_gc_cycles` SHALL be set to 0
+- **AND THEN** `nr_gc_data_moves` SHALL be set to 0
+- **AND THEN** the command SHALL return `NVME_SUCCESS`
+
+#### Scenario: GC counters increment after each GC cycle
+
+- **GIVEN** the FTL module invokes `do_gc()` or `do_gc_fdp_style()`
+- **WHEN** a GC cycle completes successfully (return 0)
+- **THEN** `nr_gc_cycles` SHALL be incremented by 1
+- **AND THEN** for `do_gc_fdp_style()`, `nr_gc_data_moves` SHALL be incremented by the number of valid pages migrated (`vpc_cnt`)
+
+#### Scenario: Unknown FLIP cdw10 is rejected with log
+
+- **GIVEN** the host issues `NVME_ADM_CMD_FEMU_FLIP` with a cdw10 value not in {1..8}
+- **WHEN** `bb_flip()` processes the command
+- **THEN** the `default:` branch SHALL execute
+- **AND THEN** a diagnostic message SHALL be printed indicating the unimplemented cdw10 value
