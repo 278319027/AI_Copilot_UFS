@@ -104,3 +104,7 @@ You: [Fix progress indicators]
 - Request clarification
 
 See template at: [code-reviewer.md](code-reviewer.md)
+
+## SSD 域规则（按需加载）
+
+SSD 固件 Review 专项规则（重点检查项、风险等级 P0/P1/P2、CodeGraph + Graphify 辅助验证）见 [ssd-review-rules.md](ssd-review-rules.md)。仅在 Review 阶段加载，不常驻 memory。

@@ -1,7 +1,7 @@
 ---
 name: sd-firmware-copilot
 description: SSD 固件 AI 编程助手，基于四阶段闭环（KNOW→PLAN→BUILD→FEEDBACK）和两层架构（Superpowers 工程纪律 + SSD 固件领域知识）。BUILD 和 FEEDBACK 阶段委托 Superpowers；PLAN 和规格管理委托 openspec-workflow。
-compatibility: Requires OpenSpec CLI (v1.4.1+), CodeGraph MCP, Graphify plugin.
+compatibility: Requires OpenSpec CLI (v1.4.1+), CodeGraph MCP. Graphify 通过 `architecture.md §5` 规则使用（无需插件）。
 metadata:
   author: zsf
   version: "1.0"
@@ -73,7 +73,7 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
    - **Step 3b — 精确结构**：`codegraph where <symbol>` 列直接调用方；`codegraph impact <file>` 列影响文件；`codegraph context <func>` 看函数定义 + 复杂度。
      - 例：`codegraph where bb_flip` → 1 caller (`bb_admin_cmd`)
      - 目的：**在概念发现的候选范围内，验证精确的调用图与影响范围**
-4. **读取 `.opencode/memory/` 全部规则文件** — 架构、并发、风格、设计、审查、测试共 6 个约束文件
+4. **读取 `.opencode/memory/` 全部规则文件** — 架构、并发、风格、设计、测试共 5 个约束文件（Review 规则在 `superpowers-requesting-code-review/ssd-review-rules.md` 按需加载）
 
 ### 工具分工的常见误用
 
@@ -377,13 +377,14 @@ openspec validate --strict --specs
 | 规则 | 关系 |
 |------|------|
 | `memory/design_rules.md` | 五级门禁统一定义 |
-| `memory/{review,testing,architecture}_rules.md` | 门禁检查项引用 / 可验证性落地 / CodeGraph 查询 |
+| `memory/{testing,architecture}_rules.md` + `skills/superpowers-requesting-code-review/ssd-review-rules.md` | 门禁检查项引用 / 可验证性落地 / CodeGraph 查询 |
 | `openspec-workflow/SKILL.md` | CLI 与 zsf 流程衔接 |
 | 本 Skill BUILD 阶段 | 开发工件对应规格层 |
 
 ## 规则与知识
 
-**Memory 规则**（`.opencode/memory/`）：`architecture` / `concurrency_rules` / `coding_style` / `design_rules` / `review_rules` / `testing_rules`。
+**Memory 规则**（`.opencode/memory/`，5 文件，常驻加载）：`architecture` / `concurrency_rules` / `coding_style` / `design_rules` / `testing_rules`。
+**Skill 域规则**：`superpowers-requesting-code-review/ssd-review-rules.md`（按需加载）。
 
 **硬件知识**：NVMe Admin/IO 命令、NAND 设备管理（ECC/坏块/写入放大/磨损均衡）、固件更新（安全下载/回滚/原子性）、IO 调度（读/写优先级/QoS）→ 详见 `openspec/specs/` 各 capability。
 
@@ -451,8 +452,8 @@ openspec validate --strict --specs
 ## 初始化
 
 ```bash
-bash verify.sh                                                       # 环境检查
+bash verify.sh                                                       # 环境检查 (15 项)
 OPENSPEC_TELEMETRY=0 openspec validate --strict --specs              # 基线有效
-ls .opencode/memory/{architecture,concurrency_rules,coding_style,design_rules,review_rules,testing_rules}.md
-grep '"codegraph"' opencode.json && test -r .opencode/plugins/graphify.js
+ls .opencode/memory/{architecture,concurrency_rules,coding_style,design_rules,testing_rules}.md && ls .opencode/skills/superpowers-requesting-code-review/ssd-review-rules.md
+grep '"codegraph"' opencode.json                                     # codegraph MCP 配置存在
 ```
