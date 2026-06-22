@@ -82,8 +82,8 @@ echo "=== [2/6] codegraph (调用图/影响分析) ==="
 if command -v codegraph &>/dev/null; then
     echo "  ✓ codegraph $(codegraph --version) 已安装"
 else
-    echo "  → npm install -g @optave/codegraph ..."
-    npm install -g @optave/codegraph
+    echo "  → npm install -g @optave/codegraph@latest ..."
+    npm install -g @optave/codegraph@latest
     echo "  ✓ codegraph $(codegraph --version) 安装完成"
 fi
 
