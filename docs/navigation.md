@@ -17,7 +17,7 @@
 |------|--------|-----------|
 | **KNOW** | 读懂现有代码、设计文档、规格 | CodeGraph（查调用/影响）+ Graphify（查概念/关系） |
 | **PLAN** | 写出 `proposal.md` + `design.md` + `tasks.md`，过 Proposal/Design Gate | OpenSpec CLI |
-| **BUILD** | TDD 编码、调试、查证式 Review、过 Review Gate | Superpowers（铁律）+ sd-firmware-copilot（域规则） |
+| **BUILD** | 实现 + 测试验证、调试、查证式 Review、过 BUILD Gate + Review Gate | Superpowers（铁律）+ sd-firmware-copilot（域规则） |
 | **FEEDBACK** | 归档 `changes/` → `openspec/specs/`，更新知识图谱 | OpenSpec archive + Graphify update |
 
 每一个变更都要走完一圈；不允许跳过 KNOW 或 FEEDBACK。
@@ -70,7 +70,7 @@ zsf/
 │   └── skills/                      ← 四阶段执行引擎
 │       ├── sd-firmware-copilot/     ← 顶层：BUILD + FEEDBACK 内联
 │       │   └── SKILL.md              ← 主体（含 Spec 规则）
-│       ├── superpowers/             ← 工程纪律层（13 子技能）
+│       ├── superpowers/             ← 工程纪律层（12 子技能）
 │       ├── openspec-workflow/       ← OpenSpec 概念层（Iron Rules + 5 phase 路由）
 │       ├── openspec-propose/        ← Stage 1
 │       ├── openspec-explore/        ← Stage 2
@@ -132,8 +132,8 @@ A：不推荐。这会污染 femu 的 Git 状态，与上游 QEMU 同步时产�
 1. **代码优先**：`Source Code > Design Docs > Specs > Memory > Prompt`。代码是真实实现。
 2. **小任务原则**：单次变更 200-500 行。
 3. **修改前必查 CodeGraph**：用 `codegraph impact` 确认影响范围。
-4. **四级门禁**：Proposal Gate → Design Gate → Review Gate → Archive Gate，每一步有工件（`proposal.md` / `design.md` / `tasks.md` / `review.md`）。
-5. **四条铁律**：不验证不宣称完成 / 无验证不写实现 / 无根因不修 bug / 未审查不合并。
+4. **五级门禁**：Proposal Gate → Design Gate → BUILD Gate → Review Gate → Archive Gate。每步有工件（`proposal.md` / `design.md` / `tasks.md` / `review.md`，BUILD Gate 产出 `specs/` 增量）。
+5. **四条铁律**：不验证不宣称完成 / 无测试不写代码 / 无根因不修 bug / 未审查不合并。
 6. **AI 辅助不替代人**：架构决策与风险判断由人负责。
 
 ## 如果你只想看 3 份文档

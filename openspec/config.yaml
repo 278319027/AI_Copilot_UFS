@@ -12,10 +12,10 @@ context: |
   Domain: C-based SSD firmware project (SSD controller / FTL development).
   Tech stack: C (embedded firmware), NVMe protocol, NAND flash management, FTL (Flash Translation Layer).
   Core subsystems: NVMe command processing (Admin/I/O queues, PRP/SGL), FTL mapping (LBA→PBA, wear-leveling, GC, SLC cache), NAND driver (Page/Block ops, ECC, bad-block management), error handling (error propagation, recovery, power-loss recovery).
-  Workflow tooling: OpenCode Agent orchestrates a four-stage pipeline — KNOW (Graphify knowledge graph + CodeGraph call graph for code understanding), PLAN (OpenSpec CLI v1.4.1 for spec-driven changes), BUILD (Superpowers + sd-firmware-copilot skills for TDD/debugging/verification), FEEDBACK (OpenSpec archive + Graphify update).
+  Workflow tooling: OpenCode Agent orchestrates a four-stage pipeline — KNOW (Graphify knowledge graph + CodeGraph call graph for code understanding), PLAN (OpenSpec CLI v1.4.1 for spec-driven changes), BUILD (Superpowers + sd-firmware-copilot skills for code implementation, testing, debugging, and verification), FEEDBACK (OpenSpec archive + Graphify update).
   CodeGraph MCP is the authoritative source for call graphs and impact analysis — query it before any code change.
-  Superpowers provides the non-negotiable engineering discipline: TDD (failing test before production code), systematic debugging (root cause before fix), verification-before-completion (fresh evidence before any "done" claim).
-  Spec baseline: openspec/specs/ contains 5 capabilities (ssd-firmware-overview, nvme-commands, ftl-mapping, nand-driver, error-handling). Always consult relevant specs before proposing changes.
+  Superpowers provides the non-negotiable engineering discipline: test coverage (every function has corresponding tests), systematic debugging (root cause before fix), verification-before-completion (fresh evidence before any "done" claim).
+  Spec baseline: openspec/specs/ contains 3 capabilities (nvme-commands, ftl-mapping, nand-driver). SSD firmware overview architecture is documented in .opencode/memory/architecture.md; error handling patterns (cross-cutting concern) are documented in .opencode/memory/design_rules.md. Always consult relevant specs before proposing changes.
   Language: code, comments, and spec text are bilingual zh-CN/en where helpful; spec Requirements and Scenarios MUST use SHALL/MUST and WHEN/THEN per OpenSpec standard format.
 
 # Per-artifact rules (optional)
@@ -31,17 +31,17 @@ rules:
   proposal:
     - Keep proposals under 500 words.
     - Always include a Non-goals section.
-    - Always reference relevant openspec/specs/ capabilities (ssd-firmware-overview, nvme-commands, ftl-mapping, nand-driver, error-handling) the change touches or modifies.
-    - State which Superpowers iron rules (TDD / systematic-debugging / verification-before-completion) apply to this change.
+    - Always reference relevant openspec/specs/ capabilities (nvme-commands, ftl-mapping, nand-driver) the change touches or modifies. For architecture-level changes, reference .opencode/memory/architecture.md for layering rules.
+    - State which Superpowers iron rules (test-coverage / systematic-debugging / verification-before-completion) apply to this change.
     - Note any CodeGraph MCP queries needed to scope the change.
   tasks:
     - Break tasks into chunks of 200-500 lines (Superpowers-compatible granularity).
     - Each task must reference the spec requirement it implements (capability name + Requirement name in openspec/specs/).
-    - Each task must declare its test-first plan: failing test name, test command, expected failure mode.
+    - Each task must declare its test plan: which test file, which scenarios (normal path, boundary, error), expected coverage.
     - Each task must include a verification step (specific command + expected output).
     - Order tasks so independent ones can be parallelized (subagent-driven-development friendly).
   design:
     - Always include a CodeGraph impact analysis (callers, callees, blast radius of symbols/files changed).
     - Always confirm with Design Gate before coding — Design Gate requires: CodeGraph map complete, open questions answered, and reviewer sign-off.
     - Always include an OpenSpec delta plan: which capability's spec.md receives ADDED / MODIFIED / REMOVED Requirements.
-    - Cross-reference Superpowers TDD iron rule: every task has a failing test before production code.
+    - Cross-reference test-after rule: every task has corresponding test cases before marking complete.

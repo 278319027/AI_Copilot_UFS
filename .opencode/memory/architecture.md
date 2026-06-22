@@ -29,18 +29,18 @@
 主工具: ops-codegraph（MCP 服务器，30+ 工具）
 > 当前部署于 FEMU 项目 `../femu/hw/femu/`
 
-| 场景 | MCP 工具 | 补充工具 |
-|------|---------|---------|
-|| 谁调用了函数 X | `codegraph_callers` | `cscope -d -L2` |
-| 函数 X 调用了谁 | `get_callees` | `cscope -d -L3` |
-| 结构体在哪里被使用 | `symbol_search` + `find_by_imports` | `cscope -d -L0` |
-| 修改文件的影响范围 | `impact` | `cscope -d -L2` |
-| 模块间依赖 | `get_dependency_graph` | — |
-| #include 依赖 | `find_by_imports` | `cscope -d -L8` |
-| 宏使用 | `find_by_pattern` | `cscope -d -L4/6` |
-| 函数指针调用 | ⚠️ 有限 | **必须用 cscope** |
+| 场景 | MCP 工具 |
+|------|---------|
+| 谁调用了函数 X | `codegraph_callers` |
+| 函数 X 调用了谁 | `get_callees` |
+| 结构体在哪里被使用 | `symbol_search` + `find_by_imports` |
+| 修改文件的影响范围 | `impact` |
+| 模块间依赖 | `get_dependency_graph` |
+| #include 依赖 | `find_by_imports` |
+| 宏使用 | `find_by_pattern` |
+| 函数指针调用 | ⚠️ 有限 — 用 `symbol_search` 查注册点 + 手工读 dispatch 函数 |
 
-补充工具: ctags + cscope（命令行）
+补充工具: ctags（命令行）
 
 ### 4.3 查询结果使用规则
 
@@ -48,7 +48,7 @@
 - 修改任何结构体前，必须先查询 `symbol_search` + `find_by_imports`
 |- 修改任何函数签名前，必须先查询 `codegraph_callers`
 - 新增模块前，必须先了解 `get_dependency_graph`
-- **函数指针相关查询，必须用 cscope 补充**
+- **函数指针相关查询：CodeGraph AST 不追踪间接调用，用 `symbol_search` 查注册点 + 手工读 dispatch 函数**
 
 ### 4.4 ops-codegraph 安装与配置
 
@@ -57,19 +57,6 @@
 - 构建索引: `codegraph build`
 |- 查询统计: `codegraph status`
 - MCP 服务器: `codegraph mcp`
-
-### 4.5 cscope 查询模式
-
-| 模式 | 查询类型 | 示例问题 |
-|------|----------|----------|
-| 0 | 查找 C 符号 | 哪里定义/使用了 `NandCtx` |
-| 1 | 查找全局定义 | 函数 `nand_read_page` 在哪里定义 |
-| 2 | 查找调用者 | 谁调用了 `nand_read_page` |
-| 3 | 查找被调用函数 | `nand_read_page` 调用了哪些函数 |
-| 4 | 查找文本字符串 | 代码中哪里出现了 "NAND_ERR_TIMEOUT" |
-| 6 | 查找 egrep 模式 | 用正则搜索模式 |
-| 7 | 查找文件 | 哪些文件名包含 "nand" |
-| 8 | 查找包含文件的文件 | 谁 include 了 "nand_ctx.h" |
 
 ## 5. Graphify 查询规则
 

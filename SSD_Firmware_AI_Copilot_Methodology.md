@@ -11,7 +11,7 @@
 已有 SAD/SDD/ICD 等设计文档时使用：
 
 ```
-设计文档 → [KNOW] 理解设计 + 定位代码 → [PLAN] 规格化变更 → [BUILD] TDD 实现 → [FEEDBACK] 归档
+设计文档 → [KNOW] 理解设计 + 定位代码 → [PLAN] 规格化变更 → [BUILD] 实现 + 测试 → [FEEDBACK] 归档
 ```
 
 ### 路径 B：代码驱动（Code → Design → Code）
@@ -19,7 +19,7 @@
 无设计文档时，AI 先分析代码自动生成设计文档再实现：
 
 ```
-现有代码 → [KNOW] 分析代码 + 生成设计文档 → [PLAN] 规格化变更 → [BUILD] TDD 实现 → [FEEDBACK] 归档
+现有代码 → [KNOW] 分析代码 + 生成设计文档 → [PLAN] 规格化变更 → [BUILD] 实现 + 测试 → [FEEDBACK] 归档
 ```
 
 两种路径的区别仅在 **KNOW 阶段**：路径 A 以设计文档为输入，路径 B 以代码为输入、AI 自动生成设计文档。从 PLAN 阶段开始完全一致。
@@ -32,7 +32,7 @@
 |------|------|------|
 | **KNOW** | Graphify（知识图谱）+ CodeGraph（调用图） | 理解现有系统结构 |
 | **PLAN** | OpenSpec CLI（规格驱动） | 创建变更提案、设计方案、任务分解 |
-| **BUILD** | Superpowers（工程纪律）+ sd-firmware-copilot（领域规则） | TDD 实现 + 根因调试 + 验证完成 |
+| **BUILD** | Superpowers（工程纪律）+ sd-firmware-copilot（领域规则） | 代码实现 + 测试验证 + 根因调试 + 验证完成。须通过 BUILD Gate（编码前加载 3 个验证 skill） |
 | **FEEDBACK** | OpenSpec CLI + Graphify | 规格归档 + 知识图谱增量更新 |
 
 由 `OpenCode Agent` 统一编排四阶段，形成可审计的闭环。**阶段详细流程见 `sd-firmware-copilot/SKILL.md` 与 `openspec-workflow/SKILL.md`。**
@@ -53,11 +53,11 @@ codegraph explore <代码区域>
 # ─── PLAN：创建变更 ───
 /opsx:propose my-change "根据 SDD 第 X 章实现 Y 功能"
 # → 生成 proposal.md + design.md + tasks.md + specs/ 增量
-# → Design Gate：人工确认后进入编码
+# → Design Gate：人工确认架构 → BUILD Gate：AI 加载验证 skill 后开始编码
 
-# ─── BUILD：TDD 实现 ───
+# ─── BUILD：实现 + 测试验证 ───
 /opsx:apply my-change
-# → Superpowers 自动执行 Path A（红→绿→重构）或 Path B（编译+FEEDBACK）
+# → 按 tasks.md 实现 → 编写测试覆盖正常/边界/错误路径 → 编译零警告 → 测试全部通过
 
 # ─── FEEDBACK：Review + 归档 ───
 # → Review Skill 产出 review.md
@@ -78,7 +78,7 @@ graphify explain "<核心概念>"
 # ─── PLAN → BUILD → FEEDBACK 同路径 A ───
 /opsx:propose my-change "基于代码分析扩展 X 功能"
 /opsx:apply my-change
-# → Review + 归档
+# → 同路径 A：实现 + 测试验证 → Review + 归档
 /opsx:archive my-change
 graphify update <子目录>   # 大项目避免全仓库扫描
 ```
@@ -101,7 +101,7 @@ zsf/
 ├── openspec/
 │   ├── config.yaml                    # OpenSpec 上下文配置（C 语言/SSD 域）
 │   ├── changes/                       # 活跃变更（archive/ 为历史归档）
-│   └── specs/                         # 基线规格（5 个 capability）
+│   └── specs/                         # 基线规格（3 个 capability: nvme-commands, ftl-mapping, nand-driver）
 ├── .opencode/
 │   ├── memory/                        # 项目规则（6 文件，运行时自动加载）
 │   ├── plugins/graphify.js            # 知识图谱插件
@@ -110,7 +110,7 @@ zsf/
 │       ├── sd-firmware-copilot/       # 顶层：域规则 + Superpowers 整合（sole integrating skill）
 │       ├── openspec-workflow/         # OpenSpec 概念层（Iron Rules + 5 phase 路由）
 │       ├── openspec-{propose,explore,apply,sync-specs,archive-change}/  # 5 phase skill
-│       └── superpowers-{13 子技能}/   # 工程纪律层
+│       └── superpowers-{12 子技能}/   # 工程纪律层
 ```
 
 *graphify-out/ 目录在首次运行 `graphify update .` 后自动生成于目标代码库（如 FEMU），zsf 自身无此目录。*
@@ -125,7 +125,7 @@ zsf/
 | **小任务原则** | 每次 200-500 行，不扩大需求，tasks.md 强制粒度约束 |
 | **修改前必查 CodeGraph** | 修改函数签名/结构体/头文件前必须查询影响范围 |
 | **AI 辅助不替代** | 人负责架构决策、设计确认、风险判断、最终责任 |
-| **四级门禁不跳过** | Proposal Gate → Design Gate → Review Gate → Archive Gate，单文件 bugfix 可跳过 Proposal Gate |
+| **五级门禁不跳过** | Proposal Gate → Design Gate → BUILD Gate → Review Gate → Archive Gate。单文件 bugfix 可跳过 Proposal Gate；BUILD Gate 强制编码前加载验证 skill |
 | **规格优先于记忆** | Specs（基线规范）描述系统当前行为，查询优先级：基线 → CodeGraph → 代码 |
 | **全部工件版本化** | proposal / design / tasks / review / specs 纳入 Git，不可丢弃 |
 
@@ -133,7 +133,7 @@ zsf/
 
 ## 10. 下一步
 
-- **部署工具链**：`bash deploy_tools.sh /path/to/c-source`（CodeGraph + cscope + Doxygen + Graphify + OpenSpec CLI）
+- **部署工具链**：`bash deploy_tools.sh /path/to/c-source`（CodeGraph + Doxygen + Graphify + OpenSpec CLI）
 - **验证环境**：`bash verify.sh`，确认 12/13 通过
 - **AI 完整工作流**：`.opencode/skills/sd-firmware-copilot/SKILL.md`（域规则 + 4 Iron Rules + Bootstrap 决策表 + 4 阶段流程）
 - **OpenSpec 概念层**：`.opencode/skills/openspec-workflow/SKILL.md`（Iron Rules + 跨切约束 + 5 phase 路由）

@@ -76,9 +76,9 @@ openspec instructions apply --change "<name>" --json
 - **实施前必读 `contextFiles`** —— proposal / design / 相关 baseline spec 必看
 - **最小改动** —— 不在 apply 阶段加未在 tasks.md 中的功能
 - **每个 task 完跑验证** —— 不批量勾选
-- **TDD 双路径**（嵌入 C）：
-  - **Path A**（纯逻辑）：红→绿→重构，先写失败测试
-  - **Path B**（硬件依赖/MMIO/ISR/DMA）：BUILD 编译即验证，FEEDBACK 阶段再测
+- **测试纪律**：代码实现后补充测试，覆盖正常路径、边界条件、错误路径
+  - 纯逻辑代码：单元测试验证
+  - 硬件依赖代码（MMIO/ISR/DMA）：通过 HAL 抽象使业务逻辑可测；不可测路径在 review.md 中标注原因和替代验证方式
 - **工作区护栏**：`actionContext.mode == "workspace-planning"` 且 `allowedEditRoots` 空 → 停下让用户选作用域
 
 ## Workspace Guard（必检）

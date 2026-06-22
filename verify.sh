@@ -80,10 +80,10 @@ bash -n "$PROJECT_ROOT/deploy_tools.sh" 2>/dev/null && ok "deploy_tools.sh has v
 # [6/12] Tools on PATH
 hdr "6/12" "Essential tools on PATH"
 MT=()
-for t in codegraph openspec cscope; do
+for t in codegraph openspec; do
     command -v "$t" &>/dev/null || MT+=("$t")
 done
-[ ${#MT[@]} -eq 0 ] && ok "codegraph, openspec, cscope all on PATH" || bad "missing tools: ${MT[*]}"
+[ ${#MT[@]} -eq 0 ] && ok "codegraph, openspec on PATH" || bad "missing tools: ${MT[*]}"
 
 # [7/12] Memory rules format (non-empty + has headers)
 hdr "7/12" "Memory rules format (6 files)"
@@ -129,14 +129,14 @@ else
     bad "FEMU hw/femu dir missing: $FEMU_BASE/hw/femu (export FEMU_ROOT=<path> to override default)"
 fi
 
-# [11/12] Spec files (5 capabilities) non-empty
-hdr "11/12" "Spec files (5 capabilities, non-empty)"
+# [11/12] Spec files (3 capabilities) non-empty
+hdr "11/12" "Spec files (3 capabilities, non-empty)"
 EMPTY_SPECS=0
-for s in ssd-firmware-overview nvme-commands ftl-mapping nand-driver error-handling; do
+for s in nvme-commands ftl-mapping nand-driver; do
     f="$PROJECT_ROOT/openspec/specs/$s/spec.md"
     [ -f "$f" ] && [ -s "$f" ] || EMPTY_SPECS=$((EMPTY_SPECS+1))
 done
-[ "$EMPTY_SPECS" -eq 0 ] && ok "all 5 spec files exist and non-empty" || bad "$EMPTY_SPECS/5 spec files missing or empty"
+[ "$EMPTY_SPECS" -eq 0 ] && ok "all 3 spec files exist and non-empty" || bad "$EMPTY_SPECS/3 spec files missing or empty"
 
 # [12/12] Skill directories: 5 openspec-* + 1 openspec-workflow + 12 superpowers-* + 1 sd-firmware-copilot = 19
 hdr "12/12" "Skill directories (19 expected: 5 openspec-* + 1 openspec-workflow + 12 superpowers-* + 1 sd-firmware-copilot)"

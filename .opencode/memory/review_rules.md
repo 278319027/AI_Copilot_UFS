@@ -132,12 +132,12 @@ SSD 固件代码 Review 规则。AI Review 代码时必须遵守，人工 Review
 
 ### 4.2 特别关注
 
-- 函数指针调用：CodeGraph 可能遗漏，必须用 cscope `-L2` 补充
-- 宏使用：CodeGraph 可能遗漏，必须用 cscope `-L4` 补充
+- 函数指针调用：CodeGraph 可能遗漏，用 `symbol_search` 查函数指针表注册点 + 手工读 dispatch 函数
+- 宏使用：`find_by_pattern` 确认
 - 中断上下文：标注哪些函数在 ISR 路径上，中断安全必须额外检查
 
 ### 4.3 Review 声明
 
 每条 Review 输出必须注明 CodeGraph 验证结果：
 - "CodeGraph 确认影响范围：3 个文件、5 个调用方"
-- "CodeGraph 未覆盖：函数指针调用 2 处（已用 cscope 补充）"
+- "CodeGraph 未覆盖：函数指针调用 2 处（已用 symbol_search + 手工确认）"

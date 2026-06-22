@@ -17,7 +17,7 @@ bash verify.sh    # 确认 12/12 通过
 #    路径 B（无设计文档）→ codegraph explore <区域>  先生成设计文档
 ```
 
-> **工具安装 vs 项目分发**：`deploy_tools.sh` 安装的是有可执行文件的外部工具（Node.js、codegraph、cscope、doxygen、graphify、openspec CLI）。Superpowers / openspec-workflow / sd-firmware-copilot 是项目级 Skill（`.opencode/skills/` 下的 Markdown 文件），随仓库分发，`git clone` 即可用，无需脚本安装。
+> **工具安装 vs 项目分发**：`deploy_tools.sh` 安装的是有可执行文件的外部工具（Node.js、codegraph、graphify、openspec CLI）。Superpowers / openspec-workflow / sd-firmware-copilot 是项目级 Skill（`.opencode/skills/` 下的 Markdown 文件），随仓库分发，`git clone` 即可用，无需脚本安装。
 
 ## 两种使用路径
 
@@ -49,7 +49,7 @@ PLAN → BUILD → FEEDBACK: 同路径 A
 |------|------|---------|
 | **KNOW** | Graphify + CodeGraph | `bash deploy_tools.sh` |
 | **PLAN** | OpenSpec CLI v1.4.1 | `npm install -g @fission-ai/openspec` |
-| **BUILD** | Superpowers + sd-firmware-copilot | `.opencode/skills/sd-firmware-copilot/` |
+| **BUILD** | Superpowers + sd-firmware-copilot（测试验证） | `.opencode/skills/sd-firmware-copilot/` |
 | **FEEDBACK** | OpenSpec CLI + Graphify | 同 PLAN |
 
 ## 配置（opencode.json）
@@ -82,6 +82,6 @@ PLAN → BUILD → FEEDBACK: 同路径 A
 - **代码优先**：Source Code > Design Docs > Specs > Memory > Prompt
 - **小任务原则**：每次 200-500 行，不扩大需求
 - **修改前必查 CodeGraph**：确认影响范围
-- **四级门禁**：Proposal Gate → Design Gate → Review Gate → Archive
-- **四条铁律**：不验证不宣称完成 / 无验证不写实现 / 无根因不修 bug / 未审查不合并
+- **五级门禁**：Proposal Gate → Design Gate → BUILD Gate → Review Gate → Archive（BUILD Gate 强制编码前加载验证 skill）
+- **四条铁律**：不验证不宣称完成 / 无测试不写代码 / 无根因不修 bug / 未审查不合并
 - **AI 辅助不替代人**：人负责架构决策和风险判断

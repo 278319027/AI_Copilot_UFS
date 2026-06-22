@@ -11,7 +11,7 @@ metadata:
 
 SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 TODO 可跟踪；每个决策都有 OpenSpec 工件。
 
-> 所有 AI 输出 MUST 先通过 Superpowers 四条铁律（TDD + 根因调试 + 验证完成 + 未审查不合并）再输出。
+> 所有 AI 输出 MUST 先通过 Superpowers 四条铁律（测试覆盖 + 根因调试 + 验证完成 + 未审查不合并）再输出。
 
 ## 快速入口
 
@@ -39,7 +39,7 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
               ↓
          BUILD Gate（Superpowers 纪律检查）
               ↓
-         编码（BUILD）+ Path A/B 验证
+          编码（BUILD）+ 测试验证
               ↓
          Review Gate（代码匹配 spec）
               ↓
@@ -79,20 +79,22 @@ Design Gate 通过后、**写第一行代码前**，必须通过 BUILD Gate。�
 
 #### 为什么需要 BUILD Gate
 
-Superpowers skill 不是"建议"，是铁律。未加载 skill 直接编码 = 无 TDD、无任务跟踪、无验证证据——这是 2026-06-22 `add-gc-stats-flip` 变更暴露的失败模式：代码正确但纪律缺失，方法论遵循度仅 70%。
+Superpowers skill 不是"建议"，是铁律。未加载 skill 直接编码 = 无测试计划、无任务跟踪、无验证证据——这是 2026-06-22 `add-gc-stats-flip` 变更暴露的失败模式：代码正确但纪律缺失，方法论遵循度仅 70%。
 
 #### Checklist
 
-- [ ] 已加载 `superpowers-test-driven-development`（Path A 纯逻辑 / Path B 硬件依赖）
-- [ ] 已加载 `superpowers-executing-plans`（按 tasks.md 顺序逐条 `- [x]`）
 - [ ] 已加载 `superpowers-verification-before-completion`（完成前必须实际运行验证命令并捕获证据）
+- [ ] 已加载 `superpowers-executing-plans`（按 tasks.md 顺序逐条 `- [x]`）
+- [ ] 测试计划已完成且已写入 tasks.md 或 design.md（不可仅在会话中口头确认）：
+  - 每个函数明确列出：正常路径用例、边界条件用例、错误路径用例
+  - 不可覆盖路径已标注原因和替代验证方式（写入 review.md）
+  - 硬件依赖代码标注了 HAL 接口与实现的分界，说明哪层可单元测试、哪层靠仿真/审查
 - [ ] 已加载 `superpowers-subagent-driven-development` 或 `superpowers-dispatching-parallel-agents`（多任务调度，按需）
 - [ ] CodeGraph 探索完成（影响范围明确）
 - [ ] 已理解现有代码模式（错误处理、并发、日志）
 - [ ] `tasks.md` 所有 Task 就绪，blockedBy 解析无循环
-- [ ] 确认变更类型：Path A（纯逻辑 → TDD 红绿重构）/ Path B（硬件依赖 → 编译验证）
 
-**校验**：`skill()` 工具调用记录中必须包含上述 4 个 skill 的加载记录。任一缺失 = BUILD Gate 未通过，禁止编码。
+**校验**：`skill()` 工具调用记录中必须包含上述 3 个 skill 的加载记录。任一缺失 = BUILD Gate 未通过，禁止编码。
 
 #### 人工确认
 
@@ -118,8 +120,9 @@ AI 完成 BUILD Gate checklist 并声明 "BUILD Gate 通过" 后方可开始实�
 - 代码在 `src/`，单元测试在 `tests/unit/`
 - 禁止：`as any`、`@ts-ignore`、空 catch、抑制类型错误
 - 变量/函数名用英文，注释/文档用中文
-- 硬件依赖验证（如 QEMU 运行时测试）：若 KVM/root/硬件环境暂不可用，编译通过 + `verify.sh` 可视作阶段验证完成，待环境就绪后补测
-- **Path B 编译验证后**：必须运行 `graphify update . --force` 更新知识图谱
+- 每个 task 完成后必须运行相关验证（编译/测试），不批量勾选
+- 硬件依赖代码（寄存器/DMA/ISR）：尽量通过 HAL 接口抽象使业务逻辑可测；不可测路径在 review.md 中标注原因
+- 编译验证通过后：必须运行 `graphify update . --force` 更新知识图谱
 
 ## FEEDBACK 阶段
 
@@ -197,7 +200,7 @@ openspec/
         └── tasks.md                    # 200-500 行/任务
 ```
 
-**基线位置**：`openspec/specs/{ssd-firmware-overview, nvme-commands, ftl-mapping, nand-driver, error-handling}/spec.md`。
+**基线位置**：`openspec/specs/{nvme-commands, ftl-mapping, nand-driver}/spec.md`（error-handling 为横切关注点，由 `memory/design_rules.md` 覆盖；SSD 固件整体架构由 `memory/architecture.md` 覆盖）。
 
 ### 基线规格管理
 
@@ -287,7 +290,8 @@ openspec status --change "<name>" --json | jq '.applyRequires.design == "done" a
 **Checklist**：
 - [ ] 代码匹配 design.md 中的设计（无未经批准的架构变更）
 - [ ] 代码匹配 OpenSpec delta（每个代码变更对应一个 spec Requirement）
-- [ ] 测试覆盖：Path A（纯逻辑）有失败测试→通过测试的完整记录；Path B（硬件依赖）有编译通过记录
+- [ ] 测试覆盖：单元测试覆盖正常路径、边界条件、错误路径；硬件依赖代码有编译通过记录 + 集成测试/仿真记录（或 review.md 中标注不可覆盖原因）
+- [ ] 注入验证已执行：至少一条正常路径和一条错误路径经过 bug 注入→测试失败→撤销→恢复通过的验证
 - [ ] Memory 规则检查通过：命名规范、并发规则、错误处理（见 `memory/*.md`）
 - [ ] CodeGraph 查询验证：修改的符号影响范围与设计阶段一致
 - [ ] 无回归：现有测试/编译全部通过
@@ -298,10 +302,10 @@ openspec status --change "<name>" --json | jq '.applyRequires.design == "done" a
 # 1. 验证 spec 与代码一致性
 openspec validate --strict --changes
 
-# 2. 编译验证（Path B）
+# 2. 编译验证
 make clean && make -j$(nproc)
 
-# 3. 测试验证（Path A）
+# 3. 测试验证
 make test
 
 # 4. 代码风格检查（如有配置）
@@ -363,7 +367,7 @@ openspec validate --strict --specs
 ### Iron Rules（4 条，不可妥协）
 
 - **NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE** — 完成前必须实际运行测试/编译/命令并验证结果，禁止「应该没问题」。见 [`superpowers-verification-before-computation`](../superpowers-verification-before-completion/SKILL.md)。
-- **NO PRODUCTION CODE WITHOUT VERIFICATION** — 纯逻辑代码（Path A）先写失败测试再写实现；硬件依赖代码（Path B）BUILD 阶段编译通过，FEEDBACK 阶段系统测试。见 [`superpowers-test-driven-development`](../superpowers-test-driven-development/SKILL.md)。
+- **NO PRODUCTION CODE WITHOUT TESTS** — 每段生产代码必须有对应的测试覆盖。纯逻辑代码用单元测试验证；硬件依赖代码用集成测试或仿真验证。见 [`superpowers-test-driven-development`](../superpowers-test-driven-development/SKILL.md)。
 - **NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST** — 复现、读错误、查变更、形成假设、最小验证，禁止凭直觉打补丁。见 [`superpowers-systematic-debugging`](../superpowers-systematic-debugging/SKILL.md)。
 - **NO MERGE WITHOUT CODE REVIEW** — 每个非平凡变更必须经正式审查，接收反馈以技术为准不表演性认同。见 [`superpowers-requesting-code-review`](../superpowers-requesting-code-review/SKILL.md) 与 [`superpowers-receiving-code-review`](../superpowers-receiving-code-review/SKILL.md)。
 
@@ -373,7 +377,7 @@ openspec validate --strict --specs
 |----------|-------------|----------|
 | 会话开始 / 收到新需求 | `superpowers-using-superpowers` | 上下文无纪律约束 |
 | 涉及 bug、test failure、异常行为 | `superpowers-systematic-debugging` | 凭直觉打补丁 |
-| 写生产代码（Path A 纯逻辑 / Path B 硬件依赖） | `superpowers-test-driven-development` | 无失败测试、无回归保护 |
+| 写生产代码 | `superpowers-verification-before-completion` | 无测试证据，代码不可信 |
 | 进入 BUILD 阶段 | `superpowers-executing-plans` + `superpowers-verification-before-completion` | 跳过任务、跳过验证 |
 | 复杂任务（多文件、多模块） | `superpowers-subagent-driven-development` | 上下文爆炸、需求漂移 |
 | 2+ 独立可并行任务 | `superpowers-dispatching-parallel-agents` | 串行浪费 |
@@ -397,7 +401,7 @@ openspec validate --strict --specs
 
 - [ ] 即将「声称完成」？→ 使用 `superpowers-verification-before-completion` 并实际跑命令
 - [ ] 即将「修 bug」？→ 使用 `superpowers-systematic-debugging` 并完成根因调查
-- [ ] 即将「写生产代码」？→ 使用 `superpowers-test-driven-development` 并按 Path A/B 走
+- [ ] 即将「写生产代码」？→ 确认测试计划已定义，覆盖正常路径、边界条件、错误路径
 - [ ] 即将「合并」？→ 使用 `superpowers-requesting-code-review` 并完成 Review Gate
 
 ### Skill map 速查（12 sub-skill）
@@ -407,7 +411,7 @@ openspec validate --strict --specs
 | `superpowers-using-superpowers` | 任何会话开始 |
 | `superpowers-brainstorming` | 创意/需求探索 |
 | `superpowers-writing-plans` | 5+ 步骤任务前写 plan |
-| `superpowers-test-driven-development` | 写新功能 / 修 bug 前 |
+| `superpowers-test-driven-development` | 实现后补充测试，覆盖正常/边界/错误路径（test-after） |
 | `superpowers-systematic-debugging` | 任何 bug / test failure / 异常行为 |
 | `superpowers-verification-before-completion` | 任何"完成"声明前 |
 | `superpowers-executing-plans` | 按 plan 顺序执行 |

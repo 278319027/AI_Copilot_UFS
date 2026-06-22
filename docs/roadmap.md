@@ -8,7 +8,7 @@
 
 | 任务 | 状态 | 产出 |
 |------|------|------|
-| 部署 CodeGraph | ✅ | ops-codegraph + ctags + cscope + Doxygen |
+| 部署 CodeGraph | ✅ | ops-codegraph + ctags + Doxygen |
 | 建立 Call / Struct / Dependency Graph | ✅ | 自动构建 |
 | 建立硬件知识库 | ✅ | NAND/NVMe/Platform 知识模板 |
 | 增强并发安全规则 | ✅ | concurrency_rules.md |
@@ -57,14 +57,14 @@
 | 部署 OpenSpec CLI v1.4.1 | ✅ | `npm install -g @fission-ai/openspec` |
 | OpenSpec 工作流 Skill | ✅ | `.opencode/skills/openspec-workflow/` |
 | openspec/ 目录初始化与迁移 | ✅ | `openspec/{changes,specs,config.yaml}` |
-| 5 个迁移 specs | ✅ | nvme-commands / ftl-mapping / nand-driver / error-handling / overview |
+| 3 个迁移 specs | ✅ | nvme-commands / ftl-mapping / nand-driver（error-handling 为横切关注点，由 memory/design_rules.md 覆盖；ssd-firmware-overview 为方法论层不维护目标代码架构描述） |
 
 ### Phase 7：Superpowers + 四工具架构升级 ✅ 已完成
 
 | 任务 | 状态 | 产出 |
 |------|------|------|
-| 部署 Superpowers（13 子技能） | ✅ | `.opencode/skills/superpowers-*/`（入口整合至 `sd-firmware-copilot`） |
-| TDD / 根因调查 / 验证后完成 铁律 | ✅ | 3 条强制铁律 |
+| 部署 Superpowers（12 子技能） | ✅ | `.opencode/skills/superpowers-*/`（入口整合至 `sd-firmware-copilot`） |
+| 测试覆盖 / 根因调查 / 验证后完成 铁律 | ✅ | 3 条强制铁律 |
 | 评审双向规范 | ✅ | requesting / receiving code review |
 | 并行 Agent 调度 | ✅ | subagent-driven / dispatching-parallel |
 | KNOW→PLAN→BUILD→FEEDBACK 闭环 | ✅ | 文档同步更新 |
@@ -74,9 +74,9 @@
 | 任务 | 状态 | 产出 |
 |------|------|------|
 | `/opsx:propose` 试点真实需求 | 🔲 | 验证 propose→apply→archive 闭环 |
-| 强制 TDD（Path A 红→绿→重构 / Path B 编译→FEEDBACK） | 🔲 | 验证 test-driven-development 双路径 |
+| 强制测试覆盖 | 🔲 | 验证 test-after 纪律（正常/边界/错误路径全覆盖） |
 | 强制 verification-before-completion | 🔲 | 验证完成纪律 |
-| 收集 Superpowers 拦截数据 | 🔲 | TDD 覆盖率、verification 失败次数等 |
+| 收集 Superpowers 拦截数据 | 🔲 | 测试覆盖率、verification 失败次数等 |
 
 ---
 

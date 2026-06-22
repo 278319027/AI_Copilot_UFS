@@ -38,7 +38,7 @@ CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其�
 
 规则：
 - **Spec 变更是「系统做什么」的权威来源。** 修改影响已文档化行为的代码前，必须先读 `openspec/specs/`。
-- **每次变更必须经过门禁**：Proposal Gate → Design Gate → Review Gate → Archive。
+- **每次变更必须经过五级门禁**：Proposal Gate → Design Gate → BUILD Gate → Review Gate → Archive（BUILD Gate 强制编码前加载验证 skill，详见 sd-firmware-copilot SKILL）。
 - **永不删除 `openspec/changes/` 条目** — 它们构成审计追踪。
 - **OpenSpec 流程**：`openspec-workflow/` 是概念层（Iron Rules + 跨切约束 + 5 phase 路由），执行具体 phase 请加载对应 `openspec-{propose,explore,apply,sync-specs,archive-change}/`。
 - 规格层规则见 `.opencode/skills/sd-firmware-copilot/SKILL.md`（`## Spec 规则` 一节）。
@@ -48,4 +48,4 @@ CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其�
 
 ## superpowers
 
-本项目包含 **Superpowers** 技能框架（13 个子技能，`.opencode/skills/superpowers-*/`）作为项目无关的工程纪律层。完整索引（4 Iron Rules + Bootstrap 决策表 + Skill map）整合至 `sd-firmware-copilot/SKILL.md §Superpowers 框架整合`。
+本项目包含 **Superpowers** 技能框架（12 个子技能，`.opencode/skills/superpowers-*/`）作为项目无关的工程纪律层。完整索引（4 Iron Rules + Bootstrap 决策表 + Skill map）整合至 `sd-firmware-copilot/SKILL.md §Superpowers 框架整合`。
