@@ -207,19 +207,27 @@ fi
 # ============================================================
 # Step 5: graphify (知识图谱)
 # ============================================================
+# pip 依赖先确装（graphify 本身也通过 pip 安装，避免 uv/curl 链路不稳定的问题）
 echo ""
-echo "=== [5/6] graphify (知识图谱) ==="
-
-if command -v graphify &>/dev/null; then
-    echo "  ✓ graphify $(graphify --version 2>&1 | head -1 | awk '{print $NF}')"
+echo "=== [5a/6] python3-pip (graphify 安装前置) ==="
+if python3 -m pip --version &>/dev/null; then
+    echo "  ✓ pip $(python3 -m pip --version | awk '{print $2}') 已安装"
 else
-    echo "  → uv tool install graphify[all] ..."
-    if ! command -v uv &>/dev/null; then
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-        export PATH="$HOME/.cargo/bin:$PATH"
-    fi
-    uv tool install 'graphify[all]'
-    echo "  ✓ graphify 安装完成"
+    echo "  → apt install python3-pip ..."
+    sudo apt-get install -y python3-pip
+    echo "  ✓ python3-pip 安装完成"
+fi
+
+echo ""
+echo "=== [5b/6] graphify (知识图谱) ==="
+if command -v graphify &>/dev/null; then
+    echo "  ✓ graphify $(graphify --version 2>&1 | head -1 | awk '{print $NF}') 已安装"
+else
+    echo "  → pip install graphifyy ..."
+    # graphifyy 是 PyPI 上的包名（github.com/safishamsi/graphify）
+    # 依赖较多（networkx / numpy / rapidfuzz / 25+ tree-sitter parsers），需等待下载
+    python3 -m pip install --break-system-packages graphifyy
+    echo "  ✓ graphify $(graphify --version 2>&1 | head -1 | awk '{print $NF}') 安装完成"
 fi
 
 # 注册 OpenCode Skill + Git Hook
@@ -234,29 +242,23 @@ fi
 # 构建知识图谱（code-only，无需 LLM API key）
 if [ -d "$SRC_DIR/graphify-out" ] && [ -f "$SRC_DIR/graphify-out/graph.json" ]; then
     echo "  → 知识图谱已存在，增量更新..."
-
-    if ! cd "$PROJECT_ROOT" && graphify extract "$(basename "$SRC_DIR")" --no-cluster 2>/dev/null; then
-
-        echo "  ⚠ graphify 增量更新失败, 可手动: cd $PROJECT_ROOT && graphify extract $(basename "$SRC_DIR") --no-cluster"
-
-    fi
-
+    cd "$PROJECT_ROOT" && graphify update "$(basename "$SRC_DIR")" --no-cluster 2>/dev/null || \
+        echo "  ⚠ graphify 增量更新失败, 可手动: cd $PROJECT_ROOT && graphify update $(basename "$SRC_DIR") --no-cluster"
     echo "  ✓ 知识图谱已更新"
-
 else
-    echo "  → 首次构建知识图谱 (AST-only)..."
-    cd "$PROJECT_ROOT" && graphify extract "$(basename "$SRC_DIR")" --no-cluster 2>/dev/null
+    echo "  → 首次构建知识图谱 (AST-only, 无需 LLM key)..."
+    cd "$PROJECT_ROOT" && graphify update "$(basename "$SRC_DIR")" --no-cluster 2>/dev/null || \
+        echo "  ⚠ graphify 首次构建失败, 可手动: cd $PROJECT_ROOT && graphify update $(basename "$SRC_DIR") --no-cluster"
 fi
 
 # 社区检测
-if ! cd "$PROJECT_ROOT" && graphify cluster-only "$(basename "$SRC_DIR")" --no-label 2>/dev/null; then
-
+echo "  → 社区检测 (Louvain)..."
+if cd "$PROJECT_ROOT" && graphify cluster-only "$(basename "$SRC_DIR")" --no-label 2>/dev/null; then
+    echo "  ✓ 社区检测完成"
+else
     echo "  ⚠ graphify 社区检测失败, 可手动: cd $PROJECT_ROOT && graphify cluster-only $(basename "$SRC_DIR") --no-label"
-
 fi
-
-echo "  ✓ 社区检测完成"
-echo "  → 论文语义提取需配置 DEEPSEEK_API_KEY (当前仅 code-only)"
+echo "  → 语义提取需配置 DEEPSEEK_API_KEY (当前仅 code-only)"
 # ============================================================
 
 # Step 6: OpenSpec CLI (规格驱动开发)
