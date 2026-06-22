@@ -117,7 +117,7 @@ zsf 项目 (/home/tcb/AI_Proj/zsf/)
 | **不污染代码库** | femu 是 QEMU fork，有自己的 Git 历史和上游同步需求；避免 `.opencode/` 和 `openspec/` 混入其提交历史 |
 | **一套方法论 → 多目标** | 通过 `opencode.json` 的 `FEMU_ROOT` 变量可切换任意 SSD 固件代码库，无需重复部署 |
 | **职责分离** | zsf 是"驾驶舱"（方法论、配置、变更追踪），femu 是"引擎"（源码、构建、运行） |
-| **分析产物就近** | `graphify-out/` 放在 femu 中是因为它与代码版本强绑定，重建时需定位到代码根目录 |
+| **分析产物就近** | `graphify-out/` 放在 `FEMU_ROOT`（即 `hw/femu`）下是因为它与代码版本强绑定，重建时需定位到 FEMU_ROOT |
 
 #### 常见问题
 

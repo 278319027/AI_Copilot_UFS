@@ -4,17 +4,17 @@
 
 ## codegraph 与 FEMU_ROOT
 
-CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其目标路径通过 `opencode.json` 的 `mcp.codegraph.command` 数组配置，路径形式为 `${FEMU_ROOT:-/home/tcb/AI_Proj/femu}/hw/femu`。
+CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其目标路径通过 `opencode.json` 的 `mcp.codegraph.command` 数组配置，路径形式为 `${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}`。
 
 | 项 | 值 |
 |----|----|
 | **环境变量名** | `FEMU_ROOT` |
-| **默认值** | `/home/tcb/AI_Proj/femu` |
-| **拼接路径** | `<FEMU_ROOT 或默认值>/hw/femu` |
+| **默认值** | `/home/zsf/AI_Proj/femu/hw/femu` |
+| **直接路径** | `FEMU_ROOT` 即为目标 SSD 固件 `hw/femu` 源码目录（不拼接任何子路径） |
 | **用途** | CodeGraph MCP 服务的 `--path` 参数 (被 opencode.json ${VAR:-default} 展开) |
-| **验证命令** | `bash verify.sh` 中的 `[10/14] FEMU_ROOT` 检查 (或直接 `test -d ${FEMU_ROOT:-/home/tcb/AI_Proj/femu}/hw/femu`) |
+| **验证命令** | `bash verify.sh` 中的 `[10/12] FEMU_ROOT` 检查 (或直接 `test -d ${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}`) |
 
-覆盖示例: `export FEMU_ROOT=/opt/ssd-firmware` — 则 CodeGraph 索引 `/opt/ssd-firmware/hw/femu`。
+覆盖示例: `export FEMU_ROOT=/opt/ssd-firmware/hw/femu` — 则 CodeGraph 索引 `/opt/ssd-firmware/hw/femu`。
 
 ## graphify
 
@@ -36,8 +36,8 @@ CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其�
 
 OpenCode Agent 在不同工作目录运行时，**应向上查找**到 zsf 仓库根目录加载 `.opencode/`，**不应**在以下位置创建 `.opencode/`：
 
-- ❌ `FEMU_ROOT/hw/femu/.opencode/`（SSD 代码子目录）— 实际发生过的误生成位置
-- ❌ `FEMU_ROOT/.opencode/`（femu 仓库根，非 zsf）— 仅当 femu 是独立工作区时才允许
+- ❌ `FEMU_ROOT/.opencode/`（SSD 固件代码子目录）— 实际发生过的误生成位置
+- ❌ `<femu 仓库根>/.opencode/`（femu 仓库根，非 zsf）— 仅当 femu 是独立工作区时才允许
 - ❌ 任何目标代码库子目录内的 `.opencode/`
 
 如果发现误生成（`verify.sh [14/14]` 会自动检测），执行 `rm -rf <误生成路径>/.opencode/`，并通过在 zsf 仓库根启动 OpenCode Agent 来修复（保证向上查找找到 zsf 自己的 `.opencode/`）。

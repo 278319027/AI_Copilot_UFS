@@ -42,7 +42,7 @@ fi
 #   若 `codegraph build` 报 "Found 0 files to parse"，升级到最新版本即可：
 #
 #       npm install -g @optave/codegraph@latest   # 或指定版本 @3.13.0
-#       cd <FEMU_ROOT>/hw/femu && rm -rf .codegraph && codegraph build .
+#       cd <FEMU_ROOT> && rm -rf .codegraph && codegraph build .
 #
 #   v3.13.0 支持 34 种语言（含 C/C++ .c/.h），build 后检查：
 #       codegraph stats   # 预期：Nodes > 0，Edges > 0
@@ -120,13 +120,13 @@ else
 fi
 
 # [10/12] FEMU_ROOT env var or default path
-# MCP 路径形如 ${FEMU_ROOT:-/home/tcb/AI_Proj/femu}/hw/femu, 两者之一存在即可
+# FEMU_ROOT 直接指向 hw/femu 源码目录（不再拼接 /hw/femu 后缀）
 hdr "10/12" "FEMU_ROOT (CodeGraph MCP target path)"
-FEMU_BASE="${FEMU_ROOT:-/home/tcb/AI_Proj/femu}"
-if [ -d "$FEMU_BASE/hw/femu" ]; then
-    ok "FEMU hw/femu dir exists: $FEMU_BASE/hw/femu (FEMU_ROOT=${FEMU_ROOT:-<default>})"
+FEMU_BASE="${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}"
+if [ -d "$FEMU_BASE" ]; then
+    ok "FEMU hw/femu dir exists: $FEMU_BASE (FEMU_ROOT=${FEMU_ROOT:-<default>})"
 else
-    bad "FEMU hw/femu dir missing: $FEMU_BASE/hw/femu (export FEMU_ROOT=<path> to override default)"
+    bad "FEMU hw/femu dir missing: $FEMU_BASE (export FEMU_ROOT=<path> to override default)"
 fi
 
 # [11/12] Spec files (3 capabilities) non-empty
@@ -166,9 +166,8 @@ OMO_FILES=$(find "$PROJECT_ROOT/.omo" -type f 2>/dev/null | grep -v '/archive/' 
 # [14/14] FEMU path should not contain mis-generated .opencode/ (zsf is the canonical .opencode owner)
 hdr "14/14" "FEMU path .opencode/ cleanliness (only zsf should own .opencode/)"
 # 检查 FEMU_ROOT 路径（如果存在）下任何子目录是否有误生成的 .opencode/
-# 排除 femu 仓库根目录——deploy_tools.sh 允许在那里创建 .opencode/
-# 检查 hw/*/ 等子目录是否有误生成
-FEMU_BASE="${FEMU_ROOT:-/home/tcb/AI_Proj/femu}"
+# FEMU_ROOT 现在直接是 hw/femu 目录——检查其子目录 (bbssd/, ocssd/, 等) 不能有 .opencode/
+FEMU_BASE="${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}"
 MISGEN_OPENCODE=""
 if [ -d "$FEMU_BASE" ]; then
     # 搜索 FEMU 仓库下任何子目录中的 .opencode/（排除 femu 仓库根和 graphify-out / .codegraph 工具产物）
