@@ -366,9 +366,7 @@ openspec validate --strict --specs
 | 所有任务完成，准备合并 | `superpowers-finishing-a-development-branch` | 直接合并不清理 |
 | 宣称「完成 / 修复 / 通过」 | `superpowers-verification-before-completion` | 无证据断言 |
 | 写计划（5+ 步骤任务） | `superpowers-writing-plans` | 无 plan 直接 coding |
-| 写新 skill | `superpowers-writing-skills` | 不符合 agentskills.io 规范 |
 | 复杂/创造性问题 | `superpowers-brainstorming` | 需求理解偏差 |
-| 隔离工作区 | `superpowers-using-git-worktrees` | 主分支污染 |
 
 ### 阶段转换触发器（4 阶段闭环）
 
@@ -393,7 +391,6 @@ openspec validate --strict --specs
 | `superpowers-using-superpowers` | 任何会话开始 |
 | `superpowers-brainstorming` | 创意/需求探索 |
 | `superpowers-writing-plans` | 5+ 步骤任务前写 plan |
-| `superpowers-writing-skills` | 写新 skill 前 |
 | `superpowers-test-driven-development` | 写新功能 / 修 bug 前 |
 | `superpowers-systematic-debugging` | 任何 bug / test failure / 异常行为 |
 | `superpowers-verification-before-completion` | 任何"完成"声明前 |
@@ -403,7 +400,6 @@ openspec validate --strict --specs
 | `superpowers-requesting-code-review` | 合并前 / 完成后 |
 | `superpowers-receiving-code-review` | 收到审查反馈时 |
 | `superpowers-finishing-a-development-branch` | 全部完成准备集成 |
-| `superpowers-using-git-worktrees` | 隔离工作区 |
 
 ## 初始化
 
