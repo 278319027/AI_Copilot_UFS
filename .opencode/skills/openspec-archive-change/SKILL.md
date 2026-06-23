@@ -49,6 +49,30 @@ grep -qE "签字|Signed|Reviewer|审查人" openspec/changes/<id>/review.md || {
 
 > **设计意图**（per `docs/retrospectives/2026-06-add-crt-mapping-cache.md` AP-005）：review.md 是审计追踪的强制产物；AI 不能自批自审，必须有人工审查记录。
 
+### 1.5 检查 delta 是否已 sync 到 baseline（**新增，per M-8 验证发现**）
+
+> **背景**（M-8 verification 发现）：AI 在 archive 时可能跳过 sync 步骤，导致 spec delta 留在 archive 但不在 baseline，造成审计追踪的 spec 与实际系统行为不一致。
+
+```bash
+# 如果 change 有 spec delta，必须先 sync
+if [ -d openspec/changes/<id>/specs/ ]; then
+  # 对比 baseline 与 delta 的 Requirements 数量
+  BASELINE_REQS=$(grep -c "^### Requirement:" openspec/specs/ftl-mapping/spec.md 2>/dev/null || echo 0)
+  DELTA_REQS=$(grep -c "^### Requirement:" openspec/changes/<id>/specs/*/spec.md 2>/dev/null | awk -F: '{s+=$2} END {print s}')
+
+  # 检查 baseline 是否已包含 delta 的所有 Requirement
+  for req in $(grep "^### Requirement:" openspec/changes/<id>/specs/*/spec.md | sed 's/^### Requirement: //'); do
+    if ! grep -q "### Requirement: $req" openspec/specs/*/spec.md 2>/dev/null; then
+      echo "ERROR: Requirement '$req' not yet synced to baseline"
+      echo "Run: openspec sync --change <id> first"
+      exit 1
+    fi
+  done
+fi
+```
+
+> **强制**：`/opsx:archive` 在 sync 之前调用 → 拒绝执行。
+
 ### 2. 评估 delta 是否先 sync
 
 判断：

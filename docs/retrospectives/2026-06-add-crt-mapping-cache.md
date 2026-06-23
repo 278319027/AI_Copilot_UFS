@@ -227,3 +227,53 @@
 - `ninja`: 5+ (clean + compile + link)
 - `gcc` (standalone test): 4 (含 2 次 bug injection 注入)
 - `crt_test` binary: 4 runs
+
+## M-8 Verification 闭环记录（2026-06-23）
+
+### M-8 实际执行
+
+跑了一个 trivial 单文件变更（`add-print-version-flip`，~10 行代码 + 1 ADDED Requirement）走完整闭环，验证 M-1~M-7 修复后的方法论是否生效。
+
+**M 项生效验证**：
+
+| M 项 | 验证载体是否触发 | 状态 |
+|------|------------------|------|
+| M-1 verify-report 模板 | ✅ 本次即按模板生成 1809 字节 verify-report.md | PASS |
+| M-2 bug-injection 强制 | ✅ design.md D3 显式豁免（无逻辑可注入）；豁免理由明确 | PASS |
+| M-3 review.md 强校验 | ✅ review.md 含"签字"标记；archive 通过 | PASS |
+| M-4 KNOW 4 步 CodeGraph | ✅ query/where/context/impact 全部跑过 | PASS |
+| M-5 PROJECT-SPECIFIC 5 memory | ✅ 5 个 memory 文件已读 | PASS |
+| M-6 设计-实现一致性 | ✅ 无 drift（trivial 变更完全按设计）| PASS |
+| M-7 任务粒度 = group 200-500 行 | ✅ 2 group，总产出 ~10+30 行 | PASS |
+
+### M-8 新发现的反模式
+
+#### AP-009: Archive 流程可能跳过 sync 步骤
+
+**场景**: M-8 verification 执行 `/opsx:archive` 时，AI 跳过了"先 sync delta 到 baseline"步骤，直接 mv 到 archive。结果：spec delta 留在 `archive/<id>/specs/` 但**不在** `openspec/specs/<cap>/spec.md` baseline。
+
+**后果**:
+- baseline 落后于实际系统行为
+- 后续 `openspec show ftl-mapping` 看不到新 Requirement
+- 审计追踪的 spec 与 baseline spec 脱节
+
+**根因**:
+- `openspec-archive-change/SKILL.md` 步骤 2 写"评估 delta 是否先 sync"——是**建议**而非**强制**
+- AI 评估后认为"先 archive 也行"——错误
+
+**修复**:
+- **本次已修补**：手动 sync（commit `5482e5d`），baseline 增至 16 Requirements
+- **永久修复**：在 `openspec-archive-change/SKILL.md` 步骤 1 后**新增步骤 1.5** 强校验：若 change 有 spec delta，则每个 ADDED Requirement 必须在 baseline 中已存在；否则**拒绝 archive**
+
+**预防**:
+- 升级后的 archive 流程会在 sync 缺失时显式报错
+- 未来的 M-8 验证（M-8 follow-up）应再跑一次以确认修复生效
+
+### M-8 全部 commit 链
+
+```
+5482e5d chore(spec): sync add-print-version-flip (delayed from M-8 verification)
+<archive commit> chore(spec): archive add-print-version-flip
+<implement commits> feat: FEMU_LOG_VERSION
+```
+
