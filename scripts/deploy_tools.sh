@@ -296,75 +296,12 @@ echo "=============================================="
 echo "  部署完成"
 echo "=============================================="
 echo ""
-echo "  已安装工具 (三件套):"
-echo "    codegraph  — $(codegraph --version 2>/dev/null || echo '需手动安装')  [KNOW]"
-echo "    graphify   — $(graphify --version 2>&1 | head -1 | awk '{print $NF}' || echo 'N/A')  [KNOW/FEEDBACK]"
-echo "    graphify-out/   — 知识图谱 (graph.json + graph.html)"
-echo "    openspec   — $(openspec --version 2>&1 | head -1 | awk '{print $NF}' || echo '需手动安装')  [PLAN/FEEDBACK]"
-echo "    openspec/  — 规格仓库 (config.yaml + changes/ + specs/)"
+echo "  已安装工具:"
+echo "    codegraph  $(codegraph --version 2>/dev/null || echo '需手动安装')"
+echo "    graphify   $(graphify --version 2>&1 | head -1 | awk '{print $NF}' || echo 'N/A')"
+echo "    openspec   $(openspec --version 2>&1 | head -1 | awk '{print $NF}' || echo '需手动安装')"
 echo ""
-echo "  项目级 Skill（随 zsf 仓库分发，无需部署）:"
-SP_COUNT=$(ls -1d .opencode/skills/superpowers-*/ 2>/dev/null | wc -l)
-echo "    openspec-workflow/  — OpenSpec 概念层 + 5 phase skill (propose/explore/apply/sync-specs/archive-change)  [PLAN/FEEDBACK]"
-echo "    superpowers-*/      — ${SP_COUNT} 个子技能（test-driven-development / systematic-debugging / verification-before-completion / ...）  [BUILD]"
-echo "    sd-firmware-copilot/ — SSD 固件领域规则 + 规格管理 + Superpowers 框架整合 [ALL]"
-echo "  后续操作:"
-echo "    # AI 查询调用图"
-echo "    codegraph callers <函数名>"
-echo "    codegraph explore <关键词>"
-echo "    # 知识图谱查询"
-echo "    graphify query '<问题>'"
-echo "    graphify explain '<概念>'"
+echo "  后续操作见 docs/quickref.md（AI session 开始时必跑的 M-5 步骤、命令清单）"
+echo "  完整环境验证请跑: bash scripts/verify.sh"
 echo ""
-echo "    # OpenSpec 规格驱动（PLAN/FEEDBACK）"
-echo "    openspec list                                # 列出所有变更"
-echo "    openspec --help                              # 查看全部命令"
-echo "    # 在 OpenCode Agent 中使用:"
-echo "    /opsx:propose '<change-id>' '<意图>'         # 创建变更 + 生成所有工件"
-echo "    /opsx:apply '<change-id>'                    # 按 tasks.md 执行"
-echo "    /opsx:archive '<change-id>'                  # 合并到 baseline"
-echo ""
-echo "    # Superpowers 铁律（BUILD）— 详见 sd-firmware-copilot/SKILL.md §Superpowers 框架整合"
-echo "    test-driven-development                       # 先写失败测试"
-echo "    systematic-debugging                          # 无根因不修"
-echo "    verification-before-completion                # 不验证不宣称完成"
-echo ""
-echo "    # 知识图谱更新（per M-5 PROJECT-SPECIFIC，AI session 开始时必跑）"
-echo "    cd ${SRC_DIR} && graphify update .            # 刷新 graphify"
-echo "    codegraph build .                             # 刷新 codegraph AST cache"
-echo ""
-echo "    ${SRC_DIR}"
-echo ""
-echo "=============================================="
-
-
-# Step 5: 项目根环境验证
-SCRIPT_ROOT="$(cd "$(dirname "$0")" && pwd)"
-ERR=0
-
-echo ""
-echo "=== [5/5] 项目根环境验证 ==="
-
-echo -n "  [1/2] Rules (5 files)... "
-MISS=0
-for r in architecture concurrency_rules coding_style design_rules testing_rules; do
-    [ -f "$SCRIPT_ROOT/.opencode/memory/${r}.md" ] || MISS=$((MISS+1))
-done
-if [ "$MISS" -eq 0 ]; then echo "✓ 6/6"; else echo "✗ $MISS missing"; ERR=$((ERR+1)); fi
-
-echo -n "  [2/2] OpenSpec specs... "
-if command -v openspec &>/dev/null; then
-    OUT=$(OPENSPEC_TELEMETRY=0 openspec validate --strict --specs 2>&1) && \
-    echo "$OUT" | grep -qE "[0-9]+ passed, 0 failed" && echo "✓ passed" || \
-    { echo "✗ failed"; ERR=$((ERR+1)); }
-else
-    echo "✗ openspec not installed"; ERR=$((ERR+1))
-fi
-
-if [ "$ERR" -gt 0 ]; then
-    echo ""
-    echo "⚠  环境验证有 $ERR 项未通过，工具链部署不受影响"
-else
-    echo ""
-    echo "✓  环境验证全部通过 (2/2)"
-fi
+echo "  ${SRC_DIR}"
