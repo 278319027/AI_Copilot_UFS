@@ -29,9 +29,9 @@
 
 ## 6. Archive
 
-- [ ] 6.1 Run `bash scripts/sync_change.sh add-toggle-gc-delay` to merge ADDED Requirement to baseline
-- [ ] 6.2 Verify `verify.sh [18/19] baseline no delta headers` PASS
-- [ ] 6.3 Run `bash scripts/verify.sh` and confirm 19/19 PASS
-- [ ] 6.4 `mv openspec/changes/add-toggle-gc-delay/ openspec/changes/archive/$(date +%Y-%m-%d)-add-toggle-gc-delay/`
-- [ ] 6.5 `git add openspec/changes/ openspec/specs/ && git commit -m "chore(spec): archive add-toggle-gc-delay"`
+- [x] 6.1 Run `bash scripts/sync_change.sh add-toggle-gc-delay` to merge ADDED Requirement to baseline
+- [x] 6.2 Verify `verify.sh [18/19] baseline no delta headers` PASS
+- [x] 6.3 Run `bash scripts/verify.sh` and confirm 19/19 PASS
+- [x] 6.4 `mv openspec/changes/add-toggle-gc-delay/ openspec/changes/archive/$(date +%Y-%m-%d)-add-toggle-gc-delay/`
+- [x] 6.5 `git add openspec/changes/ openspec/specs/ && git commit -m "chore(spec): archive add-toggle-gc-delay"`
 - [ ] 6.6 Final `bash scripts/verify.sh` → 19/19 PASS
