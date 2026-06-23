@@ -21,6 +21,52 @@ metadata:
 
 ## 关键步骤
 
+### 1.0 强制流程：archive 前 ask user 签字 review.md（**per AP-005 + P2-2**）
+
+> **背景**（AP-005 + 4 Iron Rule #4）：AI 不能自批自审。当前 workflow 中，AI 写 `review.md` 含 placeholder（`<用户填写>` / `<AI 自身>`）后直接 archive commit，user 实际未签字——违反"no merge without code review"。
+
+**强制执行**（在执行 §1 强校验**之前**；per P2-2 retro 2026-06-add-bb-config-print）：
+
+```bash
+CHANGE_DIR="openspec/changes/<id>"
+
+# Step 1.0.a: 检测 review.md 签字状态
+if [ ! -f "$CHANGE_DIR/review.md" ]; then
+    echo "ERROR: review.md 不存在 — 必须先创建并让 user 签字"
+    exit 1
+fi
+
+# Step 1.0.b: 检测 placeholder（非真实签字）
+if grep -qE "用户填写|<user-fill|placeholder.*sign|<\s*AI\s*自身\s*>|<\s*AI\s*自身>" "$CHANGE_DIR/review.md"; then
+    echo "ERROR: review.md 签字栏仍是 placeholder（AI 不能自批自审 per AP-005）"
+    echo "  → 操作：用 chat 提示 user"
+    echo "  → chat 提示模板：'请在 openspec/changes/<id>/review.md 签字栏填写您的名字/时间/结论 (APPROVED/REJECTED/WITH COMMENTS)'"
+    echo "  → 签字后重新执行此 archive 流程"
+    exit 1
+fi
+
+# Step 1.0.c: 检测真实结论（APPROVED/REJECTED/WITH COMMENTS）
+if ! grep -qE "结论.*APPROVED|结论.*REJECTED|结论.*APPROVED WITH COMMENTS" "$CHANGE_DIR/review.md"; then
+    echo "ERROR: review.md 缺真实结论 — 必须 user 明确批准/拒绝/有条件批准"
+    exit 1
+fi
+
+# Step 1.0.d: 软检查：签字时间是否在 review 之前
+# (不强校验，避免 timezone / clock skew 问题；WARN 即可)
+REVIEW_TIME=$(grep -E "签字时间" "$CHANGE_DIR/review.md" | head -1)
+[ -z "$REVIEW_TIME" ] && echo "WARN: review.md 缺'签字时间'字段"
+```
+
+**为什么 hard-fail 而不是 WARN**：
+- `verify.sh [19/19]`（per commit 8220a6e）已 WARN 作为**软约束**（让人看到但不阻塞）
+- archive SKILL 这里是**强校验**：签字缺失时直接 `exit 1` 阻止 archive commit
+- 强制 user 主动参与 review，符合 4 Iron Rule #4 精神
+
+**与 verify.sh [19/19] 的协同**：
+- `verify.sh` 跑过整个 repo，发现任意 active change 含 placeholder → WARN
+- `openspec-archive-change` 跑到具体 change，发现该 change 的 review.md 含 placeholder → FAIL + exit 1
+- 两层检查：前者是软提醒（广覆盖），后者是硬阻塞（强约束）
+
 ### 1. 检查 artifact 完成 + 任务勾选 + **强制 review/verify 产物**（**强校验**）
 
 ```bash
@@ -31,23 +77,23 @@ openspec status --change "<name>" --json
 - `applyRequires` 全部 `done`
 - `tasks.md` 中 `- [x]` 数量 ≥ `- [ ]` 数量
 
-**额外强制校验**（不通过则**禁止**进入步骤 2）：
+**额外强制校验**（不通过则**禁止**进入步骤 2；§1.0 签字检查已先执行）：
 
 ```bash
 # verify-report.md 必须存在且 6/6 PASS
 test -f openspec/changes/<id>/verify-report.md || { echo "ERROR: verify-report.md missing — run /opsx:verify first"; exit 1; }
 
-# review.md 必须存在（占位即可，Review Gate 时填充）
+# review.md 必须存在（§1.0 已先校验签字；此处仅做存在性检查）
 test -f openspec/changes/<id>/review.md || { echo "ERROR: review.md missing — create placeholder"; exit 1; }
 
 # verify-report.md 必含 "总体判定: READY"
 grep -q "总体判定.*READY\|READY FOR ARCHIVE\|✅ READY" openspec/changes/<id>/verify-report.md || { echo "ERROR: verify-report.md not READY"; exit 1; }
 
-# review.md 必含审查人签字
-grep -qE "签字|Signed|Reviewer|审查人" openspec/changes/<id>/review.md || { echo "ERROR: review.md missing reviewer signature"; exit 1; }
+# review.md 必含真实结论（per §1.0.c 强化版，替代旧版 "签字|Signed|Reviewer|审查人" 弱校验）
+grep -qE "结论.*APPROVED|结论.*REJECTED|结论.*APPROVED WITH COMMENTS" openspec/changes/<id>/review.md || { echo "ERROR: review.md missing real conclusion (per AP-005)"; exit 1; }
 ```
 
-> **设计意图**（per `docs/retrospectives/2026-06-add-crt-mapping-cache.md` AP-005）：review.md 是审计追踪的强制产物；AI 不能自批自审，必须有人工审查记录。
+> **设计意图**（per `docs/retrospectives/2026-06-add-crt-mapping-cache.md` AP-005 + retro `2026-06-add-bb-config-print.md` P2-2）：review.md 是审计追踪的强制产物；AI 不能自批自审，必须有人工审查记录（user 姓名 + 时间 + 结论）。
 
 ### 1.5 检查 delta 是否已 sync 到 baseline（**新增，per M-8 验证发现**）
 
