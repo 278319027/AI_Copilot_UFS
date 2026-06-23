@@ -15,7 +15,7 @@ description: Stage 2 of OpenSpec 5-phase lifecycle — think with user, investig
 **加载 skill**：[openspec-explore](../skills/openspec-explore/SKILL.md)
 
 **调研手段**（按需选用）：
-- **CodeGraph**：`codegraph explore <area>` / `codegraph callers <func>`
+- **CodeGraph**：`codegraph explore <area>` / `codegraph where <func>`
 - **Graphify**：`graphify query "<问题>"` / `graphify explain "<概念>"`
 - **cscope**：函数指针/宏补充
 - **读 specs**：`openspec show <capability>` —— 行为基线优先

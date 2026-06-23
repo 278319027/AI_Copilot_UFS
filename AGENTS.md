@@ -62,4 +62,4 @@ OpenCode Agent 在不同工作目录运行时，**应向上查找**到 zsf 仓�
 
 ## superpowers
 
-本项目包含 **Superpowers** 技能框架（12 个子技能，`.opencode/skills/superpowers-*/`）作为项目无关的工程纪律层。完整索引（4 Iron Rules + Bootstrap 决策表 + Skill map）整合至 `sd-firmware-copilot/SKILL.md §Superpowers 框架整合`。
+本项目包含 **Superpowers** 技能框架（8 个子技能，`.opencode/skills/superpowers-*/`）作为项目无关的工程纪律层。完整索引（4 Iron Rules + Bootstrap 决策表 + Skill map）整合至 `sd-firmware-copilot/SKILL.md §Superpowers 框架整合`。

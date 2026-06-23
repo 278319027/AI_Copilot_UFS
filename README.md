@@ -37,7 +37,7 @@ FEEDBACK: /opsx:archive my-change && graphify update .
 无设计文档，AI 先分析代码自动生成设计文档，再按路径 A 执行。
 
 ```
-KNOW:     codegraph explore <区域> && codegraph callers <核心函数>
+KNOW:     codegraph explore <区域> && codegraph where <核心函数>
           graphify explain "<概念>"
           → AI 自动生成设计文档
 PLAN → BUILD → FEEDBACK: 同路径 A

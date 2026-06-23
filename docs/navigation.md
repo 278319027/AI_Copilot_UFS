@@ -82,7 +82,7 @@ zsf/
 ├── 📐 规格层
 │   └── openspec/
 │       ├── config.yaml              ← 项目上下文
-│       └── specs/                   ← 5 个领域规格（唯一真相源）
+│       └── specs/                   ← 3 个领域规格（nvme-commands, ftl-mapping, nand-driver）
 │
 ├── 🚀 入口脚本
 │   ├── deploy_tools.sh              ← 一键部署工具链

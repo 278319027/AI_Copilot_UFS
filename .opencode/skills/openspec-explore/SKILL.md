@@ -34,7 +34,7 @@ openspec list --json
 
 ### 2. 调研手段（按需选用）
 
-- **CodeGraph**：`codegraph explore <area>` / `codegraph callers <func>` / `codegraph impact <symbol>` —— 调用图/影响分析
+- **CodeGraph**：`codegraph explore <area>` / `codegraph where <func>` / `codegraph impact <symbol>` —— 调用图/影响分析
 - **Graphify**：`graphify query "<问题>"` / `graphify explain "<概念>"` —— 知识图谱/概念关系
 - **cscope**（CodeGraph 盲区补充）：`cscope -d -L2 <func>`（调用者）/ `-L4 <MACRO>`（宏）
 - **读 specs**：`openspec show <capability>` —— 行为基线优先于代码
