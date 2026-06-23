@@ -58,6 +58,32 @@ openspec validate --strict --specs
 
 **关键**：delta 仅声明意图，**不**全量替换 baseline。未提及的 `### Requirement:` 块**必须保留**。
 
+### 6. Delta Header Rule（**统一措辞，per AP-009 retro 2026-06-add-bb-config-print**）
+
+> **核心规则**：`## ADDED Requirements` / `## MODIFIED Requirements` / `## REMOVED Requirements` / `## RENAMED Requirements` 是 **delta 头**，**只活在 `openspec/changes/<id>/specs/<cap>/spec.md` 里**。合并到 baseline `openspec/specs/<cap>/spec.md` 时**必须去掉**——绝不能复制过去。
+
+**为什么**（per AP-009 教训）：openspec 校验器把 delta 头视为 change-only 标记。若 baseline 含此头，会报：
+```
+✗ Main spec contains delta header "## ADDED Requirements".
+  Delta headers are only valid inside openspec/changes/<name>/specs/...
+```
+且下游 `openspec show <capability>` / `openspec list` 会**只看到 delta 头前的 baseline 内容**，新 Requirement 不可见。
+
+**正确流程**（与 §4 操作对应）：
+- `## ADDED Requirements` 段 → 取**段下的 `### Requirement:` + `#### Scenario:` 块**（不含 `## ADDED Requirements` 头）→ 追加到 baseline `## Requirements` 段末尾
+- `## MODIFIED Requirements` 段 → 同样去掉 `## MODIFIED Requirements` 头
+- `## REMOVED Requirements` 段 → 同样去掉头（Reason + Migration 进 baseline 同位置或元数据）
+- `## RENAMED Requirements` 段 → 同样去掉头
+
+**自动检测**（防 AP-009 重演）：`bash scripts/verify.sh` 检查 `[18/18] baseline specs no delta headers`（per `scripts/verify.sh`），若 baseline 含任何 delta 头则 FAIL。
+
+**手动 fallback**（`openspec sync` CLI 缺失时）：`bash scripts/sync_change.sh <change-id>` 自动去掉 delta 头 + 智能合并 + 验证。详见 `openspec-archive-change/SKILL.md §2.5`。
+
+**跨 skill 一致性**：本规则在 3 个 openspec-* skill 中统一措辞（避免歧义）：
+- `openspec-sync-specs/SKILL.md`（本文件）—— 规则定义 + 实施细节
+- `openspec-archive-change/SKILL.md §2.5` —— 触发条件 + 手动 fallback 操作
+- `openspec-propose/SKILL.md` —— delta 格式约束（format 阶段不提合并，**不提"去掉 delta 头"**，因为 propose 阶段是 create 不是 merge）
+
 ## 关键约束
 
 - **不程序化合并** —— 必须读两边再编辑，不能 `cp` delta 覆盖 baseline
@@ -65,6 +91,7 @@ openspec validate --strict --specs
 - **MODIFIED 头文本必须完全一致** —— 否则合并后丢失原 Scenario
 - **REMOVED 必须有 Reason + Migration** —— 否则 OpenSpec validate 失败
 - **Scenario 强制 4 个 `#`** —— 3 个 `#` 静默失败（OpenSpec 标准）
+- **Delta 头只在 change 副本里** —— 合并到 baseline 时**必须去掉**（per §6 Delta Header Rule）
 
 ## CLI 调用清单
 
