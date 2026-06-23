@@ -28,7 +28,7 @@
 - `openspec/{specs,changes}/` —— OpenSpec 规格层（仅 zsf 自己的 OpenSpec）
 - `docs/` —— 方法论文档 + ADR
 - 根 `AGENTS.md` / `README.md` / `opencode.json` / `scripts/verify.sh` / `scripts/deploy_tools.sh` / `scripts/check_change.sh`
-- `openspec/AGENTS.md` / `openspec/project.md`（本文件）—— OpenSpec 使用指南
+- `openspec/project.md`（本文件）+ 仓库根 `AGENTS.md §OpenSpec Specs/Changes/Tools` —— OpenSpec 使用指南
 
 ### 2.2 zsf 仓库**禁止**的修改
 
@@ -95,7 +95,7 @@ zsf 仓库的 `openspec/` 不是描述 SSD 固件代码本身的规格（那应�
 ### 4.1 启动时（每个 session）
 
 - 仓库根 `AGENTS.md`（含 Skill Bootstrap 表）
-- `openspec/AGENTS.md`（OpenSpec 操作流程）
+- 仓库根 `AGENTS.md §OpenSpec Specs/Changes/Tools`（OpenSpec 操作流程，已从原 openspec/AGENTS.md 迁入 2026-06-23）
 - 本文件 `openspec/project.md`（项目约定）
 
 ### 4.2 进入 BUILD 前
