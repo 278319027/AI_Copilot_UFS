@@ -45,7 +45,7 @@ FEMU BB mode 当前用 `FEMU_ENABLE_GC_DELAY = 1` 和 `FEMU_DISABLE_GC_DELAY = 2
 
 ## CodeGraph queries used in KNOW phase (per M-4)
 
-> **状态** (2026-06-23): codegraph MCP DB 不在 zsf repo（user 删 `.codegraph/`；FEMU 端 DB 仍存在但未 query）。退化为静态分析 + refactor-bb-flip-table / add-print-num-io 结论。
+> **状态** (2026-06-23): codegraph MCP DB 不在 AI_Copilot_UFS repo（user 删 `.codegraph/`；FEMU 端 DB 仍存在但未 query）。退化为静态分析 + refactor-bb-flip-table / add-print-num-io 结论。
 
 - `grep "FEMU_PRINT_NUM_IO" bbssd/ftl.h` → max enum = 12（line 57-58），新 value 13 safe
 - `grep "FEMU_ENABLE_GC_DELAY" bbssd/bb.c` → handler 引用 `ssd->sp.enable_gc_delay` (line 33, 37)

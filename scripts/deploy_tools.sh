@@ -9,7 +9,7 @@
 #   3. openspec   — PLAN/FEEDBACK 层：规格驱动开发 (Phase 1 新增)
 #
 # 注：Superpowers 是项目级 Skill 集（.opencode/skills/superpowers-*/），
-#     随 zsf 仓库分发，不需本脚本安装。入口整合至 sd-firmware-copilot/SKILL.md §Superpowers 框架整合。
+#     随 AI_Copilot_UFS 仓库分发，不需本脚本安装。入口整合至 sd-firmware-copilot/SKILL.md §Superpowers 框架整合。
 # ------------------------------------------------------------
 # 工具链分工 / C 语言限制（合并自原 references/deploy-guide.md）
 # ------------------------------------------------------------
@@ -271,12 +271,12 @@ else
 
 fi
 
-# 验证 OpenSpec 适配 Skill（随 zsf 仓库分发）
+# 验证 OpenSpec 适配 Skill（随 AI_Copilot_UFS 仓库分发）
 if [ -f ".opencode/skills/openspec-workflow/SKILL.md" ]; then
     echo "  ✓ openspec-workflow Skill 已就位 (propose/explore/apply/sync/archive 五合一)"
 else
     echo "  ⚠ openspec-workflow Skill 未找到"
-    echo "    请检查 .opencode/skills/openspec-workflow/ 目录是否完整克隆 zsf 仓库"
+    echo "    请检查 .opencode/skills/openspec-workflow/ 目录是否完整克隆 AI_Copilot_UFS 仓库"
 fi
 
 # Superpowers 提示（项目级 Skill，不需本脚本安装）
@@ -286,7 +286,7 @@ if compgen -G ".opencode/skills/superpowers-*" >/dev/null; then
     echo "    入口: sd-firmware-copilot/SKILL.md §Superpowers 框架整合"
 else
     echo "  ⚠ Superpowers 项目级 Skill 未找到"
-    echo "    请检查 .opencode/skills/superpowers-*/ 目录是否完整克隆 zsf 仓库"
+    echo "    请检查 .opencode/skills/superpowers-*/ 目录是否完整克隆 AI_Copilot_UFS 仓库"
 fi
 
 # 完成

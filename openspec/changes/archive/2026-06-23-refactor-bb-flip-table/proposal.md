@@ -43,7 +43,7 @@ FEMU `bb_flip` function (`bbssd/bb.c:26-85`) currently uses a 60-line `switch` s
 
 ## CodeGraph queries used in KNOW phase (per M-4)
 
-> **状态** (2026-06-23): codegraph MCP DB 不在 zsf repo（user 删除了 `.codegraph/`；FEMU 端 `.codegraph/` 仍存在但未 query）。退化为静态分析 + prior drill 结论。
+> **状态** (2026-06-23): codegraph MCP DB 不在 AI_Copilot_UFS repo（user 删除了 `.codegraph/`；FEMU 端 `.codegraph/` 仍存在但未 query）。退化为静态分析 + prior drill 结论。
 
 - `grep "bb_flip"` in `bbssd/bb.c` → confirmed 11-case switch in `bb_flip` function (line 26)
 - `grep "^static.*\(" in bb.c` → 6 static functions: `bb_init_ctrl_str`, `bb_init`, `bb_flip`, `bb_nvme_rw`, `bb_io_cmd`, `bb_admin_cmd`

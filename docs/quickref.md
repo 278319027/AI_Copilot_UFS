@@ -1,6 +1,6 @@
 # AI Agent 速查卡
 
-> 一页纸掌握 zsf 方法论核心。详细规则见 `AGENTS.md` 和 `sd-firmware-copilot/SKILL.md`。
+> 一页纸掌握 AI_Copilot_UFS 方法论核心。详细规则见 `AGENTS.md` 和 `sd-firmware-copilot/SKILL.md`。
 
 ## 四阶段闭环
 
@@ -89,7 +89,7 @@ bash scripts/deploy_tools.sh --dry-run /path   # 仅检查依赖，不安装
 ## 文件地图
 
 ```
-zsf/
+AI_Copilot_UFS/
 ├── opencode.json          ← 配置（femuRoot / agent / project）
 ├── openspec/specs/        ← 3 个基线 spec（nvme / ftl / nand）
 ├── openspec/changes/      ← 活跃变更

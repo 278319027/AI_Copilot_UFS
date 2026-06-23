@@ -10,7 +10,7 @@
 
 ## 3. Spec validation
 
-- [x] 3.1 From zsf repo root, run `openspec validate --strict --changes` and confirm 0 violations for `add-bb-config-print`
+- [x] 3.1 From AI_Copilot_UFS repo root, run `openspec validate --strict --changes` and confirm 0 violations for `add-bb-config-print`
 - [x] 3.2 Run `openspec validate --strict --specs` and confirm baseline still valid (3/3 passed)
 
 ## 4. M-1 verify-report artifact
@@ -23,5 +23,5 @@
 
 ## 6. Archive preparation
 
-- [x] 6.1 Re-run `bash scripts/verify.sh` from zsf root and confirm 17/17 still passes
+- [x] 6.1 Re-run `bash scripts/verify.sh` from AI_Copilot_UFS root and confirm 17/17 still passes
 - [x] 6.2 Confirm all checkboxes above are `- [x]` and `applyRequires` is satisfied, then run `/opsx:archive add-bb-config-print`

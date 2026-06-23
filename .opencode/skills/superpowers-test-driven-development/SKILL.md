@@ -2,7 +2,7 @@
 name: superpowers-test-driven-development
 description: Test-after development for embedded firmware. Production code first, then write tests covering normal paths, edge cases, and error paths. Hardware-dependent code uses integration tests or simulation.
 metadata:
-  author: zsf
+  author: AI_Copilot_UFS
   version: "2.0"
 ---
 

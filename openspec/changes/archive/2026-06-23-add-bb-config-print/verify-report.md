@@ -21,7 +21,7 @@
 
 ### Check 2: 编译通过
 
-- 命令: `cd /home/zsf/AI_Proj/femu/build-femu && make libsystem.a.p/hw_femu_bbssd_bb.c.o`
+- 命令: `cd /home/AI_Copilot_UFS/AI_Proj/femu/build-femu && make libsystem.a.p/hw_femu_bbssd_bb.c.o`
 - 结果: exit 0, 0 warnings
 - 实际执行（fresh evidence 2026-06-23 18:46）:
   ```
@@ -74,9 +74,9 @@
 
 ### Check 6: Graphify 完整
 
-- 命令: `graphify update . && graphify diagnose multigraph`（N/A — 目标代码库 FEMU_ROOT 是 QEMU 15K+ 文件，按 zsf project.md 大项目规则不在 zsf 跑 graphify）
+- 命令: `graphify update . && graphify diagnose multigraph`（N/A — 目标代码库 FEMU_ROOT 是 QEMU 15K+ 文件，按 AI_Copilot_UFS project.md 大项目规则不在 AI_Copilot_UFS 跑 graphify）
 - 替代验证: 本变更在 FEMU `hw/femu/bbssd/bb.c`（graph 已存在）；`add-print-version-flip` 已完成 `graphify diagnose multigraph` 验证，本变更同文件同子图无需重跑
-- 状态: ⚠️ N/A（per zsf project.md §2.1 + `add-print-version-flip` precedent）
+- 状态: ⚠️ N/A（per AI_Copilot_UFS project.md §2.1 + `add-print-version-flip` precedent）
 
 ## Bug injection 覆盖率（per `superpowers-test-driven-development` Iron Rule）
 
@@ -106,7 +106,7 @@
 
 ## 总体判定
 
-- **6 项 gate**: 4/6 PASS + 2/6 N/A（Check 3 per design D4, Check 6 per zsf project.md）
+- **6 项 gate**: 4/6 PASS + 2/6 N/A（Check 3 per design D4, Check 6 per AI_Copilot_UFS project.md）
 - **Bug injection 覆盖率**: N/A（per design D3 precedent, 0 public API surface）
 - **Review Gate 准入**: ✅ READY
 
@@ -143,7 +143,7 @@ Totals: 3 passed, 0 failed (3 items)
 
 ### Check 5 输出（静态分析）
 ```
-$ nm /home/zsf/AI_Proj/femu/build-femu/libsystem.a.p/hw_femu_bbssd_bb.c.o | grep bb_
+$ nm /home/AI_Copilot_UFS/AI_Proj/femu/build-femu/libsystem.a.p/hw_femu_bbssd_bb.c.o | grep bb_
 00000000000000a0 t bb_admin_cmd
 0000000000000030 t bb_init
 # (lowercase t = static/local; bb_flip is static, no external callers)

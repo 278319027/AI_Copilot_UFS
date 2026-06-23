@@ -21,7 +21,7 @@
 
 ### Check 2: 编译通过
 
-- 命令: `cd /home/zsf/AI_Proj/femu/build-femu && touch -d "2020-01-01" libsystem.a.p/hw_femu_bbssd_bb.c.o && make libsystem.a.p/hw_femu_bbssd_bb.c.o`
+- 命令: `cd /home/AI_Copilot_UFS/AI_Proj/femu/build-femu && touch -d "2020-01-01" libsystem.a.p/hw_femu_bbssd_bb.c.o && make libsystem.a.p/hw_femu_bbssd_bb.c.o`
 - 结果: exit 0, 0 warnings
 - 实际执行（fresh evidence 2026-06-23 21:15）:
   ```
@@ -67,7 +67,7 @@
 
 ### Check 6: Graphify 完整
 
-- 命令: N/A（per zsf project.md §2.1）
+- 命令: N/A（per AI_Copilot_UFS project.md §2.1）
 - 状态: ⚠️ N/A
 
 ## 新 P0/P1/P2 防御 end-to-end 测试（第 3 次 — 验证一致性）

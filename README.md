@@ -57,12 +57,12 @@ PLAN → BUILD → FEEDBACK: 同路径 A
 `opencode.json` 声明 MCP 服务器、插件和加载的 Skill。其中 `codegraph` MCP 的 `--path` 形参使用 `opencode.json` 不支持注释（JSON 标准不支持），但可用 shell 变量表达式指定目标 SSD 固件源码根：
 
 ```json
-"command": ["codegraph", "serve", "--mcp", "--path", "${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}"]
+"command": ["codegraph", "serve", "--mcp", "--path", "${FEMU_ROOT:-/home/AI_Copilot_UFS/AI_Proj/femu/hw/femu}"]
 ```
 
 | 环境变量 | 作用 | 默认值 | 必需 |
 |---------|------|-------|------|
-| `FEMU_ROOT` | CodeGraph MCP 服务的目标 SSD 固件 `hw/femu` 源码目录（直接指向，不拼接子路径） | `/home/zsf/AI_Proj/femu/hw/femu` | 否（未设则用默认） |
+| `FEMU_ROOT` | CodeGraph MCP 服务的目标 SSD 固件 `hw/femu` 源码目录（直接指向，不拼接子路径） | `/home/AI_Copilot_UFS/AI_Proj/femu/hw/femu` | 否（未设则用默认） |
 
 调整默认路径的方式：
 - **临时覆盖**：`FEMU_ROOT=/path/to/your/ssd_femu_hw_femu_dir opencode`（当前 shell 启动 Agent 时生效）
@@ -72,7 +72,7 @@ PLAN → BUILD → FEEDBACK: 同路径 A
 
 | 序号 | 文档 | 内容 |
 |------|------|------|
-| 1 | [项目导航](docs/navigation.md) | 完整结构地图 + 按角色找文件 + 配置索引 + **zsf 与目标代码库关系** |
+| 1 | [项目导航](docs/navigation.md) | 完整结构地图 + 按角色找文件 + 配置索引 + **AI_Copilot_UFS 与目标代码库关系** |
 | 2 | [方法论概览](AGENTS.md#方法论概览) | 双路径、四阶段闭环、五级门禁、四条铁律 |
 | 3 | [路线图](docs/roadmap.md) | 实施进度与规划 |
 | 4 | [维护者指南](docs/maintainer.md) | 日常操作、FAQ、变更记录 |

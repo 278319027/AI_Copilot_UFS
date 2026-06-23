@@ -3,7 +3,7 @@ name: sd-firmware-copilot
 description: SSD 固件 AI 编程助手，基于四阶段闭环（KNOW→PLAN→BUILD→FEEDBACK）和两层架构（Superpowers 工程纪律 + SSD 固件领域知识）。BUILD 和 FEEDBACK 阶段委托 Superpowers；PLAN 和规格管理委托 openspec-workflow。
 compatibility: Requires OpenSpec CLI (v1.4.1+), CodeGraph MCP. Graphify 通过 `architecture.md §5` 规则使用（无需插件）。
 metadata:
-  author: zsf
+  author: AI_Copilot_UFS
   version: "1.0"
 ---
 
@@ -210,7 +210,7 @@ AI 完成 BUILD Gate checklist 并声明 "BUILD Gate 通过" 后方可开始实�
 
 ## Spec 规则
 
-SSD 固件规格层规则。基于 OpenSpec CLI 实现，zsf 注入 SSD 域知识（基线查询优先级、CodeGraph 协同、200-500 行任务粒度）。
+SSD 固件规格层规则。基于 OpenSpec CLI 实现，AI_Copilot_UFS 注入 SSD 域知识（基线查询优先级、CodeGraph 协同、200-500 行任务粒度）。
 
 ### 规格层定位
 
@@ -398,7 +398,7 @@ openspec validate --strict --specs
 |------|------|
 | `memory/design_rules.md` | 五级门禁统一定义 |
 | `memory/{testing,architecture}_rules.md` + `skills/superpowers-requesting-code-review/ssd-review-rules.md` | 门禁检查项引用 / 可验证性落地 / CodeGraph 查询 |
-| `openspec-workflow/SKILL.md` | CLI 与 zsf 流程衔接 |
+| `openspec-workflow/SKILL.md` | CLI 与 AI_Copilot_UFS 流程衔接 |
 | 本 Skill BUILD 阶段 | 开发工件对应规格层 |
 
 ## 规则与知识
@@ -410,7 +410,7 @@ openspec validate --strict --specs
 
 ## Superpowers 框架整合
 
-本 skill 是 zsf 的"sole integrating skill"。下层 Superpowers 8 个 sub-skill 协同工作：4 条 Iron Rules 强制执行，Bootstrap 决策表告诉 AI 在哪种场景下加载哪个 sub-skill，阶段转换触发器串联四阶段闭环。
+本 skill 是 AI_Copilot_UFS 的"sole integrating skill"。下层 Superpowers 8 个 sub-skill 协同工作：4 条 Iron Rules 强制执行，Bootstrap 决策表告诉 AI 在哪种场景下加载哪个 sub-skill，阶段转换触发器串联四阶段闭环。
 
 ### Iron Rules（4 条，不可妥协）
 

@@ -112,7 +112,7 @@
 - **openspec list --json**: `{"changes":[]}` (0 活跃，1 已 archive)
 - **openspec archive/**: 6 个（add-crt-mapping-cache / add-print-version-flip / add-bb-config-print / test-sync-e2e / refactor-bb-flip-table / add-print-num-io）
 - **verify.sh**: 21/19 PASS（archive 后 19 编号 check）
-- **变更规模**: 2 文件 +5 行（FEMU 端：ftl.h +1, bb.c +4），baseline 1 spec +21 行（ftl-mapping），zsf 端 7 artifact 文件
+- **变更规模**: 2 文件 +5 行（FEMU 端：ftl.h +1, bb.c +4），baseline 1 spec +21 行（ftl-mapping），AI_Copilot_UFS 端 7 artifact 文件
 - **时间**: ~30 min
 - **新 P0/P1/P2 防御 end-to-end**: **3/3 工作正常**（per AP-011）
 - **AP-005 旧账**: 0 个 AI placeholder 残留（6/6 archived drill 全部真实签字）

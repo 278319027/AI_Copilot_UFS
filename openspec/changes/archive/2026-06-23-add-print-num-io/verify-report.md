@@ -22,7 +22,7 @@
 
 ### Check 2: 编译通过
 
-- 命令: `cd /home/zsf/AI_Proj/femu/build-femu && touch -d "2020-01-01" libsystem.a.p/hw_femu_bbssd_bb.c.o && make libsystem.a.p/hw_femu_bbssd_bb.c.o`
+- 命令: `cd /home/AI_Copilot_UFS/AI_Proj/femu/build-femu && touch -d "2020-01-01" libsystem.a.p/hw_femu_bbssd_bb.c.o && make libsystem.a.p/hw_femu_bbssd_bb.c.o`
 - 结果: exit 0, 0 warnings
 - 实际执行（fresh evidence 2026-06-23 21:00）:
   ```
@@ -71,7 +71,7 @@
 
 ### Check 6: Graphify 完整
 
-- 命令: N/A（目标代码库 15K+ 文件，按 zsf project.md 不在 zsf 跑 graphify；per `add-bb-config-print` precedent）
+- 命令: N/A（目标代码库 15K+ 文件，按 AI_Copilot_UFS project.md 不在 AI_Copilot_UFS 跑 graphify；per `add-bb-config-print` precedent）
 - 状态: ⚠️ N/A
 
 ## 新 P0/P1/P2 防御 end-to-end 测试（**本 drill 核心价值**）
@@ -132,7 +132,7 @@
 
 ## 总体判定
 
-- **6 项 gate**: 4/6 PASS + 2/6 N/A（Check 3 per design D5, Check 6 per zsf project.md）
+- **6 项 gate**: 4/6 PASS + 2/6 N/A（Check 3 per design D5, Check 6 per AI_Copilot_UFS project.md）
 - **Bug injection 覆盖率**: N/A（per design D5）
 - **新防御测试**: ⏳ 3 项（[18/19] / [19/19] / §1.0）待 sync/archive 阶段执行
 - **Review Gate 准入**: ✅ READY

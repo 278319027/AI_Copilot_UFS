@@ -18,9 +18,9 @@ IF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.
 This is not negotiable. This is not optional. You cannot rationalize your way out of this.
 </EXTREMELY-IMPORTANT>
 
-## PROJECT-SPECIFIC (zsf / SSD firmware)
+## PROJECT-SPECIFIC (AI_Copilot_UFS / SSD firmware)
 
-> 本节为 zsf 项目（位于 `AGENTS.md` 描述的 OpenCode Agent 运行时）专属。本 skill 的通用规则仍适用，本节叠加项目级强制要求。**per `docs/retrospectives/2026-06-add-crt-mapping-cache.md` AP-002**。
+> 本节为 AI_Copilot_UFS 项目（位于 `AGENTS.md` 描述的 OpenCode Agent 运行时）专属。本 skill 的通用规则仍适用，本节叠加项目级强制要求。**per `docs/retrospectives/2026-06-add-crt-mapping-cache.md` AP-002**。
 
 ### 会话开始时必读
 
@@ -52,7 +52,7 @@ Project context loaded:
 bash scripts/verify.sh                 # 17/17 通过
 
 # 2. 知识图谱最新
-cd /home/zsf/AI_Proj/femu/hw/femu  # 或目标代码库根
+cd /home/AI_Copilot_UFS/AI_Proj/femu/hw/femu  # 或目标代码库根
 graphify update .
 
 # 3. 4 步 CodeGraph 导航（per sd-firmware-copilot §KNOW）
@@ -62,7 +62,7 @@ codegraph context <func>           # 函数定义 + 复杂度
 codegraph impact <file>            # blast radius
 
 # 4. 读 OpenSpec 活跃变更状态（如有）
-cd /home/zsf/AI_Proj/zsf
+cd /home/AI_Copilot_UFS/AI_Proj/AI_Copilot_UFS
 openspec list --json
 ```
 

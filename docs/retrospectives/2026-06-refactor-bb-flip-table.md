@@ -30,7 +30,7 @@
 | **verify.sh [18/19] baseline no delta headers** | 1/1 | 0 | 自动检测防止 AP-009 重演 ✓ |
 | **verify.sh [19/19] review.md placeholder** | 1/1 | 0 | WARN 准确触发（task 6.1 写完 review.md 后）✓ |
 | ninja build | 1/1 | 0 | `bb_flip` 被 inline（GCC 优化，per `nm`）—— 静态分析显示无独立符号 |
-| nm (静态分析) | 1/1 | 0 | 替代 CodeGraph MCP（DB 不在 zsf repo；per user 删 `.codegraph/`）|
+| nm (静态分析) | 1/1 | 0 | 替代 CodeGraph MCP（DB 不在 AI_Copilot_UFS repo；per user 删 `.codegraph/`）|
 
 ## 发现的反模式
 
@@ -91,7 +91,7 @@
    - `[19/19]` review.md placeholder: WARN 准确触发（task 6.1 写完未签字时）
    - `§1.0` ask user to sign: 严格执行（ZSF ✅ APPROVED）
 3. **Behavior Equivalence 验证**（10+1 strings match）作为 refactor 核心：比单元测试更适合"行为 100% identical"断言
-4. **`nm` 静态分析替代 CodeGraph MCP**（DB 不在 zsf repo）：清晰显示所有 handler 是 `t` (static)，table 是 `d` (static const)，无 global symbols
+4. **`nm` 静态分析替代 CodeGraph MCP**（DB 不在 AI_Copilot_UFS repo）：清晰显示所有 handler 是 `t` (static)，table 是 `d` (static const)，无 global symbols
 5. **`sync_change.sh` 第一次实战**（add-bb-config-print 是 manual merge，这次用脚本）：完美执行，无 bug
 
 ## 改进建议
@@ -127,7 +127,7 @@
 - **openspec list --json**: `{"changes":[]}` (0 活跃，1 已 archive)
 - **openspec archive/**: 4 个（add-crt-mapping-cache / add-print-version-flip / add-bb-config-print / test-sync-e2e / refactor-bb-flip-table = 实际 5）
 - **verify.sh**: 21/19（archive 前 21/19 包含 refactor 自身；archive 后仅 19 编号 check）
-- **变更规模**: 1 文件 +132/-60 行（FEMU 端 bb.c），baseline 1 spec +19 行（ftl-mapping），zsf 端 7 artifact 文件
+- **变更规模**: 1 文件 +132/-60 行（FEMU 端 bb.c），baseline 1 spec +19 行（ftl-mapping），AI_Copilot_UFS 端 7 artifact 文件
 - **时间**: ~50 min
 - **P0 工具首次实战**: scripts/sync_change.sh 完美执行
 - **P2 防御首次实战**: §1.0 ask user to sign 完美执行

@@ -1,6 +1,6 @@
 # 项目导航
 
-> 本仓库是 **SSD 固件 AI 辅助编程方法论项目**（"zsf"）。本文档面向**人类读者**做整体导航。
+> 本仓库是 **SSD 固件 AI 辅助编程方法论项目**（"AI_Copilot_UFS"）。本文档面向**人类读者**做整体导航。
 > 仓库约 85% 的内容是给 AI 代理消费的（技能、配置、命令），只有约 5% 是给人类读的——本文档属于那 5%。
 
 ## 这是什么
@@ -47,14 +47,14 @@
 | `.opencode/skills/` | **AI 技能包**：Superpowers 纪律 + sd-firmware-copilot 领域规则 + OpenSpec 适配器 | AI（人偶尔查阅） |
 | `.opencode/memory/` | **项目规则**：5 个规则文件（架构/并发/编码/设计/测试）+ review 规则在 `superpowers-requesting-code-review/ssd-review-rules.md` | AI（人审阅） |
 | `docs/` | **人类文档**：roadmap、navigation | 人 |
-| `graphify-out/` | **知识图谱产物**：在目标代码库运行 graphify 后生成，zsf 自身无此目录 | AI |
+| `graphify-out/` | **知识图谱产物**：在目标代码库运行 graphify 后生成，AI_Copilot_UFS 自身无此目录 | AI |
 | `AGENTS.md` | **AI 运行时指令**：graphify / openspec / superpowers 三工具规则 | AI |
 | `README.md` | **项目入口**：双路径、四工具架构、推荐阅读顺序 | 人 |
 
 ## 项目结构
 
 ```
-zsf/
+AI_Copilot_UFS/
 ├── 📖 人类阅读层
 │   ├── README.md                    ← 项目入口：两路径、四工具、核心原则
 │   ├── AGENTS.md                    ← AI 运行时指令
@@ -88,16 +88,16 @@ zsf/
 │   ├── deploy_tools.sh              ← 一键部署工具链
 │   ├── verify.sh                    ← 一键健康检查（16 项）
 │
-*graphify-out/ 存在于目标代码库（如 FEMU），zsf 根目录无此目录*
+*graphify-out/ 存在于目标代码库（如 FEMU），AI_Copilot_UFS 根目录无此目录*
 ```
 
 
-### zsf 与目标代码库的关系
+### AI_Copilot_UFS 与目标代码库的关系
 
 本项目采用**方法论层与目标代码库解耦**的架构设计：
 
 ```
-zsf 项目 (/home/tcb/AI_Proj/zsf/)
+AI_Copilot_UFS 项目 (/home/tcb/AI_Proj/AI_Copilot_UFS/)
 ├─ .opencode/skills/      ← Superpowers 工程纪律（随仓库分发）
 ├─ .opencode/memory/      ← 架构/并发/编码风格规则
 ├─ openspec/specs/        ← 规格基线（SSD 域知识）
@@ -116,15 +116,15 @@ zsf 项目 (/home/tcb/AI_Proj/zsf/)
 |------|------|
 | **不污染代码库** | femu 是 QEMU fork，有自己的 Git 历史和上游同步需求；避免 `.opencode/` 和 `openspec/` 混入其提交历史 |
 | **一套方法论 → 多目标** | 通过 `opencode.json` 的 `FEMU_ROOT` 变量可切换任意 SSD 固件代码库，无需重复部署 |
-| **职责分离** | zsf 是"驾驶舱"（方法论、配置、变更追踪），femu 是"引擎"（源码、构建、运行） |
+| **职责分离** | AI_Copilot_UFS 是"驾驶舱"（方法论、配置、变更追踪），femu 是"引擎"（源码、构建、运行） |
 | **分析产物就近** | `graphify-out/` 放在 `FEMU_ROOT`（即 `hw/femu`）下是因为它与代码版本强绑定，重建时需定位到 FEMU_ROOT |
 
 #### 常见问题
 
 **Q：为什么 `scripts/verify.sh` 通过，但 femu 目录下没有 `.opencode/` 和 `openspec/`？**
-A：这是有意为之。`.opencode/` 和 `openspec/` 位于 zsf（方法论仓库），而非 femu（目标代码库）。Agent 从 zsf 加载配置与技能，通过 `FEMU_ROOT` 指向 femu 进行代码分析与修改。
+A：这是有意为之。`.opencode/` 和 `openspec/` 位于 AI_Copilot_UFS（方法论仓库），而非 femu（目标代码库）。Agent 从 AI_Copilot_UFS 加载配置与技能，通过 `FEMU_ROOT` 指向 femu 进行代码分析与修改。
 
-**Q：能否把 zsf 的方法论文件复制/软链接到 femu 中？**
+**Q：能否把 AI_Copilot_UFS 的方法论文件复制/软链接到 femu 中？**
 A：不推荐。这会污染 femu 的 Git 状态，与上游 QEMU 同步时产生冲突。保持分离是更干净的设计。
 
 ## 几条重要约定

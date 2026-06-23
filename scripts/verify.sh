@@ -25,7 +25,7 @@ hdr() { printf "\n[%s] %s\n" "$1" "$2"; }
 # FEMU_ROOT 约定：FEMU_ROOT 环境变量（与 opencode.json 的 codegraph --path 同步）
 # 默认值与 opencode.json → mcp.codegraph.command --path 完全一致
 # ------------------------------------------------------------
-FEMU_BASE="${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}"
+FEMU_BASE="${FEMU_ROOT:-/home/AI_Copilot_UFS/AI_Proj/femu/hw/femu}"
 
 echo "=== verify.sh — 项目健康检查 ==="
 echo "  项目根: $PROJECT_ROOT"
@@ -165,8 +165,8 @@ fi
 CMD_COUNT=$(ls -1 "$PROJECT_ROOT/.opencode/commands/opsx-"*.md 2>/dev/null | wc -l)
 [ "$CMD_COUNT" -ge 5 ] && ok "$CMD_COUNT opsx-* slash commands present (>= 5)" || bad "$CMD_COUNT opsx-* commands found (expected >= 5)"
 
-# [12/20] FEMU path should not contain mis-generated .opencode/ (zsf is the canonical .opencode owner)
-hdr "12/20" "FEMU path .opencode/ cleanliness (only zsf should own .opencode/)"
+# [12/20] FEMU path should not contain mis-generated .opencode/ (AI_Copilot_UFS is the canonical .opencode owner)
+hdr "12/20" "FEMU path .opencode/ cleanliness (only AI_Copilot_UFS should own .opencode/)"
 # 检查 FEMU_ROOT 路径（如果存在）下任何子目录是否有误生成的 .opencode/
 # FEMU_ROOT 现在直接是 hw/femu 目录——检查其子目录 (bbssd/, ocssd/, 等) 不能有 .opencode/
 # (FEMU_BASE 在顶部已设置)
@@ -185,7 +185,7 @@ fi
 if [ -z "$MISGEN_OPENCODE" ]; then
     ok "no mis-generated .opencode/ in FEMU subdirs"
 else
-    bad "mis-generated .opencode/ found in FEMU subdirs (only zsf should own .opencode/):$MISGEN_OPENCODE"
+    bad "mis-generated .opencode/ found in FEMU subdirs (only AI_Copilot_UFS should own .opencode/):$MISGEN_OPENCODE"
 fi
 
 # [13/20] scripts/check_change.sh 工具存在 + 可执行

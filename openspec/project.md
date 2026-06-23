@@ -1,4 +1,4 @@
-# OpenSpec Project Conventions — zsf
+# OpenSpec Project Conventions — AI_Copilot_UFS
 
 > **What this file is**：项目级 OpenSpec 约定补充。与 `openspec/config.yaml` 互补：
 > - `config.yaml` —— 结构化配置（schema, context, rules）
@@ -10,40 +10,40 @@
 
 ## 1. Project Identity
 
-**zsf** 是面向 **SSD 固件团队**的 AI 辅助编程体系仓库，**不是 SSD 固件代码本身**。
+**AI_Copilot_UFS** 是面向 **SSD 固件团队**的 AI 辅助编程体系仓库，**不是 SSD 固件代码本身**。
 
-- 目标代码库：通过 `FEMU_ROOT` 环境变量或 `opencode.json → project.femuRoot` 字段指定的 SSD 固件源码（默认 `/home/zsf/AI_Proj/femu/hw/femu`）
-- zsf 仓库**只**承载方法论资产：skills / commands / memory / docs / OpenSpec 规格层 / 部署与验证脚本
-- 代码修改**绝不**发生在 zsf 仓库内（除方法论资产本身）
+- 目标代码库：通过 `FEMU_ROOT` 环境变量或 `opencode.json → project.femuRoot` 字段指定的 SSD 固件源码（默认 `/home/AI_Copilot_UFS/AI_Proj/femu/hw/femu`）
+- AI_Copilot_UFS 仓库**只**承载方法论资产：skills / commands / memory / docs / OpenSpec 规格层 / 部署与验证脚本
+- 代码修改**绝不**发生在 AI_Copilot_UFS 仓库内（除方法论资产本身）
 
-**架构原则**：方法论层（zsf）与目标代码库（FEMU 等）**解耦**。换目标 SSD 固件代码库时**不需重新部署方法论层**。
+**架构原则**：方法论层（AI_Copilot_UFS）与目标代码库（FEMU 等）**解耦**。换目标 SSD 固件代码库时**不需重新部署方法论层**。
 
 ---
 
 ## 2. Scope Rules
 
-### 2.1 zsf 仓库**允许**的修改
+### 2.1 AI_Copilot_UFS 仓库**允许**的修改
 
 - `.opencode/{commands,skills,memory,agents}/` —— 方法论资产
-- `openspec/{specs,changes}/` —— OpenSpec 规格层（仅 zsf 自己的 OpenSpec）
+- `openspec/{specs,changes}/` —— OpenSpec 规格层（仅 AI_Copilot_UFS 自己的 OpenSpec）
 - `docs/` —— 方法论文档 + ADR
 - 根 `AGENTS.md` / `README.md` / `opencode.json` / `scripts/verify.sh` / `scripts/deploy_tools.sh` / `scripts/check_change.sh`
 - `openspec/project.md`（本文件）+ 仓库根 `AGENTS.md §OpenSpec Specs/Changes/Tools` —— OpenSpec 使用指南
 
-### 2.2 zsf 仓库**禁止**的修改
+### 2.2 AI_Copilot_UFS 仓库**禁止**的修改
 
 - 任何 `*.c` / `*.h` / `*.cpp` / `*.py` SSD 固件源码
 - `Makefile` / `CMakeLists.txt` 等构建文件（除非为方法论自身服务）
 - 任何目标代码库的子目录（即使发现误生成的副本 → 立即删除）
 
-### 2.3 OpenSpec 在 zsf 仓库的角色
+### 2.3 OpenSpec 在 AI_Copilot_UFS 仓库的角色
 
-zsf 仓库的 `openspec/` 不是描述 SSD 固件代码本身的规格（那应该在目标代码库），而是**方法论元规格**：
+AI_Copilot_UFS 仓库的 `openspec/` 不是描述 SSD 固件代码本身的规格（那应该在目标代码库），而是**方法论元规格**：
 
-- `openspec/specs/` —— 当前可声明的**能力**（nvme-commands / ftl-mapping / nand-driver 是 **方法论承诺覆盖的 SSD 固件领域**，不是 zsf 仓库自身的能力）
-- `openspec/changes/` —— 方法论层的变更历史（如 `add-femu-gc-stats-log-page` 是 zsf 为 SSD 固件日志能力增加 spec，不是 zsf 仓库自身代码变更）
+- `openspec/specs/` —— 当前可声明的**能力**（nvme-commands / ftl-mapping / nand-driver 是 **方法论承诺覆盖的 SSD 固件领域**，不是 AI_Copilot_UFS 仓库自身的能力）
+- `openspec/changes/` —— 方法论层的变更历史（如 `add-femu-gc-stats-log-page` 是 AI_Copilot_UFS 为 SSD 固件日志能力增加 spec，不是 AI_Copilot_UFS 仓库自身代码变更）
 
-> ⚠️ 当前 `openspec/specs/{nvme-commands,ftl-mapping,nand-driver}/spec.md` 写的是 SSD 固件行为而非 zsf 方法论——这是历史遗留的**概念借用**，方便 zsf 自身走 OpenSpec 流程测试。所有 spec 实际上是描述**目标代码库**（FEMU）的行为，而非 zsf 仓库本身。
+> ⚠️ 当前 `openspec/specs/{nvme-commands,ftl-mapping,nand-driver}/spec.md` 写的是 SSD 固件行为而非 AI_Copilot_UFS 方法论——这是历史遗留的**概念借用**，方便 AI_Copilot_UFS 自身走 OpenSpec 流程测试。所有 spec 实际上是描述**目标代码库**（FEMU）的行为，而非 AI_Copilot_UFS 仓库本身。
 
 ---
 
@@ -53,11 +53,11 @@ zsf 仓库的 `openspec/` 不是描述 SSD 固件代码本身的规格（那应�
 
 - kebab-case（小写 + 连字符）
 - 动词开头：`add-` / `update-` / `remove-` / `refactor-` / `fix-`
-- **场景相关**前缀：方法论层变更用 `add-zsf-...` 开头以区分目标代码库变更
+- **场景相关**前缀：方法论层变更用 `add-AI_Copilot_UFS-...` 开头以区分目标代码库变更
 - 例：
-  - `add-zfs-superpowers-bootstrap-section` —— 在 zsf 仓库根 AGENTS.md 加 Bootstrap 段
+  - `add-zfs-superpowers-bootstrap-section` —— 在 AI_Copilot_UFS 仓库根 AGENTS.md 加 Bootstrap 段
   - `add-femu-gc-stats-log-page` —— 给目标代码库（FEMU）增加 GC stats log 规格
-  - `refactor-opsx-command-style` —— 改造 zsf 的 opsx 命令格式
+  - `refactor-opsx-command-style` —— 改造 AI_Copilot_UFS 的 opsx 命令格式
 
 ### 3.2 任务粒度
 
@@ -129,7 +129,7 @@ zsf 仓库的 `openspec/` 不是描述 SSD 固件代码本身的规格（那应�
 
 方法论层关键决策见 `../docs/adr/`：
 
-- `0001-methodology-target-repo-separation.md` —— 为什么要把方法论层（zsf）和目标代码库（FEMU）分离
+- `0001-methodology-target-repo-separation.md` —— 为什么要把方法论层（AI_Copilot_UFS）和目标代码库（FEMU）分离
 - `0002-four-stage-loop.md` —— 为什么要四阶段闭环（KNOW→PLAN→BUILD→FEEDBACK）
 - `0003-tdd-to-test-after.md` —— 为什么从 TDD 改为 test-after
 - `0004-five-gates.md` —— 为什么加第五个门禁（BUILD Gate）

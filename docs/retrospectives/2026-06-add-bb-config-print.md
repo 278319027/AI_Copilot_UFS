@@ -26,7 +26,7 @@
 | 工具 | 使用频率 | 问题数 | 改进建议 |
 |------|----------|--------|----------|
 | CodeGraph | 0/1 | 0 | 沿用 add-print-version-flip 的"0 external dependents"结论，无新调用 |
-| Graphify | 0/1 | 0 | 目标代码库 15K+ 文件，按 zsf project.md 不在 zsf 跑 |
+| Graphify | 0/1 | 0 | 目标代码库 15K+ 文件，按 AI_Copilot_UFS project.md 不在 AI_Copilot_UFS 跑 |
 | **OpenSpec CLI** | 5/5 | **2** ⚠️ | **见 AP-009**：`openspec sync` 不存在（slash 命令 `/opsx:sync` 应是入口）+ 错误信息 `"unknown command 'sync'"` 误导 |
 | verify.sh | 5/5 | 1 | check [11/17] 硬编码 `-eq 5`（实际 11 个 opsx-*）— 软警告未计入 fail，但需修 |
 | build (ninja) | 1/1 | 0 | 关键发现：ninja 增量构建依赖 `touch` 强制重编才能可靠验证（mtime vs .d 文件依赖关系）|
@@ -59,7 +59,7 @@
 
 1. **沿用 add-print-version-flip 的 trivial-change 模式**：design.md D4 明确写"无单元测试（per precedent）"，避免被 M-2 100% 覆盖率卡住。**这是把 prior drill 的决策沉淀为 reusable 模式的好例子**。
 2. **fresh build evidence 用了 strings + nm**：不只是看 make exit 0，还 `strings libsystem.a.p/hw_femu_bbssd_bb.c.o | grep "FEMU BB"` 确认新字符串字面量在 .rodata 里（mtime 不可靠时的有效补救）。
-3. **verify-report.md 显式标注 N/A 项**：4/6 PASS + 2/6 N/A（per design D4 + zsf project.md），比"全 PASS"的虚假成功更诚实。
+3. **verify-report.md 显式标注 N/A 项**：4/6 PASS + 2/6 N/A（per design D4 + AI_Copilot_UFS project.md），比"全 PASS"的虚假成功更诚实。
 
 ## 改进建议
 
@@ -90,4 +90,4 @@
 - **openspec list --json**: `{"changes":[]}`（0 活跃，1 已 archive）
 - **openspec archive/**: 3 个（add-crt-mapping-cache / add-print-version-flip / add-bb-config-print）
 - **verify.sh**: 17/17（archive 后回归测试）
-- **变更规模**: 2 文件 +21/-0 行（FEMU 端），baseline 1 spec +22 行（ftl-mapping），zsf 端 7 个 artifact 文件
+- **变更规模**: 2 文件 +21/-0 行（FEMU 端），baseline 1 spec +22 行（ftl-mapping），AI_Copilot_UFS 端 7 个 artifact 文件

@@ -61,13 +61,13 @@
 
 ## T5. Verify spec validity
 
-- [ ] `cd /home/zsf/AI_Proj/zsf && openspec validate --strict --changes` — must exit 0
+- [ ] `cd /home/zsf/AI_Proj/AI_Copilot_UFS && openspec validate --strict --changes` — must exit 0
 - [ ] `openspec validate --strict --specs` — must still pass (no baseline change yet)
 
 ## T6. Verify project hygiene
 
 - [ ] `bash scripts/verify.sh` — must still be 22/20 PASS (no regression in M-2 [20/20] check)
-- [ ] `cd /home/zsf/AI_Proj/zsf && openspec list --json` — 1 active change `refactor-crt-insert-helpers`
+- [ ] `cd /home/zsf/AI_Proj/AI_Copilot_UFS && openspec list --json` — 1 active change `refactor-crt-insert-helpers`
 
 ## T7. Write verify-report.md (M-1)
 

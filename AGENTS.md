@@ -21,7 +21,7 @@
    - `openspec-sync-specs/SKILL.md`（sync 阶段 + §6 Delta Header Rule）
    - `openspec-archive-change/SKILL.md`（archive 阶段 + §1.0 ask user + §2.5 manual sync fallback）
    - `sd-firmware-copilot/SKILL.md`（项目级 pipeline + 五门禁 + Iron Rules）
-4. **OpenSpec 状态检查**：`cd /home/zsf/AI_Proj/zsf && openspec list --json`（盘点活跃变更）
+4. **OpenSpec 状态检查**：`cd /home/AI_Copilot_UFS/AI_Proj/AI_Copilot_UFS && openspec list --json`（盘点活跃变更）
 
 > **为什么**：这些规则在 PLAN/DESIGN/BUILD 阶段持续生效；不读会导致 DESIGN 违反 memory 规则（命名 / 风格 / 并发模型）而到 BUILD 阶段才发现。**AP-002 案例**：`add-crt-mapping-cache` 在 PLAN 阶段就违反 coding_style 的"英文命名 + 中文注释"约定，是 session 中段才纠正的。
 
@@ -29,12 +29,12 @@
 
 CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其目标路径通过 `opencode.json` 的 `mcp.codegraph.command` 数组配置。
 
-**约定**：`FEMU_ROOT` 环境变量是 FEMU 路径的标准形式，与 `opencode.json` 的 `mcp.codegraph.command --path` 的 `${FEMU_ROOT:-/default}` 语法一致。所有 shell 脚本统一使用 `${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}` 约定，**与 `opencode.json` 默认值保持同步**（修改任一处需同步另一处）。
+**约定**：`FEMU_ROOT` 环境变量是 FEMU 路径的标准形式，与 `opencode.json` 的 `mcp.codegraph.command --path` 的 `${FEMU_ROOT:-/default}` 语法一致。所有 shell 脚本统一使用 `${FEMU_ROOT:-/home/AI_Copilot_UFS/AI_Proj/femu/hw/femu}` 约定，**与 `opencode.json` 默认值保持同步**（修改任一处需同步另一处）。
 
 | 项 | 值 |
 |----|----|
 | **环境变量** | `FEMU_ROOT`（env var 优先于默认） |
-| **默认路径** | `/home/zsf/AI_Proj/femu/hw/femu`（与 `opencode.json` 的 `codegraph.command --path` 默认值相同）|
+| **默认路径** | `/home/AI_Copilot_UFS/AI_Proj/femu/hw/femu`（与 `opencode.json` 的 `codegraph.command --path` 默认值相同）|
 | **验证命令** | `bash scripts/verify.sh` 中的 `[9/17] FEMU_ROOT` 检查 |
 
 覆盖示例:
@@ -43,7 +43,7 @@ CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其�
 
 ## graphify
 
-在目标代码库（非 zsf 自身）运行 `graphify update <子目录>` 后，会生成 `graphify-out/` 知识图谱（god nodes、社区结构、跨文件关系）。
+在目标代码库（非 AI_Copilot_UFS 自身）运行 `graphify update <子目录>` 后，会生成 `graphify-out/` 知识图谱（god nodes、社区结构、跨文件关系）。
 
 当用户输入 `/graphify` 时，直接运行 graphify CLI 命令（graphify query/path/explain/update）。
 
@@ -57,17 +57,17 @@ CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其�
 
 ## .opencode 归属规则
 
-**zsf 是 `.opencode/` 目录的唯一所有者**。`.opencode/{commands,memory,skills}/` 是项目级方法论资产，跟随 zsf 仓库版本控制。
+**AI_Copilot_UFS 是 `.opencode/` 目录的唯一所有者**。`.opencode/{commands,memory,skills}/` 是项目级方法论资产，跟随 AI_Copilot_UFS 仓库版本控制。
 
-OpenCode Agent 在不同工作目录运行时，**应向上查找**到 zsf 仓库根目录加载 `.opencode/`，**不应**在以下位置创建 `.opencode/`：
+OpenCode Agent 在不同工作目录运行时，**应向上查找**到 AI_Copilot_UFS 仓库根目录加载 `.opencode/`，**不应**在以下位置创建 `.opencode/`：
 
 - ❌ `FEMU_ROOT/.opencode/`（SSD 固件代码子目录）— 实际发生过的误生成位置
-- ❌ `<femu 仓库根>/.opencode/`（femu 仓库根，非 zsf）— 仅当 femu 是独立工作区时才允许
+- ❌ `<femu 仓库根>/.opencode/`（femu 仓库根，非 AI_Copilot_UFS）— 仅当 femu 是独立工作区时才允许
 - ❌ 任何目标代码库子目录内的 `.opencode/`
 
-如果发现误生成（`verify.sh [13/17]` 会自动检测），执行 `rm -rf <误生成路径>/.opencode/`，并通过在 zsf 仓库根启动 OpenCode Agent 来修复（保证向上查找找到 zsf 自己的 `.opencode/`）。
+如果发现误生成（`verify.sh [13/17]` 会自动检测），执行 `rm -rf <误生成路径>/.opencode/`，并通过在 AI_Copilot_UFS 仓库根启动 OpenCode Agent 来修复（保证向上查找找到 AI_Copilot_UFS 自己的 `.opencode/`）。
 
-**为什么不允许**：方法论层（zsf）与目标代码库（femu）解耦是核心架构原则。在 femu 子目录创建 `.opencode/` 会让 femu 仓库的"运行环境"被方法论层锁死——换 SSD 固件代码库时必须重新部署。同时误生成的副本会与 zsf 自己的 `.opencode/` 不同步（出现 skill 名字不一致、规则过时等问题）。
+**为什么不允许**：方法论层（AI_Copilot_UFS）与目标代码库（femu）解耦是核心架构原则。在 femu 子目录创建 `.opencode/` 会让 femu 仓库的"运行环境"被方法论层锁死——换 SSD 固件代码库时必须重新部署。同时误生成的副本会与 AI_Copilot_UFS 自己的 `.opencode/` 不同步（出现 skill 名字不一致、规则过时等问题）。
 
 ## openspec
 

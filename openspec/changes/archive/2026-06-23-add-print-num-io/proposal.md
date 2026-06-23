@@ -43,7 +43,7 @@ FEMU BB mode `FEMU_RESET_ACCT = 5` flips `nr_tt_ios` 和 `nr_tt_late_ios` 到 0 
 
 ## CodeGraph queries used in KNOW phase (per M-4)
 
-> **状态** (2026-06-23): codegraph MCP DB 不在 zsf repo（user 删 `.codegraph/`；FEMU 端 DB 仍存在但未 query）。退化为静态分析 + refactor-bb-flip-table 结论。
+> **状态** (2026-06-23): codegraph MCP DB 不在 AI_Copilot_UFS repo（user 删 `.codegraph/`；FEMU 端 DB 仍存在但未 query）。退化为静态分析 + refactor-bb-flip-table 结论。
 
 - `grep "FEMU_PRINT_BB_CONFIG" bbssd/ftl.h` → max enum = 11（line 57），新 value 12 safe
 - `grep "FEMU_RESET_ACCT" bbssd/bb.c` → handler 引用 `n->nr_tt_ios` / `n->nr_tt_late_ios`（line 55-56）

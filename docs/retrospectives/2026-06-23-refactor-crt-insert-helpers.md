@@ -12,7 +12,7 @@
 - **平均变更周期**: ~50 分钟（KNOW 5min + PROPOSE 12min + APPLY 18min + archive 15min 含 sync bug 修复）
 - **LOC delta**:
   - `FEMU/hw/femu/bbssd/crt.c`: 46-line inline block → 22-line main + 33-line helpers (+ 2 fwd decls) = **+5 net LOC** (overhead of function wrappers)
-  - `zsf/openspec/specs/ftl-mapping/spec.md`: +40 lines (1 ADDED Requirement + 4 Scenarios)
+  - `AI_Copilot_UFS/openspec/specs/ftl-mapping/spec.md`: +40 lines (1 ADDED Requirement + 4 Scenarios)
 
 ## 流程执行统计
 
@@ -147,8 +147,8 @@
 - **verify.sh**: 22/20 (12 编号 check 复合)
 - **变更规模**:
   - `FEMU/hw/femu/bbssd/crt.c`: -25 inline lines / +33 helper lines / +2 fwd decl = **+10 net LOC**（含 2-line blank separator overhead）
-  - `zsf/openspec/specs/ftl-mapping/spec.md`: +40 lines (1 ADDED Requirement + 4 Scenarios)
-  - `zsf` artifacts: 7 files (proposal / design / tasks / specs / review / verify-report + .openspec.yaml) = ~691 insertions
+  - `AI_Copilot_UFS/openspec/specs/ftl-mapping/spec.md`: +40 lines (1 ADDED Requirement + 4 Scenarios)
+  - `AI_Copilot_UFS` artifacts: 7 files (proposal / design / tasks / specs / review / verify-report + .openspec.yaml) = ~691 insertions
 - **时间**: ~50 min
 - **§1b workflow 首次 end-to-end**: 完美（no 空 delta 探索）
 - **Behavior Equivalence**: byte-for-byte identical（host test 隐式 `diff` 0 行）

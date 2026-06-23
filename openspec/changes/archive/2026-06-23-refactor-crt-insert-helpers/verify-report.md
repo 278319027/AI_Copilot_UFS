@@ -21,7 +21,7 @@
 
 ### Check 2: 编译通过
 
-- 命令: `cd /home/zsf/AI_Proj/femu/hw/femu/bbssd && gcc -c -Wall -Wextra -Werror -O2 -std=c11 -fPIC -I. -I.. crt.c -o /tmp/crt_refactor.o`
+- 命令: `cd /home/AI_Copilot_UFS/AI_Proj/femu/hw/femu/bbssd && gcc -c -Wall -Wextra -Werror -O2 -std=c11 -fPIC -I. -I.. crt.c -o /tmp/crt_refactor.o`
 - 结果: exit 0, 0 warnings, 0 errors
 - 实际执行（fresh evidence 2026-06-23 22:30）:
   ```
@@ -96,7 +96,7 @@
 
 ### Check 6: Graphify 完整
 
-- 命令: N/A（per zsf project.md §2.1）
+- 命令: N/A（per AI_Copilot_UFS project.md §2.1）
 - 状态: ⚠️ N/A
 
 ## §1b Refactor Type Workflow 验证（per AP-010 workaround）
@@ -171,7 +171,7 @@
 
 ### Check 2 编译输出
 ```
-$ cd /home/zsf/AI_Proj/femu/hw/femu/bbssd && \
+$ cd /home/AI_Copilot_UFS/AI_Proj/femu/hw/femu/bbssd && \
   gcc -c -Wall -Wextra -Werror -O2 -std=c11 -fPIC -I. -I.. crt.c -o /tmp/crt_refactor.o
 exit=0
 (no warnings, no errors)
