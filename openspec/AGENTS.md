@@ -14,7 +14,7 @@
    - `openspec-workflow` —— 5 phase 概念层
 3. **检查环境**：
    ```bash
-   bash scripts/verify.sh                                                       # 15/15 通过
+   bash scripts/verify.sh                                                       # 17/17 通过
    OPENSPEC_TELEMETRY=0 openspec validate --strict --specs              # baseline 有效
    ```
 

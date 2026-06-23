@@ -30,8 +30,8 @@ FEMU_BASE="${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}"
 echo "=== verify.sh — 项目健康检查 ==="
 echo "  项目根: $PROJECT_ROOT"
 
-# [1/16] OpenSpec specs validation
-hdr "1/16" "OpenSpec specs validation"
+# [1/17] OpenSpec specs validation
+hdr "1/17" "OpenSpec specs validation"
 if command -v openspec &>/dev/null; then
     if OUT=$(OPENSPEC_TELEMETRY=0 openspec validate --strict --specs 2>&1) && \
        echo "$OUT" | grep -qE "[0-9]+ passed, 0 failed"; then
@@ -43,27 +43,16 @@ else
     bad "openspec CLI not installed (npm i -g @fission-ai/openspec)"
 fi
 
-# ---------------------------------------------------------------------------
-# codegraph 安装说明（2026-06-22 验证）：
-#   scripts/deploy_tools.sh 默认安装的 codegraph 可能是不支持 C 语言的旧版本（如 v3.3.1）。
-#   若 `codegraph build` 报 "Found 0 files to parse"，升级到最新版本即可：
-#
-#       npm install -g @optave/codegraph@latest   # 或指定版本 @3.13.0
-#       cd <FEMU_ROOT> && rm -rf .codegraph && codegraph build .
-#
-#   v3.13.0 支持 34 种语言（含 C/C++ .c/.h），build 后检查：
-#       codegraph stats   # 预期：Nodes > 0，Edges > 0
-# ---------------------------------------------------------------------------
-# [2/16] CodeGraph MCP
-hdr "2/16" "CodeGraph MCP config"
+# [2/17] CodeGraph MCP
+hdr "2/17" "CodeGraph MCP config"
 if [ -f "$PROJECT_ROOT/opencode.json" ] && grep -q '"codegraph"' "$PROJECT_ROOT/opencode.json"; then
     ok "opencode.json contains codegraph MCP entry"
 else
     bad "opencode.json missing or lacks 'codegraph' MCP"
 fi
 
-# [3/16] Memory rules (5 files present)
-hdr "3/16" "Memory rules (5 files present)"
+# [3/17] Memory rules (5 files present)
+hdr "3/17" "Memory rules (5 files present)"
 MEM="$PROJECT_ROOT/.opencode/memory"
 MISS=0
 for r in architecture.md concurrency_rules.md coding_style.md design_rules.md testing_rules.md; do
@@ -71,20 +60,20 @@ for r in architecture.md concurrency_rules.md coding_style.md design_rules.md te
 done
 [ "$MISS" -eq 0 ] && ok "all 5 rules present" || bad "$MISS/5 rules missing in .opencode/memory/"
 
-# [4/16] scripts/deploy_tools.sh syntax
-hdr "4/16" "scripts/deploy_tools.sh syntax"
+# [4/17] scripts/deploy_tools.sh syntax
+hdr "4/17" "scripts/deploy_tools.sh syntax"
 bash -n "$PROJECT_ROOT/scripts/deploy_tools.sh" 2>/dev/null && ok "scripts/deploy_tools.sh has valid bash syntax" || bad "scripts/deploy_tools.sh has syntax errors"
 
-# [5/16] Tools on PATH
-hdr "5/16" "Essential tools on PATH"
+# [5/17] Tools on PATH
+hdr "5/17" "Essential tools on PATH"
 MT=()
 for t in codegraph openspec; do
     command -v "$t" &>/dev/null || MT+=("$t")
 done
 [ ${#MT[@]} -eq 0 ] && ok "codegraph, openspec on PATH" || bad "missing tools: ${MT[*]}"
 
-# [6/16] Memory rules format (non-empty + has headers)
-hdr "6/16" "Memory rules format (5 files)"
+# [6/17] Memory rules format (non-empty + has headers)
+hdr "6/17" "Memory rules format (5 files)"
 BAD=0
 for r in architecture.md concurrency_rules.md coding_style.md design_rules.md testing_rules.md; do
     f="$MEM/$r"
@@ -96,8 +85,8 @@ for r in architecture.md concurrency_rules.md coding_style.md design_rules.md te
 done
 [ "$BAD" -eq 0 ] && ok "all 5 rules non-empty with markdown headers" || bad "$BAD rules empty or malformed"
 
-# [7/16] openspec/config.yaml non-empty
-hdr "7/16" "openspec/config.yaml"
+# [7/17] openspec/config.yaml non-empty
+hdr "7/17" "openspec/config.yaml"
 CONFIG="$PROJECT_ROOT/openspec/config.yaml"
 if [ -f "$CONFIG" ] && [ -s "$CONFIG" ]; then
     ok "config.yaml exists and is non-empty"
@@ -105,8 +94,8 @@ else
     bad "config.yaml missing or empty"
 fi
 
-# [8/16] opencode.json 完整性与 JSON 有效性
-hdr "8/16" "opencode.json schema + agent/project config"
+# [8/17] opencode.json 完整性与 JSON 有效性
+hdr "8/17" "opencode.json schema (mcp + codegraph)"
 if command -v python3 &>/dev/null; then
     OPENCODE_CHECK=$(python3 -c "
 import json, sys
@@ -116,12 +105,8 @@ try:
     errs = []
     if 'mcp' not in cfg:
         errs.append('missing mcp')
-    if 'agent' not in cfg:
-        errs.append('missing agent')
     if 'mcp' in cfg and 'codegraph' not in cfg.get('mcp', {}):
         errs.append('missing mcp.codegraph')
-    # 注: project.* 字段已废弃——FEMU_ROOT 现在通过 env var 约定
-    # (opencode.json mcp.codegraph.command --path 是单一真相源)
     if errs:
         print('FAIL: ' + '; '.join(errs))
         sys.exit(1)
@@ -131,7 +116,7 @@ except Exception as e:
     sys.exit(1)
 " 2>&1)
     if echo "$OPENCODE_CHECK" | grep -q "^PASS"; then
-        ok "opencode.json valid JSON with agent + project config"
+        ok "opencode.json valid JSON with mcp.codegraph"
     else
         bad "opencode.json issue: $(echo "$OPENCODE_CHECK" | sed 's/^FAIL: //')"
     fi
@@ -139,16 +124,16 @@ else
     bad "python3 not available, cannot validate opencode.json"
 fi
 
-# [9/16] FEMU_ROOT — 单一真相源：FEMU_ROOT env var 与 opencode.json codegraph --path 同步
-hdr "9/16" "FEMU_ROOT (CodeGraph MCP target path)"
+# [9/17] FEMU_ROOT — 单一真相源：FEMU_ROOT env var 与 opencode.json codegraph --path 同步
+hdr "9/17" "FEMU_ROOT (CodeGraph MCP target path)"
 if [ -d "$FEMU_BASE" ]; then
     ok "FEMU hw/femu dir exists: $FEMU_BASE"
 else
     bad "FEMU hw/femu dir missing: $FEMU_BASE (export FEMU_ROOT=<path> to override)"
 fi
 
-# [10/16] Spec files (3 capabilities) non-empty
-hdr "10/16" "Spec files (3 capabilities, non-empty)"
+# [10/17] Spec files (3 capabilities) non-empty
+hdr "10/17" "Spec files (3 capabilities, non-empty)"
 EMPTY_SPECS=0
 for s in nvme-commands ftl-mapping nand-driver; do
     f="$PROJECT_ROOT/openspec/specs/$s/spec.md"
@@ -156,8 +141,8 @@ for s in nvme-commands ftl-mapping nand-driver; do
 done
 [ "$EMPTY_SPECS" -eq 0 ] && ok "all 3 spec files exist and non-empty" || bad "$EMPTY_SPECS/3 spec files missing or empty"
 
-# [11/16] Skill directories: 5 openspec-* (硬) + 1 openspec-workflow (硬) + N superpowers-* (软报告) + 1 sd-firmware-copilot (硬)
-hdr "11/16" "Skill directories (5 openspec-* + 1 openspec-workflow + N superpowers-* + 1 sd-firmware-copilot; N 不强制)"
+# [11/17] Skill directories: 5 openspec-* (硬) + 1 openspec-workflow (硬) + N superpowers-* (软报告) + 1 sd-firmware-copilot (硬)
+hdr "11/17" "Skill directories (5 openspec-* + 1 openspec-workflow + N superpowers-* + 1 sd-firmware-copilot; N 不强制)"
 SKILL_BAD=0
 SP_OS_PHASE_COUNT=0
 for phase_dir in openspec-propose openspec-explore openspec-apply openspec-sync-specs openspec-archive-change; do
@@ -180,8 +165,8 @@ fi
 CMD_COUNT=$(ls -1 "$PROJECT_ROOT/.opencode/commands/opsx-"*.md 2>/dev/null | wc -l)
 [ "$CMD_COUNT" -eq 5 ] && ok "5 opsx-* slash commands present" || bad "$CMD_COUNT opsx-* commands found (expected 5)"
 
-# [12/16] FEMU path should not contain mis-generated .opencode/ (zsf is the canonical .opencode owner)
-hdr "13/16" "FEMU path .opencode/ cleanliness (only zsf should own .opencode/)"
+# [12/17] FEMU path should not contain mis-generated .opencode/ (zsf is the canonical .opencode owner)
+hdr "12/17" "FEMU path .opencode/ cleanliness (only zsf should own .opencode/)"
 # 检查 FEMU_ROOT 路径（如果存在）下任何子目录是否有误生成的 .opencode/
 # FEMU_ROOT 现在直接是 hw/femu 目录——检查其子目录 (bbssd/, ocssd/, 等) 不能有 .opencode/
 # (FEMU_BASE 在顶部已设置)
@@ -203,8 +188,8 @@ else
     bad "mis-generated .opencode/ found in FEMU subdirs (only zsf should own .opencode/):$MISGEN_OPENCODE"
 fi
 
-# [13/16] scripts/check_change.sh 工具存在 + 可执行
-hdr "14/16" "scripts/check_change.sh 工具"
+# [13/17] scripts/check_change.sh 工具存在 + 可执行
+hdr "13/17" "scripts/check_change.sh 工具"
 CHECK_CHANGE="$PROJECT_ROOT/scripts/check_change.sh"
 if [ -x "$CHECK_CHANGE" ]; then
     ok "scripts/check_change.sh 存在且可执行"
@@ -212,8 +197,8 @@ else
     bad "scripts/check_change.sh 缺失或不可执行"
 fi
 
-# [14/16] sd-firmware-copilot SKILL.md 关键章节齐全
-hdr "15/16" "sd-firmware-copilot SKILL.md 关键章节"
+# [14/17] sd-firmware-copilot SKILL.md 关键章节齐全
+hdr "14/17" "sd-firmware-copilot SKILL.md 关键章节"
 SD_SKILL="$PROJECT_ROOT/.opencode/skills/sd-firmware-copilot/SKILL.md"
 if [ -f "$SD_SKILL" ]; then
     MISSING_SECTIONS=0
@@ -229,8 +214,8 @@ else
     bad "sd-firmware-copilot/SKILL.md 不存在"
 fi
 
-# [15/16] anti_patterns.md 存在性（非阻塞，信息提示）
-hdr "16/16" "anti_patterns.md 存在性"
+# [15/17] anti_patterns.md 存在性（非阻塞，信息提示）
+hdr "15/17" "anti_patterns.md 存在性"
 if [ -f "$PROJECT_ROOT/.opencode/memory/anti_patterns.md" ]; then
     AP_COUNT=$(grep -cE "^## AP-" "$PROJECT_ROOT/.opencode/memory/anti_patterns.md" 2>/dev/null || echo 0)
     ok "anti_patterns.md 存在，含 $AP_COUNT 个反模式"
@@ -238,8 +223,8 @@ else
     warn "anti_patterns.md 缺失（建议添加以沉淀历史经验）"
 fi
 
-# [16/16] spec 符号存在性检查（可选，需要目标代码库）
-hdr "17/16" "spec symbols existence"
+# [16/17] spec 符号存在性检查（可选，需要目标代码库）
+hdr "16/17" "spec symbols existence"
 if [ -x "$PROJECT_ROOT/scripts/verify_spec_symbols.sh" ]; then
     if bash "$PROJECT_ROOT/scripts/verify_spec_symbols.sh" >/dev/null 2>&1; then
         ok "spec 中引用的 C 符号在目标代码库中存在"
@@ -252,6 +237,6 @@ fi
 
 # Summary
 printf "\n==============================================\n"
-printf "  Summary: %d/16 checks passed\n" "$P"
+printf "  Summary: %d/17 checks passed\n" "$P"
 printf "==============================================\n"
 [ "$F" -eq 0 ] && exit 0 || exit 1

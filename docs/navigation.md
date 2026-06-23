@@ -213,7 +213,7 @@ BUILD Gate 是 2026-06-22 新增，强制 AI 在编码前加载验证 skill。�
 bash scripts/deploy_tools.sh /path/to/c-source
 
 # 2. 验证环境
-bash scripts/verify.sh    # 确认 15/15 通过
+bash scripts/verify.sh    # 确认 17/17 通过
 
 # 3. 选一条路径开始
 # 路径 A（有设计文档）→ /opsx:propose <change-name>

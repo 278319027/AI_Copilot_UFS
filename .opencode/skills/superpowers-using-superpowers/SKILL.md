@@ -49,7 +49,7 @@ Project context loaded:
 
 ```bash
 # 1. 项目级 OpenCode 配置就绪
-bash scripts/verify.sh                 # 15/15 通过
+bash scripts/verify.sh                 # 17/17 通过
 
 # 2. 知识图谱最新
 cd /home/zsf/AI_Proj/femu/hw/femu  # 或目标代码库根

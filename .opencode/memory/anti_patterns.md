@@ -33,7 +33,7 @@
 **预防**:
 - 不要写独立的 FEMU_ROOT 解析脚本——约定是 env var 默认值
 - 修改默认路径时，**2 处需同步**：`opencode.json` 的 codegraph --path + 脚本中 `${FEMU_ROOT:-...}` 默认值
-- verify.sh [8/15] 检查项验证 `opencode.json` 配置完整性
+- verify.sh [8/17] 检查项验证 `opencode.json` 配置完整性
 
 ---
 

@@ -109,3 +109,22 @@ zsf/
 - **test-after**：代码后补测试，做注入验证
 - **变量英文，注释中文**
 - **禁止**：`as any`、`@ts-ignore`、空 catch、递归、malloc
+
+## CodeGraph 安装注意
+
+> 验证日期：2026-06-22
+
+**问题**：`scripts/deploy_tools.sh` 默认安装的 codegraph 可能是不支持 C 语言的旧版本（如 v3.3.1）。
+
+**症状**：`codegraph build` 报 `Found 0 files to parse`。
+
+**修复**：
+```bash
+npm install -g @optave/codegraph@latest   # 或指定版本 @3.13.0
+cd <FEMU_ROOT> && rm -rf .codegraph && codegraph build .
+```
+
+**验证**：v3.13.0+ 支持 34 种语言（含 C/C++ .c/.h），build 后：
+```bash
+codegraph stats   # 预期: Nodes > 0, Edges > 0
+```

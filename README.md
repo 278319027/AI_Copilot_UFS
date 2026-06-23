@@ -10,7 +10,7 @@
 bash scripts/deploy_tools.sh /path/to/c-source
 
 # 2. 验证环境
-bash scripts/verify.sh    # 确认 15/15 通过
+bash scripts/verify.sh    # 确认 17/17 通过
 
 # 3. 选一条路径开始（在 OpenCode IDE 中）
 #    路径 A（有设计文档）→ /opsx:propose <change-name>

@@ -35,7 +35,7 @@
 ### Phase 4：试点实战 🟡 准备就绪
 
 > **启动条件**（全部满足 ✅ 即可开始）：
-> 1. `scripts/verify.sh` 15/15 通过
+> 1. `scripts/verify.sh` 17/17 通过
 > 2. `openspec` CLI + `openspec instructions <id>` 取模板（替代原本地 `templates/` 库，2026-06-23 移除）
 > 3. 选定第 1 个低风险真实需求（建议：文档改进或单文件 bugfix）
 >
@@ -53,7 +53,7 @@
 |------|------|------|
 | 模板库积累 | ~~已移除~~ | ~~`templates/{proposal,design,tasks,review}-template.md`~~ — 2026-06-23 移除（与 `openspec instructions` CLI 输出重复） |
 | Hooks 自动化增强 | ~~已移除~~ | ~~`templates/git-hooks/{post-checkout,post-merge,post-commit}` + `scripts/install-graphify-hooks.sh`~~ — 2026-06-23 移除，由 M-5 PROJECT-SPECIFIC session-start 更新替代 |
-| ~~CI/CD 流水线~~ | ~~已移除~~ | ~~`.github/workflows/verify.yml`~~ — 本地使用方法论前手动运行 `bash verify.sh` 即可，无需自动化 CI
+| ~~CI/CD 流水线~~ | ~~已移除~~ | ~~`.github/workflows/verify.yml`~~ — 本地使用方法论前手动运行 `bash scripts/verify.sh` 即可，无需自动化 CI
 | 规则迭代 | 🟡 | 通过 verify.sh [3-8/15] 检与 commit 时间戳迭代（不再依赖 collect_metrics） |
 | QLoRA 微调评估 | 🔲 | 内部数据微调可行性评估 |
 

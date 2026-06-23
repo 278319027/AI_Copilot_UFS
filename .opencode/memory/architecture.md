@@ -107,9 +107,9 @@
 
 | 配置节 | 用途 | 校验位置 |
 |--------|------|----------|
-| `mcp.codegraph` | CodeGraph MCP 服务配置 | verify.sh [2/15] |
-| `agent` | Agent 行为参数（超时、并发、context 阈值） | verify.sh [8/15] |
-| `project` | 项目特定设置（femuRoot、构建命令、graphify 策略） | verify.sh [8/15] |
+| `mcp.codegraph` | CodeGraph MCP 服务配置 | verify.sh [2/17] |
+| `agent` | Agent 行为参数（超时、并发、context 阈值） | verify.sh [8/17] |
+| `project` | 项目特定设置（femuRoot、构建命令、graphify 策略） | verify.sh [8/17] |
 
 **FEMU_ROOT 约定**：所有 shell 脚本统一使用 `${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}` 形式（与 `opencode.json → mcp.codegraph.command --path` 的 `${FEMU_ROOT:-default}` 语法完全一致）。**严禁** 写独立解析脚本（早期 `scripts/get_femu_root.sh` 70 行脚本已删除——它解析的是冗余的 `project.femuRoot` 字段，等价于 1 行 shell 变量展开）。
 

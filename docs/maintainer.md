@@ -52,7 +52,7 @@ bash scripts/deploy_tools.sh /path/to/your/c/source
 # 2. 一键健康检查
 bash scripts/verify.sh
 
-# 3. 确认 15/15 通过
+# 3. 确认 17/17 通过
 #   [1/13] OpenSpec specs validation
 #   [2/13] CodeGraph MCP config
 #   [3/13] Memory rules (5 files present)
@@ -65,9 +65,9 @@ bash scripts/verify.sh
 #   [10/13] Spec files (3 capabilities)
 #   [11/13] Skill directories
 #   [12/13] .omo/ cleanliness
-#   [13/15] FEMU path .opencode/ cleanliness
-#   [14/15] check_change.sh 工具
-#   [15/15] sd-firmware-copilot SKILL.md 关键章节
+#   [13/17] FEMU path .opencode/ cleanliness
+#   [13/17] check_change.sh 工具
+#   [15/17] sd-firmware-copilot SKILL.md 关键章节
 ```
 
 ## 日常操作
