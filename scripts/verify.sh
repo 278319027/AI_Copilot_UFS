@@ -1,11 +1,11 @@
 #!/bin/bash
-# verify.sh — 一键健康检查 (One-command health check)
-# 用法: bash verify.sh
+# scripts/verify.sh — 一键健康检查 (One-command health check)
+# 用法: bash scripts/verify.sh
 # 退出码: 0=全部通过, 1=至少一项失败
 # 用途: 部署后/日常回归 — 只读检查, 不修改任何文件
 set -e
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
 # Color (only when stdout is a terminal)
@@ -45,7 +45,7 @@ fi
 
 # ---------------------------------------------------------------------------
 # codegraph 安装说明（2026-06-22 验证）：
-#   deploy_tools.sh 默认安装的 codegraph 可能是不支持 C 语言的旧版本（如 v3.3.1）。
+#   scripts/deploy_tools.sh 默认安装的 codegraph 可能是不支持 C 语言的旧版本（如 v3.3.1）。
 #   若 `codegraph build` 报 "Found 0 files to parse"，升级到最新版本即可：
 #
 #       npm install -g @optave/codegraph@latest   # 或指定版本 @3.13.0
@@ -71,9 +71,9 @@ for r in architecture.md concurrency_rules.md coding_style.md design_rules.md te
 done
 [ "$MISS" -eq 0 ] && ok "all 5 rules present" || bad "$MISS/5 rules missing in .opencode/memory/"
 
-# [4/15] deploy_tools.sh syntax
-hdr "4/15" "deploy_tools.sh syntax"
-bash -n "$PROJECT_ROOT/deploy_tools.sh" 2>/dev/null && ok "deploy_tools.sh has valid bash syntax" || bad "deploy_tools.sh has syntax errors"
+# [4/15] scripts/deploy_tools.sh syntax
+hdr "4/15" "scripts/deploy_tools.sh syntax"
+bash -n "$PROJECT_ROOT/scripts/deploy_tools.sh" 2>/dev/null && ok "scripts/deploy_tools.sh has valid bash syntax" || bad "scripts/deploy_tools.sh has syntax errors"
 
 # [5/15] Tools on PATH
 hdr "5/15" "Essential tools on PATH"
@@ -194,7 +194,7 @@ MISGEN_OPENCODE=""
 if [ -d "$FEMU_BASE" ]; then
     # 搜索 FEMU 仓库下任何子目录中的 .opencode/（排除 femu 仓库根和 graphify-out / .codegraph 工具产物）
     while IFS= read -r d; do
-        # Skip if it's at femu repo root (deploy_tools.sh target location)
+        # Skip if it's at femu repo root (scripts/deploy_tools.sh target location)
         parent="$(dirname "$d")"
         if [ "$parent" = "$FEMU_BASE" ]; then
             continue
@@ -208,13 +208,13 @@ else
     bad "mis-generated .opencode/ found in FEMU subdirs (only zsf should own .opencode/):$MISGEN_OPENCODE"
 fi
 
-# [14/15] check_change.sh 工具存在 + 可执行
-hdr "14/15" "check_change.sh 工具"
-CHECK_CHANGE="$PROJECT_ROOT/check_change.sh"
+# [14/15] scripts/check_change.sh 工具存在 + 可执行
+hdr "14/15" "scripts/check_change.sh 工具"
+CHECK_CHANGE="$PROJECT_ROOT/scripts/check_change.sh"
 if [ -x "$CHECK_CHANGE" ]; then
-    ok "check_change.sh 存在且可执行"
+    ok "scripts/check_change.sh 存在且可执行"
 else
-    bad "check_change.sh 缺失或不可执行"
+    bad "scripts/check_change.sh 缺失或不可执行"
 fi
 
 # [15/15] sd-firmware-copilot SKILL.md 关键章节齐全

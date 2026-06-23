@@ -12,7 +12,10 @@ description: Stage 5 of OpenSpec 5-phase lifecycle — finalize change by moving
 - 无参数：取唯一活跃变更
 - `[change-name]`：指定变更
 
-**加载 skill**：[openspec-archive-change](../skills/openspec-archive-change/SKILL.md)
+**入口操作**：
+1. `skill(name="openspec-archive-change")` — 加载 archive skill
+2. `skill(name="superpowers-finishing-a-development-branch")` — 加载收尾 skill
+3. 按 skill 指引执行：检查完成度 → 同步基线 → 归档 → 提交
 
 **完整流程**：
 1. `openspec status --change "<name>" --json` 检查 artifact 完成 + 任务勾选
@@ -28,3 +31,9 @@ description: Stage 5 of OpenSpec 5-phase lifecycle — finalize change by moving
 - 永远 `mv`，不 `rm -rf`
 - 警告不完整项让用户确认
 - Workspace planning 模式下跳过
+
+**校验命令**：
+```bash
+bash scripts/check_change.sh <change-name>
+openspec validate --strict --specs
+```

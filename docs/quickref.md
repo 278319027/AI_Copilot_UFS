@@ -53,7 +53,7 @@ KNOW → PLAN → BUILD → FEEDBACK
 
 ```bash
 # 健康检查
-bash verify.sh
+bash scripts/verify.sh
 
 # 创建变更
 /opsx:propose my-change "实现 X 功能"
@@ -80,8 +80,8 @@ openspec validate --strict --changes
 bash scripts/verify_spec_symbols.sh    # 验证 spec 中 C 符号存在性
 
 # 工具部署
-bash deploy_tools.sh /path/to/femu     # 部署工具链
-bash deploy_tools.sh --dry-run /path   # 仅检查依赖，不安装
+bash scripts/deploy_tools.sh /path/to/femu     # 部署工具链
+bash scripts/deploy_tools.sh --dry-run /path   # 仅检查依赖，不安装
 # 注意: 知识图谱更新由 M-5 PROJECT-SPECIFIC 在 AI session 开头自动执行，
 #       不再需要 git hooks（templates/git-hooks/ 已于 2026-06-23 移除）
 ```

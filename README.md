@@ -7,10 +7,10 @@
 ## 快速上手（5 分钟）
 
 ```bash
-bash deploy_tools.sh /path/to/c-source
+bash scripts/deploy_tools.sh /path/to/c-source
 
 # 2. 验证环境
-bash verify.sh    # 确认 15/15 通过
+bash scripts/verify.sh    # 确认 15/15 通过
 
 # 3. 选一条路径开始（在 OpenCode IDE 中）
 #    路径 A（有设计文档）→ /opsx:propose <change-name>
@@ -47,7 +47,7 @@ PLAN → BUILD → FEEDBACK: 同路径 A
 
 | 阶段 | 工具 | 部署方式 |
 |------|------|---------|
-| **KNOW** | Graphify + CodeGraph | `bash deploy_tools.sh` |
+| **KNOW** | Graphify + CodeGraph | `bash scripts/deploy_tools.sh` |
 | **PLAN** | OpenSpec CLI v1.4.1 | `npm install -g @fission-ai/openspec` |
 | **BUILD** | Superpowers + sd-firmware-copilot（测试验证） | `.opencode/skills/sd-firmware-copilot/` |
 | **FEEDBACK** | OpenSpec CLI + Graphify | 同 PLAN |
@@ -80,8 +80,6 @@ PLAN → BUILD → FEEDBACK: 同路径 A
 ## 核心原则
 
 - **代码优先**：Source Code > Design Docs > Specs > Memory > Prompt
-- **小任务原则**：每次 200-500 行，不扩大需求
-- **修改前必查 CodeGraph**：确认影响范围
-- **五级门禁**：Proposal Gate → Design Gate → BUILD Gate → Review Gate → Archive（BUILD Gate 强制编码前加载验证 skill）
-- **四条铁律**：不验证不宣称完成 / 无测试不写代码 / 无根因不修 bug / 未审查不合并
 - **AI 辅助不替代人**：人负责架构决策和风险判断
+
+> 完整原则（小任务原则、CodeGraph 检查、五级门禁、四条铁律）见 [docs/navigation.md §几条重要约定](docs/navigation.md#几条重要约定)。

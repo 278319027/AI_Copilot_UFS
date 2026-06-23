@@ -64,7 +64,7 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
 
 进入 PLAN 前必须完成：
 
-1. `bash verify.sh` — 环境就绪
+1. `bash scripts/verify.sh` — 环境就绪
 2. `graphify update .` — 知识图谱最新
 3. **概念 + 结构双源查询**（**强顺序，4 步不可跳**）：
    - **Step 3a — 概念发现**（`graphify query` + `graphify explain`）：找到涉及该概念的节点、文件、社区归属
@@ -464,7 +464,7 @@ openspec validate --strict --specs
 ## 初始化
 
 ```bash
-bash verify.sh                                                       # 环境检查 (15 项)
+bash scripts/verify.sh                                                       # 环境检查 (15 项)
 OPENSPEC_TELEMETRY=0 openspec validate --strict --specs              # 基线有效
 ls .opencode/memory/{architecture,concurrency_rules,coding_style,design_rules,testing_rules}.md && ls .opencode/skills/superpowers-requesting-code-review/ssd-review-rules.md
 grep '"codegraph"' opencode.json                                     # codegraph MCP 配置存在

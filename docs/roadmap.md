@@ -35,7 +35,7 @@
 ### Phase 4：试点实战 🟡 准备就绪
 
 > **启动条件**（全部满足 ✅ 即可开始）：
-> 1. `verify.sh` 15/15 通过
+> 1. `scripts/verify.sh` 15/15 通过
 > 2. `openspec` CLI + `openspec instructions <id>` 取模板（替代原本地 `templates/` 库，2026-06-23 移除）
 > 3. 选定第 1 个低风险真实需求（建议：文档改进或单文件 bugfix）
 >

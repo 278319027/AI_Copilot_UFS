@@ -44,5 +44,5 @@ description: Stage 3 of OpenSpec 5-phase lifecycle — implement tasks.md one ta
 make clean && make -j$(nproc)
 make test
 openspec validate --strict --changes
-bash check_change.sh <change-name>
+bash scripts/check_change.sh <change-name>
 ```

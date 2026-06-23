@@ -1,7 +1,7 @@
 #!/bin/bash
-# deploy_tools.sh — 一键部署 SSD 固件 CodeGraph 工具链
-# 用法: bash deploy_tools.sh <C源码路径>
-# 示例: bash deploy_tools.sh /home/tcb/AI_Proj/femu/hw/femu
+# scripts/deploy_tools.sh — 一键部署 SSD 固件 CodeGraph 工具链
+# 用法: bash scripts/deploy_tools.sh <C源码路径>
+# 示例: bash scripts/deploy_tools.sh /home/tcb/AI_Proj/femu/hw/femu
 #
 # 部署四个工具 (KNOW→PLAN→BUILD→FEEDBACK 四工具架构 + 基础设施):
 #   1. codegraph  — KNOW 层：调用图/影响分析 (MCP 集成)

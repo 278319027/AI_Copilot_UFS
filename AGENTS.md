@@ -12,7 +12,7 @@ CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其�
 |----|----|
 | **环境变量** | `FEMU_ROOT`（env var 优先于默认） |
 | **默认路径** | `/home/zsf/AI_Proj/femu/hw/femu`（与 `opencode.json` 的 `codegraph.command --path` 默认值相同）|
-| **验证命令** | `bash verify.sh` 中的 `[9/15] FEMU_ROOT` 检查 |
+| **验证命令** | `bash scripts/verify.sh` 中的 `[9/15] FEMU_ROOT` 检查 |
 
 覆盖示例:
 - **临时覆盖**：`export FEMU_ROOT=/opt/ssd-firmware/hw/femu`

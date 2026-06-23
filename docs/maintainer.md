@@ -47,10 +47,10 @@
 
 ```bash
 # 1. 一键安装工具链（Node.js 22、codegraph、graphify、openspec）
-bash deploy_tools.sh /path/to/your/c/source
+bash scripts/deploy_tools.sh /path/to/your/c/source
 
 # 2. 一键健康检查
-bash verify.sh
+bash scripts/verify.sh
 
 # 3. 确认 15/15 通过
 #   [1/13] OpenSpec specs validation
@@ -120,7 +120,7 @@ graphify merge-graphs hw/femu/graphify-out/graph.json \
 ### 健康检查
 
 ```bash
-bash verify.sh    # 只读检查，不修改任何文件
+bash scripts/verify.sh    # 只读检查，不修改任何文件
 ```
 
 ### 运行产物管理
@@ -142,8 +142,8 @@ bash verify.sh    # 只读检查，不修改任何文件
 
 | 路径 | 一句话说明 |
 |------|-----------|
-| `deploy_tools.sh` | 一键部署五件套工具链 |
-| `verify.sh` | 一键健康检查（15 项） |
+| `scripts/deploy_tools.sh` | 一键部署五件套工具链 |
+| `scripts/verify.sh` | 一键健康检查（15 项） |
 | `openspec/` | 规格层：基线 `specs/` + 活跃变更 `changes/` |
 | `.opencode/skills/` | 15 个 skill（工程纪律 + OpenSpec + 领域规则） |
 | `.opencode/memory/` | 6 个编码规则文件（架构/并发/编码/设计/测试/反模式） |
@@ -160,7 +160,7 @@ bash verify.sh    # 只读检查，不修改任何文件
 - **CodeGraph MCP 失败** → 确认 `opencode.json` 包含 `"codegraph"` MCP 条目
 - **Graphify 失败** → 运行 `graphify update <子目录>` 检查图谱，参考 `.opencode/memory/architecture.md §5` 规则
 - **Memory rules 失败** → 检查 `.opencode/memory/` 下 5 个 `.md` 是否齐全
-- **Tools on PATH 失败** → 运行 `bash deploy_tools.sh` 重新安装缺失工具
+- **Tools on PATH 失败** → 运行 `bash scripts/deploy_tools.sh` 重新安装缺失工具
 
 ### deploy_tools.sh 安装失败怎么办？
 
@@ -183,7 +183,7 @@ OPENSPEC_TELEMETRY=0 openspec validate --strict --specs
 
 ### 如何添加新的 memory/ 规则？
 
-在 `.opencode/memory/` 新建 `.md` 文件即可，Agent 会自动加载。建议遵循现有 5 文件的分类（architecture / design / coding / concurrency / testing），如需新增类别，同步更新 `verify.sh` 的检查列表。Review 规则已在 `superpowers-requesting-code-review/ssd-review-rules.md`，按需加载。
+在 `.opencode/memory/` 新建 `.md` 文件即可，Agent 会自动加载。建议遵循现有 5 文件的分类（architecture / design / coding / concurrency / testing），如需新增类别，同步更新 `scripts/verify.sh` 的检查列表。Review 规则已在 `superpowers-requesting-code-review/ssd-review-rules.md`，按需加载。
 
 ## 变更记录
 

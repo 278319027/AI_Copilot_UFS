@@ -22,7 +22,7 @@ description: Onboarding — guided walkthrough of the full OpenSpec 5-phase life
 
 **Phase 0：环境就绪**
 ```bash
-bash verify.sh                                                       # 15/15 通过
+bash scripts/verify.sh                                                       # 15/15 通过
 OPENSPEC_TELEMETRY=0 openspec validate --strict --specs              # baseline 有效
 ```
 

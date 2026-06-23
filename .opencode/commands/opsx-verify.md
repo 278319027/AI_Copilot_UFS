@@ -68,7 +68,7 @@ description: Stage 3.5 of OpenSpec 5-phase lifecycle — verify implementation m
 openspec validate --strict --changes
 openspec validate --strict --specs
 make clean && make -j$(nproc) && make test
-bash check_change.sh <change-name>
+bash scripts/check_change.sh <change-name>
 ls -la openspec/changes/<id>/verify-report.md  # 必须存在
 ls -la openspec/changes/<id>/review.md         # 必须存在（占位即可）
 ```

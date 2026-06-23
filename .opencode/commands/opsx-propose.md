@@ -26,5 +26,5 @@ description: Stage 1 of OpenSpec 5-phase lifecycle — create a new change and g
 **校验命令**：
 ```bash
 openspec validate --strict --changes
-bash check_change.sh <change-name>
+bash scripts/check_change.sh <change-name>
 ```

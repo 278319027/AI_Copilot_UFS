@@ -27,7 +27,7 @@
 - `.opencode/{commands,skills,memory,agents}/` —— 方法论资产
 - `openspec/{specs,changes}/` —— OpenSpec 规格层（仅 zsf 自己的 OpenSpec）
 - `docs/` —— 方法论文档 + ADR
-- 根 `AGENTS.md` / `README.md` / `opencode.json` / `verify.sh` / `deploy_tools.sh` / `check_change.sh`
+- 根 `AGENTS.md` / `README.md` / `opencode.json` / `scripts/verify.sh` / `scripts/deploy_tools.sh` / `scripts/check_change.sh`
 - `openspec/AGENTS.md` / `openspec/project.md`（本文件）—— OpenSpec 使用指南
 
 ### 2.2 zsf 仓库**禁止**的修改

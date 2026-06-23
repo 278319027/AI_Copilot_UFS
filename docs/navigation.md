@@ -35,8 +35,8 @@
 | 你的角色 | 入口 | 看完之后看哪里 |
 |---------|------|---------------|
 | **新人**（了解项目） | [README.md](../README.md) | [docs/navigation.md §方法论概览](navigation.md#方法论概览) → [docs/roadmap.md](roadmap.md) |
-│ **贡献者**（修改 Skill/Rule/Spec） | `.opencode/memory/`（5 个规则文件）→ `openspec/specs/`（基线规格）→ `.opencode/skills/`（技能包） | 跑 `bash verify.sh` 验证环境 |
-| **工具部署者**（搭环境） | `deploy_tools.sh` | `deploy_tools.sh` 头部注释（工具链分工 / C 语言限制） |
+│ **贡献者**（修改 Skill/Rule/Spec） | `.opencode/memory/`（5 个规则文件）→ `openspec/specs/`（基线规格）→ `.opencode/skills/`（技能包） | 跑 `bash scripts/verify.sh` 验证环境 |
+| **工具部署者**（搭环境） | `scripts/deploy_tools.sh` | `scripts/deploy_tools.sh` 头部注释（工具链分工 / C 语言限制） |
 | **AI 代理**（执行任务） | [AGENTS.md](../AGENTS.md) | 不要读本文档——`AGENTS.md` 才是给你的 |
 
 ## 关键目录速查
@@ -121,7 +121,7 @@ zsf 项目 (/home/tcb/AI_Proj/zsf/)
 
 #### 常见问题
 
-**Q：为什么 `verify.sh` 通过，但 femu 目录下没有 `.opencode/` 和 `openspec/`？**
+**Q：为什么 `scripts/verify.sh` 通过，但 femu 目录下没有 `.opencode/` 和 `openspec/`？**
 A：这是有意为之。`.opencode/` 和 `openspec/` 位于 zsf（方法论仓库），而非 femu（目标代码库）。Agent 从 zsf 加载配置与技能，通过 `FEMU_ROOT` 指向 femu 进行代码分析与修改。
 
 **Q：能否把 zsf 的方法论文件复制/软链接到 femu 中？**
@@ -141,6 +141,10 @@ A：不推荐。这会污染 femu 的 Git 状态，与上游 QEMU 同步时产�
 1. [README.md](../README.md) — 项目是什么、怎么用
 2. [docs/navigation.md](navigation.md) — 本文（项目结构 + 入口 + 方法论概览）
 3. [docs/roadmap.md](roadmap.md) — 当前进度与规划
+
+## 如果你是 AI Agent
+
+不要读本文档——直接读 [**docs/quickref.md**](quickref.md)（1 页纸掌握核心），然后读 [AGENTS.md](../AGENTS.md)（运行时指令）。
 
 ---
 
@@ -206,10 +210,10 @@ BUILD Gate 是 2026-06-22 新增，强制 AI 在编码前加载验证 skill。�
 
 ```bash
 # 1. 一键部署工具链
-bash deploy_tools.sh /path/to/c-source
+bash scripts/deploy_tools.sh /path/to/c-source
 
 # 2. 验证环境
-bash verify.sh    # 确认 15/15 通过
+bash scripts/verify.sh    # 确认 15/15 通过
 
 # 3. 选一条路径开始
 # 路径 A（有设计文档）→ /opsx:propose <change-name>

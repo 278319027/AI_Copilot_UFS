@@ -1,12 +1,12 @@
 #!/bin/bash
-# check_change.sh — 检查 OpenSpec 变更健康度
-# 用法: bash check_change.sh <change-name>
+# scripts/check_change.sh — 检查 OpenSpec 变更健康度
+# 用法: bash scripts/check_change.sh <change-name>
 # 退出码: 0=所有项通过, 1=有项未通过, 2=变更不存在
 # 用途: review 前 / archive 前 / 阶段性自查 — 只读检查, 不修改任何文件
 
 set -e
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
 # Color (only when stdout is a terminal)
@@ -26,7 +26,7 @@ hdr() { printf "\n[%s] %s\n" "$1" "$2"; }
 CHANGE_NAME="${1:-}"
 if [ -z "$CHANGE_NAME" ]; then
     echo "用法: bash $0 <change-name>"
-    echo "示例: bash $0 add-flip-reset-gc-stats"
+    echo "       bash $0 --all"
     echo ""
     echo "可用的活跃变更:"
     for d in openspec/changes/*/; do
@@ -35,9 +35,31 @@ if [ -z "$CHANGE_NAME" ]; then
     exit 1
 fi
 
+# --all 模式：批量检查所有活跃变更
+if [ "$CHANGE_NAME" = "--all" ]; then
+    echo "=== check_change.sh — 批量检查所有活跃变更 ==="
+    ALL_OK=0; ALL_FAIL=0; ALL_WARN=0
+    for d in openspec/changes/*/; do
+        [ -d "$d" ] || continue
+        name=$(basename "$d")
+        [ "$name" = "archive" ] && continue
+        echo ""
+        echo "──────────────────────────────────────────────"
+        if bash "$0" "$name"; then
+            ALL_OK=$((ALL_OK + 1))
+        else
+            ALL_FAIL=$((ALL_FAIL + 1))
+        fi
+    done
+    echo ""
+    echo "=============================================="
+    echo "  批量检查完成: $ALL_OK 通过, $ALL_FAIL 失败"
+    echo "=============================================="
+    [ "$ALL_FAIL" -eq 0 ] && exit 0 || exit 1
+fi
+
 CHANGE_DIR="$PROJECT_ROOT/openspec/changes/$CHANGE_NAME"
 if [ ! -d "$CHANGE_DIR" ]; then
-    # 也可能在 archive/ 下
     CHANGE_DIR=$(find "$PROJECT_ROOT/openspec/changes/archive" -maxdepth 1 -type d -name "*$CHANGE_NAME*" 2>/dev/null | head -1)
     if [ -z "$CHANGE_DIR" ] || [ ! -d "$CHANGE_DIR" ]; then
         echo "✗ 变更不存在: openspec/changes/$CHANGE_NAME"
@@ -73,8 +95,8 @@ else
     bad "proposal.md 不存在，无法检查章节"
 fi
 
-# [3/8] design.md 必填章节
-hdr "3/8" "design.md 必填章节"
+# [3/8] design.md 必填章节 + Design Gate 量化指标
+hdr "3/8" "design.md 必填章节 + Design Gate 量化指标"
 DESIGN="$CHANGE_DIR/design.md"
 if [ -f "$DESIGN" ]; then
     for section in "## Context" "## Goals" "## Non-Goals" "## Decisions" "## Risks"; do
@@ -84,11 +106,20 @@ if [ -f "$DESIGN" ]; then
             bad "缺失章节: $section"
         fi
     done
-    # 检查 CodeGraph 影响分析（不强求章节名，但要求有调用图相关关键词）
+    # CodeGraph 影响分析
     if grep -qiE "codegraph|impact|callee|caller|调用图|影响分析" "$DESIGN"; then
         ok "包含 CodeGraph 影响分析内容"
     else
-        warn "未发现 CodeGraph 影响分析关键词（callers/callees/impact/codegraph）"
+        bad "未发现 CodeGraph 影响分析关键词（Design Gate 硬性要求）"
+    fi
+    # 风险评估
+    if grep -qF "## Risks" "$DESIGN"; then
+        RISK_COUNT=$(grep -cE "^\| .* \| .* \| .* \|" "$DESIGN" 2>/dev/null || echo 0)
+        if [ "$RISK_COUNT" -ge 1 ]; then
+            ok "风险表格包含 $RISK_COUNT 条记录"
+        else
+            warn "Risks 章节无表格内容"
+        fi
     fi
 else
     bad "design.md 不存在，无法检查章节"
@@ -111,12 +142,21 @@ if [ -f "$TASKS" ]; then
             warn "$TODO 个 task 未完成（archive 前需全部勾选）"
         fi
     fi
-    # 检查 task 粒度
     if [ "$TOTAL" -gt 0 ]; then
-        if [ "$TOTAL" -le 5 ]; then
-            ok "task 粒度合理（≤ 5 个，符合小任务原则）"
+        if [ "$TOTAL" -ge 3 ] && [ "$TOTAL" -le 5 ]; then
+            ok "task 数量 $TOTAL（符合 Design Gate 硬性要求 3-5 个）"
+        elif [ "$TOTAL" -lt 3 ]; then
+            warn "task 数量 $TOTAL < 3（建议细化）"
         else
-            warn "task 数量 $TOTAL > 5（建议拆分）"
+            bad "task 数量 $TOTAL > 5（Design Gate 要求 ≤ 5，必须拆分）"
+        fi
+    fi
+    if [ "$TOTAL" -gt 0 ]; then
+        TEST_PLAN_COUNT=$(grep -cE "测试计划|test plan|正常路径|边界条件|错误路径" "$TASKS" 2>/dev/null || echo 0)
+        if [ "$TEST_PLAN_COUNT" -ge 1 ]; then
+            ok "tasks.md 包含测试计划声明"
+        else
+            bad "tasks.md 缺少测试计划（Design Gate 硬性要求）"
         fi
     fi
 else

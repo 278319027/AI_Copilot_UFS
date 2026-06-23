@@ -55,5 +55,5 @@ description: Stage 1c of OpenSpec 5-phase lifecycle — fast-forward: create cha
 **校验命令**：
 ```bash
 openspec validate --strict --changes
-bash check_change.sh <change-name>
+bash scripts/check_change.sh <change-name>
 ```
