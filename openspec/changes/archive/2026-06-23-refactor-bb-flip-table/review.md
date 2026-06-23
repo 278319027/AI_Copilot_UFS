@@ -8,7 +8,7 @@
 - **变更 ID**: refactor-bb-flip-table
 - **变更目的**: refactor FEMU bb_flip 60-line switch → 11 handler + table + for-loop dispatch
 - **审查日期**: 2026-06-23
-- **审查人**: <用户填写 — 不能是 AI 自身>
+- **审查人**: ZSF
 
 ## 审查维度
 

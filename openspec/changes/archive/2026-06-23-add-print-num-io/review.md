@@ -8,7 +8,7 @@
 - **变更 ID**: add-print-num-io
 - **变更目的**: 新增 `FEMU_PRINT_NUM_IO` admin flip 一次性查询 `nr_tt_ios / nr_tt_late_ios`（不 reset，companion to `FEMU_RESET_ACCT`）
 - **审查日期**: 2026-06-23
-- **审查人**: <用户填写 — 不能是 AI 自身>
+- **审查人**: ZSF
 - **关键价值**: 第一次走完整新 P0/P1/P2 防御 end-to-end（refactor-bb-flip-table 是 P0/P1/P2 升级前做的；本 drill 测升级后是否生效）
 
 ## 审查维度

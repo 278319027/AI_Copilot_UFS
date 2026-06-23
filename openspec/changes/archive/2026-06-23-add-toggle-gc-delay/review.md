@@ -8,7 +8,7 @@
 - **变更 ID**: add-toggle-gc-delay
 - **变更目的**: 新增 `FEMU_TOGGLE_GC_DELAY` admin flip 一次性翻转 `enable_gc_delay`（on↔off，companion to 现有 ENABLE/DISABLE pair）
 - **审查日期**: 2026-06-23
-- **审查人**: <用户填写 — 不能是 AI 自身>
+- **审查人**: ZSF
 - **关键价值**: **第 3 次走完整新 P0/P1/P2 防御 end-to-end**（验证 methodology 一致性）
 
 ## 审查维度
