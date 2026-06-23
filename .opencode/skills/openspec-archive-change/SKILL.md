@@ -21,7 +21,7 @@ metadata:
 
 ## 关键步骤
 
-### 1. 检查 artifact 完成 + 任务勾选
+### 1. 检查 artifact 完成 + 任务勾选 + **强制 review/verify 产物**（**强校验**）
 
 ```bash
 openspec status --change "<name>" --json
@@ -30,6 +30,24 @@ openspec status --change "<name>" --json
 读出：
 - `applyRequires` 全部 `done`
 - `tasks.md` 中 `- [x]` 数量 ≥ `- [ ]` 数量
+
+**额外强制校验**（不通过则**禁止**进入步骤 2）：
+
+```bash
+# verify-report.md 必须存在且 6/6 PASS
+test -f openspec/changes/<id>/verify-report.md || { echo "ERROR: verify-report.md missing — run /opsx:verify first"; exit 1; }
+
+# review.md 必须存在（占位即可，Review Gate 时填充）
+test -f openspec/changes/<id>/review.md || { echo "ERROR: review.md missing — create placeholder"; exit 1; }
+
+# verify-report.md 必含 "总体判定: READY"
+grep -q "总体判定.*READY\|READY FOR ARCHIVE\|✅ READY" openspec/changes/<id>/verify-report.md || { echo "ERROR: verify-report.md not READY"; exit 1; }
+
+# review.md 必含审查人签字
+grep -qE "签字|Signed|Reviewer|审查人" openspec/changes/<id>/review.md || { echo "ERROR: review.md missing reviewer signature"; exit 1; }
+```
+
+> **设计意图**（per `docs/retrospectives/2026-06-add-crt-mapping-cache.md` AP-005）：review.md 是审计追踪的强制产物；AI 不能自批自审，必须有人工审查记录。
 
 ### 2. 评估 delta 是否先 sync
 

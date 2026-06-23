@@ -55,8 +55,8 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
 ### 必须遵守
 
 - **代码优先**：`Source Code > Design Docs > Specs > Memory > Prompt`
-- **小任务原则**：每次变更 200-500 行
-- **修改前必查 CodeGraph**：`codegraph explore` 确认影响范围
+- **小任务原则**：每次变更 200-500 行（**注意：是 task group 的总产出，不是单个 sub-task；见 BUILD 关键约束 §任务粒度澄清**）
+- **修改前必查 CodeGraph**：`codegraph explore` 确认影响范围（**KNOW 阶段 4 步强制**，见 KNOW 阶段）
 - **只读文件不修改**：测试框架、构建脚本、适配层
 - **cscope 补充**（函数指针 / 宏 / 头文件包含）— CodeGraph 基于 AST，cscope 补盲区
 
@@ -66,14 +66,20 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
 
 1. `bash verify.sh` — 环境就绪
 2. `graphify update .` — 知识图谱最新
-3. **概念 + 结构双源查询**（顺序固定，先概念后结构）：
-   - **Step 3a — 概念发现**：`graphify query "<概念关键词>"` 找到涉及该概念的节点、文件、社区归属。`graphify explain "<symbol>"` 看节点度数和社区。
+3. **概念 + 结构双源查询**（**强顺序，4 步不可跳**）：
+   - **Step 3a — 概念发现**（`graphify query` + `graphify explain`）：找到涉及该概念的节点、文件、社区归属
      - 例：`graphify query "NVMe FLIP"` → 命中 nvme-admin.c、nvme-util.c、bbssd/、do_gc_fdp_style 等节点，并给出社区编号
      - 目的：**先在概念层面定位代码在哪里**，避免一开始就在错误层级 grep
-   - **Step 3b — 精确结构**：`codegraph where <symbol>` 列直接调用方；`codegraph impact <file>` 列影响文件；`codegraph context <func>` 看函数定义 + 复杂度。
+   - **Step 3b — 精确结构**（`codegraph where`）：列直接调用方
      - 例：`codegraph where bb_flip` → 1 caller (`bb_admin_cmd`)
-     - 目的：**在概念发现的候选范围内，验证精确的调用图与影响范围**
-4. **读取 `.opencode/memory/` 全部规则文件** — 架构、并发、风格、设计、测试共 5 个约束文件（Review 规则在 `superpowers-requesting-code-review/ssd-review-rules.md` 按需加载）
+   - **Step 3c — 函数上下文**（`codegraph context`）：看函数定义 + 复杂度 + 局部依赖
+     - 例：`codegraph context bb_flip` → 显示函数体 + 圈复杂度 + 调用的子函数
+   - **Step 3d — 影响范围**（`codegraph impact`）：看修改某个文件后所有受影响的下游
+     - 例：`codegraph impact bbssd/ftl.c` → 列出所有依赖该文件的下游模块
+   - **目的**：从"概念 → 符号 → 函数体 → 影响范围"四层递进，避免漏改或误改
+4. **读取 `.opencode/memory/` 全部规则文件**（**强制**，5 个文件全读）：架构、并发、风格、设计、测试（Review 规则在 `superpowers-requesting-code-review/ssd-review-rules.md` 按需加载）
+
+> **强制力**：上述 4 步若任一未执行，`openspec-propose` 应拒绝进入 design 阶段；4 步执行结果（命令 + 关键发现）应记录在 `proposal.md` 的 "Context" 段或 design.md 的 "Decisions" 段。**per `docs/retrospectives/2026-06-add-crt-mapping-cache.md` AP-001**。
 
 ### 工具分工的常见误用
 
@@ -82,6 +88,7 @@ SSD 固件开发的 AI 编程 Copilot。只做 SSD 固件开发任务。每个 T
 | 只用 grep + read 代码，跳过 graphify query | 浪费 5-10 分钟手动找"这个概念在哪些文件" | 先 `graphify query` 一次列出候选 |
 | 只用 codegraph where，忽略社区归属 | 漏掉"看似无关但在同一社区"的文件 | `graphify explain` 看 community 字段 |
 | 用 codegraph 追踪函数指针调用 | AST 看不到，漏掉 dispatch | 已知限制：cscope + 手工读 dispatch 函数补充 |
+| **只跑后置 CodeGraph 验证，KNOW 阶段不跑** | 漏改风险：新增 maptbl 写点没被发现 | **KNOW 阶段必跑 4 步 CodeGraph**（query/where/context/impact）|
 
 ---
 
@@ -131,6 +138,25 @@ AI 完成 BUILD Gate checklist 并声明 "BUILD Gate 通过" 后方可开始实�
 - 每个 task 完成后必须运行相关验证（编译/测试），不批量勾选
 - 硬件依赖代码（寄存器/DMA/ISR）：尽量通过 HAL 接口抽象使业务逻辑可测；不可测路径在 review.md 中标注原因
 - 编译验证通过后：必须运行 `graphify update . --force` 更新知识图谱
+- **测试有效性强制**（per `memory/testing_rules.md` §4.4）：每个新公共 API 必须有 bug injection 证据，记录在 `verify-report.md`
+
+#### 任务粒度澄清（M-7 修订）
+
+> **"200-500 行"指的是 task group 的总产出，不是单个 sub-task。**
+
+| 项 | 推荐 | 反例 |
+|----|------|------|
+| 单个变更总产出 | 200-500 行 | 超过 2000 行（应拆为多变更）|
+| 单个 task group | 200-500 行（含所有 sub-task 的代码 + 测试 + 文档）| 50 行（粒度过细，5 个 group 才能做完一个变更）|
+| 单个 sub-task | 10-100 行（5-10 个 sub-task per group）| 1-2 行（应合并到相邻 sub-task）|
+| task group 数量 | 3-8 per 变更 | 1-2（应更细）或 15+（应合并）|
+
+**反模式**（per `docs/retrospectives/2026-06-add-crt-mapping-cache.md` AP-007）：把"200-500 行"误解为"每个 sub-task 200-500 行"导致 tasks.md 有 19 个过细 sub-task（如"在 bb_flip 加 6 行"），失去 review 粒度的信号作用。
+
+**正确做法**：
+- Group 命名应是"功能模块级"（如"Group 3: CRT Hook into GC Relocation Paths"，涵盖标准 GC + FDP GC 两个 hook 5-10 行 sub-task）
+- 每个 group 应有"可独立测试"的产出
+- sub-task 数量 5-10 per group，粒度 10-100 行
 
 ## FEEDBACK 阶段
 

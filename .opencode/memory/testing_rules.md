@@ -129,6 +129,56 @@ SSD 固件测试规则。AI 生成测试建议时必须遵守，测试设计时�
 - 为什么不可覆盖
 - 通过什么替代方式验证（代码审查/故障注入/纸上推演）
 
+### 4.4 Bug Injection Evidence（**强制**，per `superpowers-test-driven-development` Iron Rule）
+
+> 背景：test-after 流程的固有风险是"测试会适配实现，而非适配需求"。一个"通过一次"的测试从未失败过——无法证明它能抓 bug。Bug injection 循环（red-green-verified）强制测试在某次被破坏时失败，从而**证明**测试的 falsifiability。
+
+#### 强制要求
+
+每个**新引入的公共 API**（对外暴露的函数、结构体字段、QOM property）必须满足：
+
+1. **正常路径注入（≥1）**：测试断言"在正常输入下行为正确"——然后注入一个会破坏该断言的 bug，**测试必须失败**；revert bug 后测试必须再次通过。
+2. **错误路径注入（≥1）**：测试断言"在异常输入下行为正确（错误码 / NULL / 边界）"——然后注入一个会绕过错误处理的 bug，**测试必须失败**；revert 后通过。
+3. **边界条件注入（≥1，可选）**：针对边界值（0、max、空）的测试同样需要 red-green 验证。
+
+#### Bug Injection 循环操作步骤
+
+```
+1. 运行测试，确认 PASS（baseline）
+2. 在代码中刻意引入最小 bug（一行 sed 级别）：
+   - 正常路径：改返回值 / 改条件判断 / 注释掉关键行
+   - 错误路径：移除错误检查 / 注释掉错误返回
+3. 重新运行测试，确认 FAIL
+4. 观察失败信息：是否准确指出错误位置和原因？
+5. 撤销注入（git checkout / sed revert）
+6. 重新运行测试，确认 PASS
+```
+
+#### 证据归档
+
+每次 bug injection 循环的 4 步（baseline → injected fail → revert → baseline pass）必须记录到 `verify-report.md` 的 "Bug injection 证据" 段。不可覆盖路径（如硬件依赖）必须显式标注 N/A 并说明理由。
+
+#### 自动化脚本
+
+提供 `bash .opencode/scripts/inject_bug.sh <source_file> <sed_pattern> <test_binary>` 辅助：
+- 备份原文件
+- 应用 sed 注入
+- 跑测试，捕获 exit code
+- 恢复原文件
+- 输出 "PASS/FAIL/REVERTED" 三态结果
+
+> **缺失后果**：未做注入验证的测试，在 Review 中标记为"测试有效性未确认"，可能阻塞 `/opsx:archive`。
+
+### 4.5 覆盖率与 bug injection 准入
+
+| 准入项 | 阈值 | 阻塞 archive? |
+|--------|------|---------------|
+| 公共 API bug injection 覆盖率 | **100%**（不可覆盖需 N/A + 理由）| 是 |
+| Spec Requirement → 实现追溯 | **100%** | 是 |
+| Spec Scenario → 测试追溯 | **100%** | 是 |
+| 行覆盖（数据安全核心）| ≥ 90% | 是 |
+| 分支覆盖（数据安全核心）| ≥ 85% | 是 |
+
 ## 5. 测试命名与文档
 
 ### 5.1 测试用例命名

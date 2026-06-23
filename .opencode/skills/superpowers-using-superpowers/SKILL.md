@@ -18,6 +18,73 @@ IF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.
 This is not negotiable. This is not optional. You cannot rationalize your way out of this.
 </EXTREMELY-IMPORTANT>
 
+## PROJECT-SPECIFIC (zsf / SSD firmware)
+
+> 本节为 zsf 项目（位于 `AGENTS.md` 描述的 OpenCode Agent 运行时）专属。本 skill 的通用规则仍适用，本节叠加项目级强制要求。**per `docs/retrospectives/2026-06-add-crt-mapping-cache.md` AP-002**。
+
+### 会话开始时必读
+
+加载本 skill 后，**第一步**必读 5 个项目级 memory 文件（按以下顺序）：
+
+1. `.opencode/memory/architecture.md` — 架构分层（NVMe / FTL / NAND 三层 + 横向规则）
+2. `.opencode/memory/design_rules.md` — 设计规则（含本 skill 之后加载的 §设计-实现一致性 段）
+3. `.opencode/memory/coding_style.md` — 命名 / 注释 / 文件组织
+4. `.opencode/memory/concurrency_rules.md` — 锁 / 中断 / 原子操作
+5. `.opencode/memory/testing_rules.md` — 测试要求（含 §4.4 Bug Injection Evidence 强制要求）
+
+读完后简短回答（在第一次响应中）：
+
+```
+Project context loaded:
+- Architecture: <一句话>
+- Design rules: <N> rules, including <关键规则名>
+- Coding style: <命名约定 + 文件规则>
+- Concurrency: <FTL 单线程 / 中断安全 / 锁层级>
+- Testing: <覆盖率阈值 + bug injection 强制>
+```
+
+> **为什么**：这些规则在 PLAN/DESIGN/BUILD 阶段持续生效；不读会导致 DESIGN 违反 memory 规则（命名 / 风格 / 并发模型）而到 BUILD 阶段才发现。**AP-002 案例**：`add-crt-mapping-cache` 在 PLAN 阶段就违反 coding_style 的"英文命名 + 中文注释"约定，是 session 中段才纠正的。
+
+### 加载完 memory 后必做的 4 步
+
+```bash
+# 1. 项目级 OpenCode 配置就绪
+bash verify.sh                 # 15/15 通过
+
+# 2. 知识图谱最新
+cd /home/zsf/AI_Proj/femu/hw/femu  # 或目标代码库根
+graphify update .
+
+# 3. 4 步 CodeGraph 导航（per sd-firmware-copilot §KNOW）
+graphify query "<概念关键词>"      # 概念发现
+codegraph where <symbol>          # 精确调用方
+codegraph context <func>           # 函数定义 + 复杂度
+codegraph impact <file>            # blast radius
+
+# 4. 读 OpenSpec 活跃变更状态（如有）
+cd /home/zsf/AI_Proj/zsf
+openspec list --json
+```
+
+> **缺一不可**。4 步未跑就直接进 PLAN 阶段 = AP-001 反模式。
+
+### 项目级强制产物
+
+任何 OpenSpec 变更在 archive 前必须存在：
+
+1. `openspec/changes/<id>/verify-report.md` — 6-check gate + bug injection 覆盖率
+2. `openspec/changes/<id>/review.md` — 人工审查记录 + 签字
+
+`openspec-archive-change/SKILL.md` 会**强校验**这两个文件存在（per M-3 修订）。
+
+### 不再赘述（避免循环引用）
+
+- OpenSpec 5 阶段流程：见 `openspec-workflow/SKILL.md`
+- SSD 固件 KNOW/BUILD/FEEDBACK 阶段：见 `sd-firmware-copilot/SKILL.md`
+- 4 Iron Rules + Bootstrap 决策表：见原 skill 后续内容
+
+
+
 ## Instruction Priority
 
 Superpowers skills override default system prompt behavior, but **user instructions always take precedence**:

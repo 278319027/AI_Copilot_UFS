@@ -175,14 +175,69 @@ typedef struct {
 
 ## 7. 设计方案确认门禁（五级）
 
-五级门禁（Proposal Gate → Design Gate → BUILD Gate → Review Gate → Archive Gate）的权威定义、校验命令、checklist 和简化豁免规则统一在 `.opencode/skills/sd-firmware-copilot/SKILL.md`。BUILD Gate（2026-06-22 新增）强制 AI 在编码前加载 Superpowers 纪律 skill。本节仅给出一句话流程摘要，详细规则请跳转。
+五级门禁的权威定义、校验命令、checklist 和简化豁免规则统一在 `.opencode/skills/sd-firmware-copilot/SKILL.md`。
 
 **流程摘要**：
 
-- **Proposal Gate**（动机 OK）：`/opsx:propose` 完成后 → `openspec validate --strict --changes` 通过 + 人工确认（详见 openspec-workflow）
-- **Design Gate**（架构 OK）：design.md + tasks.md 完成后 → 校验同上 + 人工确认（详见 openspec-workflow）
-- **BUILD Gate**（纪律 OK）：编码前加载 `superpowers-test-driven-development` + `executing-plans` + `verification-before-completion`，缺一不可编码（详见 sd-firmware-copilot §BUILD Gate）
-- **Review Gate**（代码匹配 spec）：编码 + Review 后 → 校验同上 + 人工确认（详见 openspec-workflow）
-- **Archive Gate**（归档提交）：Review 通过后 → `chore(spec): archive <id>` 提交（合并 specs/ 与 changes/）
+- **Proposal Gate**（动机 OK）：`/opsx:propose` 完成后 → `openspec validate --strict --changes` 通过 + 人工确认
+- **Design Gate**（架构 OK）：design.md + tasks.md 完成后 → 量化指标通过 + 人工确认
+- **BUILD Gate**（纪律 OK）：编码前加载 Superpowers skill + 测试计划定义（详见 openspec-apply SKILL.md §BUILD Gate 强制检查）
+- **Review Gate**（代码匹配 spec）：编码 + Review 后 → 人工确认
+- **Archive Gate**（归档提交）：Review 通过后 → `chore(spec): archive <id>`
+
+### Design Gate 量化指标（硬性要求）
+
+design.md + tasks.md 必须满足以下指标，方可进入 BUILD Gate：
+
+| 指标 | 要求 | 验证方式 |
+|------|------|----------|
+| CodeGraph 影响分析 | 包含 `codegraph impact` 或 `codegraph where` 结果 | check_change.sh 扫描关键词 |
+| 任务粒度 | tasks.md 中 task 数量 3-5 个 | check_change.sh 计数 |
+| 任务大小 | 每个 task 预估 ≤ 500 行 | tasks.md 中声明 |
+| 测试计划 | 每个 task 明确列出正常/边界/错误路径测试 | tasks.md 中检查 |
+| 风险识别 | design.md 包含 `## Risks` 章节 | check_change.sh 检查 |
+| blockedBy 无循环 | tasks.md 中 blockedBy 关系无循环依赖 | 人工检查 |
+
+## 8. 设计-实现一致性（**强制**，per `docs/retrospectives/2026-06-add-crt-mapping-cache.md` AP-008）
+
+> 背景：实施过程中可能发现 design.md 的设计假设与实现约束冲突（如性能 / 复杂度 / 已有约束）。如果**先 commit 代码再补 design.md**，会导致审计追踪的 design 与实际实现脱节，未来 reader 据 design 优化时得到错误预期。
+
+### 强制规则
+
+实现过程中如果出现以下任一情况，**必须**先更新 `design.md` 再继续编码：
+
+1. **性能特性变更**：design.md 写 O(1)，实现改为 O(N) → 必须更新
+2. **接口签名变更**：design.md 写 `(int, struct ssd *)`，实现改为 `(struct ssd *, int)` → 必须更新
+3. **数据布局变更**：design.md 写 hash table，实现改为 B-tree → 必须更新
+4. **并发模型变更**：design.md 写 "需要 mutex"，实现发现"单线程" → 必须更新
+5. **依赖关系变更**：design.md 假设调用方 A，实现发现 A 不存在 → 必须更新
+
+### 操作步骤
+
+1. **暂停编码**
+2. 在 design.md 的对应"Decisions"或"Risks"段添加变更记录：
+   ```markdown
+   ### Implementation Drift: <title>
+   - **原设计**: <what design.md said>
+   - **实际实现**: <what code does>
+   - **原因**: <why drift happened>
+   - **影响**: <what needs to change in spec or downstream>
+   ```
+3. 同步更新 `specs/<cap>/spec.md`（如有 spec 级别影响）
+4. 重新跑 `openspec validate --strict --changes`
+5. 继续编码
+
+### 检查清单（每个 task 完成时）
+
+- [ ] design.md "Decisions" 段与当前实现一致？
+- [ ] design.md "Risks" 段未忽略新发现的风险？
+- [ ] 设计-实现 diff 记录在 `verify-report.md` 的 "设计-实现 diff" 段？
+
+### 反例（AP-008 案例）
+
+`add-crt-mapping-cache/design.md` 描述 CRT lookup 为 O(1) hash table；实现时发现 CRT 是**范围查找**（LPN K 需匹配任意 [start_lpn, start_lpn + n_lpns) 区间），开地址 hash 的"空 slot 终止"语义不适用。实现改为 O(capacity) 全表 scan。**design.md 未更新**留下文档不一致。
+
+正确做法：实施中发现 O(1) 不适用 → 立即更新 design.md "Decisions" 段记录 Implementation Drift，告知 user 性能特性变化 → 继续编码。
+
 
 **简化豁免**：单文件 bugfix / 文档变更 / 配置变更 / 跨模块变更的处理见 `.opencode/skills/sd-firmware-copilot/SKILL.md`。
