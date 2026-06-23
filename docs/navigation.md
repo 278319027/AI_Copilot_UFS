@@ -34,7 +34,7 @@
 
 | 你的角色 | 入口 | 看完之后看哪里 |
 |---------|------|---------------|
-| **新人**（了解项目） | [README.md](../README.md) | [docs/navigation.md §方法论概览](navigation.md#方法论概览) → [docs/roadmap.md](roadmap.md) |
+| **新人**（了解项目） | [README.md](../README.md) | [AGENTS.md §方法论概览](../AGENTS.md#方法论概览) → [docs/roadmap.md](roadmap.md) |
 │ **贡献者**（修改 Skill/Rule/Spec） | `.opencode/memory/`（5 个规则文件）→ `openspec/specs/`（基线规格）→ `.opencode/skills/`（技能包） | 跑 `bash scripts/verify.sh` 验证环境 |
 | **工具部署者**（搭环境） | `scripts/deploy_tools.sh` | `scripts/deploy_tools.sh` 头部注释（工具链分工 / C 语言限制） |
 | **AI 代理**（执行任务） | [AGENTS.md](../AGENTS.md) | 不要读本文档——`AGENTS.md` 才是给你的 |
@@ -58,7 +58,7 @@ zsf/
 ├── 📖 人类阅读层
 │   ├── README.md                    ← 项目入口：两路径、四工具、核心原则
 │   ├── AGENTS.md                    ← AI 运行时指令
-│   ├── docs/navigation.md            ← 本文档（含方法论概览）
+│   ├── docs/navigation.md            ← 本文档（文件地图 + 按角色入口）
 │   └── docs/
 │       ├── navigation.md            ← 本文档：文件地图 + 按角色找入口
 │       ├── roadmap.md               ← 实施进度与规划
@@ -139,113 +139,14 @@ A：不推荐。这会污染 femu 的 Git 状态，与上游 QEMU 同步时产�
 ## 如果你只想看 3 份文档
 
 1. [README.md](../README.md) — 项目是什么、怎么用
-2. [docs/navigation.md](navigation.md) — 本文（项目结构 + 入口 + 方法论概览）
-3. [docs/roadmap.md](roadmap.md) — 当前进度与规划
+2. [docs/navigation.md](navigation.md) — 本文（项目结构 + 入口 + 文件地图）
+3. [AGENTS.md](../AGENTS.md) — 方法论概览（4 阶段闭环、5 级门禁、4 Iron Rules、核心原则）+ AI 运行时指令
 
 ## 如果你是 AI Agent
 
-不要读本文档——直接读 [**docs/quickref.md**](quickref.md)（1 页纸掌握核心），然后读 [AGENTS.md](../AGENTS.md)（运行时指令）。
+不要读本文档——直接读 [**docs/quickref.md**](quickref.md)（1 页纸掌握核心），然后读 [AGENTS.md](../AGENTS.md)（方法论概览 + 运行时指令）。
 
 ---
-
-## 方法论概览
-
-> 完整工作流（4 阶段闭环、4 Iron Rules、BUILD Gate 详细流程）见 [`.opencode/skills/sd-firmware-copilot/SKILL.md`](../.opencode/skills/sd-firmware-copilot/SKILL.md)。本节是人类可读的方法论概览。
-
-### 两种驱动路径
-
-**路径 A：设计文档驱动**（已有 SAD/SDD/ICD）
-
-```
-设计文档 → [KNOW] 理解设计 + 定位代码 → [PLAN] 规格化变更 → [BUILD] 实现 + 测试 → [FEEDBACK] 归档
-```
-
-**路径 B：代码驱动**（无设计文档，AI 先分析代码生成设计文档）
-
-```
-现有代码 → [KNOW] 分析代码 + 生成设计文档 → [PLAN] 规格化变更 → [BUILD] 实现 + 测试 → [FEEDBACK] 归档
-```
-
-两种路径仅 KNOW 阶段不同；从 PLAN 开始完全一致。
-
-### 核心闭环：KNOW → PLAN → BUILD → FEEDBACK
-
-| 阶段 | 工具 | 职责 |
-|------|------|------|
-| **KNOW** | Graphify + CodeGraph | 理解现有系统结构 |
-| **PLAN** | OpenSpec CLI v1.4.1 | 创建 proposal / design / tasks / specs 增量 |
-| **BUILD** | Superpowers + sd-firmware-copilot | 代码实现 + 测试验证 + 根因调试 + 验证完成。须通过 BUILD Gate |
-| **FEEDBACK** | OpenSpec archive + Graphify | 规格归档 + 知识图谱增量更新 |
-
-由 OpenCode Agent 统一编排四阶段。
-
-### 五级门禁
-
-```
-Proposal Gate → Design Gate → BUILD Gate → Review Gate → Archive Gate
-```
-
-BUILD Gate 是 2026-06-22 新增，强制 AI 在编码前加载验证 skill。单文件 bugfix 可跳过 Proposal Gate。
-
-### 核心原则
-
-| 原则 | 说明 |
-|------|------|
-| **代码优先** | `Source Code > Design Docs > Specs > Memory > Prompt` |
-| **小任务原则** | 每次 200-500 行，不扩大需求 |
-| **修改前必查 CodeGraph** | 修改函数签名/结构体/头文件前必须查影响范围 |
-| **AI 辅助不替代** | 人负责架构决策、风险判断、最终责任 |
-| **五级门禁不跳过** | 5 道门禁强制纪律；单文件 bugfix 豁免 Proposal Gate |
-| **规格优先于记忆** | Specs 是基线；查询优先级 specs → CodeGraph → 代码 |
-| **全部工件版本化** | proposal / design / tasks / review / specs 纳入 Git |
-
-### 4 条 Iron Rules
-
-1. **NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE** — 完成前必须实际跑测试/编译
-2. **NO PRODUCTION CODE WITHOUT TESTS** — 每段代码必须有对应测试（test-after + 注入验证）
-3. **NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST** — 复现→读错误→查变更→最小验证
-4. **NO MERGE WITHOUT CODE REVIEW** — 每个非平凡变更必须经审查
-
-### 快速上手（5 分钟）
-
-```bash
-# 1. 一键部署工具链
-bash scripts/deploy_tools.sh /path/to/c-source
-
-# 2. 验证环境
-bash scripts/verify.sh    # 确认 17/17 通过
-
-# 3. 选一条路径开始
-# 路径 A（有设计文档）→ /opsx:propose <change-name>
-# 路径 B（无设计文档）→ codegraph explore <区域> 先生成设计文档
-```
-
-### 完整流程（路径 A 为例）
-
-```bash
-# ─── KNOW：理解设计 ───
-graphify query "<设计关键词>"
-graphify explain "<核心概念>"
-codegraph explore <代码区域>
-
-# ─── PLAN：创建变更 ───
-/opsx:propose my-change "根据 SDD 第 X 章实现 Y 功能"
-# → Design Gate：人工确认 → BUILD Gate：AI 加载验证 skill
-
-# ─── BUILD：实现 + 测试验证 ───
-/opsx:apply my-change
-# → 按 tasks.md 实现 → 编写测试覆盖正常/边界/错误路径
-# → 注入验证：每条测试路径 bug 注入→失败→撤销→通过
-
-# ─── FEEDBACK：Review + 归档 ───
-# → Review Skill 产出 review.md
-/opsx:archive my-change
-graphify update <子目录>   # 大项目避免全仓库扫描
-```
-
-## 如果你是 AI 代理
-
-请直接读 [AGENTS.md](../AGENTS.md)，**不要**读本文档——本文档是给人看的导航，AGENTS.md 才是给你的运行时指令。
 
 ## 配置索引
 

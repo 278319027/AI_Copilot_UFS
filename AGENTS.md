@@ -97,3 +97,91 @@ skill(name="superpowers-using-superpowers")
 - **NO MERGE WITHOUT CODE REVIEW** — 每个非平凡变更必须经正式审查，接收反馈以技术为准不表演性认同。
 
 > 详细决策表 + Skill map → `sd-firmware-copilot/SKILL.md §Superpowers 框架整合`。
+
+## 方法论概览
+
+> 本节从 `docs/navigation.md` 迁入（2026-06-23）—— AI / 人共用同一份方法论入口。4 Iron Rules 见上文 §superpowers。
+
+### 两种驱动路径
+
+**路径 A：设计文档驱动**（已有 SAD/SDD/ICD）
+
+```
+设计文档 → [KNOW] 理解设计 + 定位代码 → [PLAN] 规格化变更 → [BUILD] 实现 + 测试 → [FEEDBACK] 归档
+```
+
+**路径 B：代码驱动**（无设计文档，AI 先分析代码生成设计文档）
+
+```
+现有代码 → [KNOW] 分析代码 + 生成设计文档 → [PLAN] 规格化变更 → [BUILD] 实现 + 测试 → [FEEDBACK] 归档
+```
+
+两种路径仅 KNOW 阶段不同；从 PLAN 开始完全一致。
+
+### 核心闭环：KNOW → PLAN → BUILD → FEEDBACK
+
+| 阶段 | 工具 | 职责 |
+|------|------|------|
+| **KNOW** | Graphify + CodeGraph | 理解现有系统结构 |
+| **PLAN** | OpenSpec CLI v1.4.1 | 创建 proposal / design / tasks / specs 增量 |
+| **BUILD** | Superpowers + sd-firmware-copilot | 代码实现 + 测试验证 + 根因调试 + 验证完成。须通过 BUILD Gate |
+| **FEEDBACK** | OpenSpec archive + Graphify | 规格归档 + 知识图谱增量更新 |
+
+由 OpenCode Agent 统一编排四阶段。
+
+### 五级门禁
+
+```
+Proposal Gate → Design Gate → BUILD Gate → Review Gate → Archive Gate
+```
+
+BUILD Gate 是 2026-06-22 新增，强制 AI 在编码前加载验证 skill。单文件 bugfix 可跳过 Proposal Gate。
+
+### 核心原则
+
+| 原则 | 说明 |
+|------|------|
+| **代码优先** | `Source Code > Design Docs > Specs > Memory > Prompt` |
+| **小任务原则** | 每次 200-500 行，不扩大需求 |
+| **修改前必查 CodeGraph** | 修改函数签名/结构体/头文件前必须查影响范围 |
+| **AI 辅助不替代** | 人负责架构决策、风险判断、最终责任 |
+| **五级门禁不跳过** | 5 道门禁强制纪律；单文件 bugfix 豁免 Proposal Gate |
+| **规格优先于记忆** | Specs 是基线；查询优先级 specs → CodeGraph → 代码 |
+| **全部工件版本化** | proposal / design / tasks / review / specs 纳入 Git |
+
+### 快速上手（5 分钟）
+
+```bash
+# 1. 一键部署工具链
+bash scripts/deploy_tools.sh /path/to/c-source
+
+# 2. 验证环境
+bash scripts/verify.sh    # 确认 17/17 通过
+
+# 3. 选一条路径开始
+# 路径 A（有设计文档）→ /opsx:propose <change-name>
+# 路径 B（无设计文档）→ codegraph explore <区域> 先生成设计文档
+```
+
+### 完整流程（路径 A 为例）
+
+```bash
+# ─── KNOW：理解设计 ───
+graphify query "<设计关键词>"
+graphify explain "<核心概念>"
+codegraph explore <代码区域>
+
+# ─── PLAN：创建变更 ───
+/opsx:propose my-change "根据 SDD 第 X 章实现 Y 功能"
+# → Design Gate：人工确认 → BUILD Gate：AI 加载验证 skill
+
+# ─── BUILD：实现 + 测试验证 ───
+/opsx:apply my-change
+# → 按 tasks.md 实现 → 编写测试覆盖正常/边界/错误路径
+# → 注入验证：每条测试路径 bug 注入→失败→撤销→通过
+
+# ─── FEEDBACK：Review + 归档 ───
+# → Review Skill 产出 review.md
+/opsx:archive my-change
+graphify update <子目录>   # 大项目避免全仓库扫描
+```
