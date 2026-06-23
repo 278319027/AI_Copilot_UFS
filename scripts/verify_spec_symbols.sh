@@ -9,9 +9,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-# 获取 FEMU_ROOT
-FEMU_ROOT=$(bash "$SCRIPT_DIR/get_femu_root.sh" 2>/dev/null || echo "")
-if [ -z "$FEMU_ROOT" ] || [ ! -d "$FEMU_ROOT" ]; then
+# 获取 FEMU_ROOT（与 opencode.json codegraph --path 同步约定）
+FEMU_ROOT="${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}"
+if [ ! -d "$FEMU_ROOT" ]; then
     echo "Warning: FEMU_ROOT not found, skipping symbol existence check"
     exit 0
 fi

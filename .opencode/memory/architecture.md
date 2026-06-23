@@ -111,7 +111,7 @@
 | `agent` | Agent 行为参数（超时、并发、context 阈值） | verify.sh [8/15] |
 | `project` | 项目特定设置（femuRoot、构建命令、graphify 策略） | verify.sh [8/15] |
 
-**严禁**在脚本中直接硬编码 FEMU_ROOT 路径。统一通过 `scripts/get_femu_root.sh` 从 `opencode.json` 解析。
+**FEMU_ROOT 约定**：所有 shell 脚本统一使用 `${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}` 形式（与 `opencode.json → mcp.codegraph.command --path` 的 `${FEMU_ROOT:-default}` 语法完全一致）。**严禁** 写独立解析脚本（早期 `scripts/get_femu_root.sh` 70 行脚本已删除——它解析的是冗余的 `project.femuRoot` 字段，等价于 1 行 shell 变量展开）。
 
 ### 6.2 Agent 超时处理
 

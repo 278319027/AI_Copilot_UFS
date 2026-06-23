@@ -15,13 +15,25 @@
 
 ---
 
-## AP-002: FEMU_ROOT 硬编码分散 — 多处维护同一默认值
+## AP-002: ~~FEMU_ROOT 硬编码分散~~ — 已 2026-06-23 修正
 
-**场景**: opencode.json、verify.sh、AGENTS.md 三处均硬编码 `/home/zsf/AI_Proj/femu/hw/femu`
-**后果**: 修改默认路径时需改 3+ 个文件，容易遗漏导致不一致
-**根因**: 缺乏"单一真相源"原则
-**修复**: `scripts/get_femu_root.sh` 统一从 opencode.json 解析；verify.sh 调用该脚本
-**预防**: 新增 verify.sh [8/15] 检查项，验证 opencode.json 配置完整性
+**原始问题**: opencode.json、verify.sh、AGENTS.md 三处均硬编码 `/home/zsf/AI_Proj/femu/hw/femu`
+**原修复**（2026-06-22）：`scripts/get_femu_root.sh` 统一从 opencode.json 解析
+
+**新问题发现**（2026-06-23）：
+- `get_femu_root.sh` 的 1st tier priority（`project.femuRoot` 字段）在 `opencode.json` 中**根本不存在**——是 dead code
+- 脚本实际等价于 `${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}` 1 行 shell 变量展开
+- 70 行 python 解析器是**过度工程**
+
+**修正**（2026-06-23）：
+- 删除 `scripts/get_femu_root.sh`（70 行）
+- 改用 `${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}` 约定，与 `opencode.json → mcp.codegraph.command --path` 同步
+- 更新 `verify.sh`（删 `_get_femu_root()` 函数，2 处调用改 env var）、`scripts/verify_spec_symbols.sh`、`AGENTS.md`、`architecture.md`
+
+**预防**:
+- 不要写独立的 FEMU_ROOT 解析脚本——约定是 env var 默认值
+- 修改默认路径时，**2 处需同步**：`opencode.json` 的 codegraph --path + 脚本中 `${FEMU_ROOT:-...}` 默认值
+- verify.sh [8/15] 检查项验证 `opencode.json` 配置完整性
 
 ---
 

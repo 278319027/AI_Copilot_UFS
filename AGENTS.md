@@ -4,17 +4,19 @@
 
 ## codegraph 与 FEMU_ROOT
 
-CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其目标路径通过 `opencode.json` 的 `mcp.codegraph.command` 数组配置，路径形式为 `${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}`。
+CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其目标路径通过 `opencode.json` 的 `mcp.codegraph.command` 数组配置。
+
+**约定**：`FEMU_ROOT` 环境变量是 FEMU 路径的标准形式，与 `opencode.json` 的 `mcp.codegraph.command --path` 的 `${FEMU_ROOT:-/default}` 语法一致。所有 shell 脚本统一使用 `${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}` 约定，**与 `opencode.json` 默认值保持同步**（修改任一处需同步另一处）。
 
 | 项 | 值 |
 |----|----|
-| **环境变量名** | `FEMU_ROOT` |
-| **默认值** | `/home/zsf/AI_Proj/femu/hw/femu` |
-| **直接路径** | `FEMU_ROOT` 即为目标 SSD 固件 `hw/femu` 源码目录（不拼接任何子路径） |
-| **用途** | CodeGraph MCP 服务的 `--path` 参数 (被 opencode.json ${VAR:-default} 展开) |
-| **验证命令** | `bash verify.sh` 中的 `[9/15] FEMU_ROOT` 检查 (或直接 `test -d ${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}`) |
+| **环境变量** | `FEMU_ROOT`（env var 优先于默认） |
+| **默认路径** | `/home/zsf/AI_Proj/femu/hw/femu`（与 `opencode.json` 的 `codegraph.command --path` 默认值相同）|
+| **验证命令** | `bash verify.sh` 中的 `[9/15] FEMU_ROOT` 检查 |
 
-覆盖示例: `export FEMU_ROOT=/opt/ssd-firmware/hw/femu` — 则 CodeGraph 索引 `/opt/ssd-firmware/hw/femu`。
+覆盖示例:
+- **临时覆盖**：`export FEMU_ROOT=/opt/ssd-firmware/hw/femu`
+- **永久修改**：编辑 `opencode.json` 的 `mcp.codegraph.command --path`（同步脚本中的默认值）
 
 ## graphify
 
@@ -63,3 +65,35 @@ OpenCode Agent 在不同工作目录运行时，**应向上查找**到 zsf 仓�
 ## superpowers
 
 本项目包含 **Superpowers** 技能框架（8 个子技能，`.opencode/skills/superpowers-*/`）作为项目无关的工程纪律层。完整索引（4 Iron Rules + Bootstrap 决策表 + Skill map）整合至 `sd-firmware-copilot/SKILL.md §Superpowers 框架整合`。
+
+### Skill 自动触发（Bootstrap）— 替代全局 `experimental.chat.system.transform` 钩子
+
+> **为什么需要这一节**：本项目通过把 Superpowers 13 个 skill **逐个复制到 `.opencode/skills/`** 实现项目自包含分发（不依赖 `~/.config/opencode/superpowers/` 全局安装）。代价是**没有官方引导插件**自动注入 `using-superpowers` 内容到系统提示——必须由本节作为**项目级 bootstrap**，把全局钩子的"1% 规则"显式化。
+
+**会话开始时强制加载**（每次新 session / 新需求的第一动作）：
+
+```text
+skill(name="superpowers-using-superpowers")
+```
+
+**按场景自动加载规则**（"1% 规则"——只要 1% 概率匹配，立即加载）：
+
+| 触发场景 | 必加载 skill | 缺失后果 |
+|----------|-------------|----------|
+| 会话开始 / 收到新需求 | `superpowers-using-superpowers` | 上下文无纪律约束 |
+| 涉及 bug、test failure、异常行为 | `superpowers-systematic-debugging` | 凭直觉打补丁 |
+| 写生产代码（含 C/H 文件编辑） | `superpowers-verification-before-completion` | 无测试证据，代码不可信 |
+| 进入 BUILD 阶段（`/opsx:apply`） | `superpowers-executing-plans` + `superpowers-verification-before-completion` | 跳过任务、跳过验证 |
+| 合并前 / 用户说「review my work」 | `superpowers-requesting-code-review` | AI 自批自审 |
+| 收到审查反馈 | `superpowers-receiving-code-review` | 表演性认同 / 盲目实现 |
+| 所有任务完成，准备合并 | `superpowers-finishing-a-development-branch` | 直接合并不清理 |
+| 即将「声明完成 / 修复 / 通过」 | `superpowers-verification-before-completion` | 无证据断言 |
+
+**4 Iron Rules（不可妥协）**：
+
+- **NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE** — 完成前必须实际运行测试/编译/命令并验证结果，禁止「应该没问题」。
+- **NO PRODUCTION CODE WITHOUT TESTS** — 每段生产代码必须有对应的测试覆盖。纯逻辑代码用单元测试验证；硬件依赖代码（MMIO/ISR/DMA）用集成测试或仿真验证，或在 `review.md` 标注不可覆盖原因。
+- **NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST** — 复现、读错误、查变更、形成假设、最小验证，禁止凭直觉打补丁。
+- **NO MERGE WITHOUT CODE REVIEW** — 每个非平凡变更必须经正式审查，接收反馈以技术为准不表演性认同。
+
+> 详细决策表 + Skill map → `sd-firmware-copilot/SKILL.md §Superpowers 框架整合`。
