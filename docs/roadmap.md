@@ -63,10 +63,10 @@
 
 | 任务 | 状态 | 产出 |
 |------|------|------|
-| 部署 Superpowers（12 子技能） | ✅ | `.opencode/skills/superpowers-*/`（入口整合至 `sd-firmware-copilot`） |
+| 部署 Superpowers（8 子技能） | ✅ | `.opencode/skills/superpowers-*/`（入口整合至 `sd-firmware-copilot`） |
 | 测试覆盖 / 根因调查 / 验证后完成 铁律 | ✅ | 3 条强制铁律 |
 | 评审双向规范 | ✅ | requesting / receiving code review |
-| 并行 Agent 调度 | ✅ | subagent-driven / dispatching-parallel |
+| 并行 Agent 调度 | ✅ | 原生 task(run_in_background=true) + executing-plans |
 | KNOW→PLAN→BUILD→FEEDBACK 闭环 | ✅ | 文档同步更新 |
 
 ### Phase 8：四工具架构试点 🟡 部分完成

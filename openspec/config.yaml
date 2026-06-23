@@ -39,7 +39,7 @@ rules:
     - Each task must reference the spec requirement it implements (capability name + Requirement name in openspec/specs/).
     - Each task must declare its test plan: which test file, which scenarios (normal path, boundary, error), expected coverage.
     - Each task must include a verification step (specific command + expected output).
-    - Order tasks so independent ones can be parallelized (subagent-driven-development friendly).
+    - Order tasks so independent ones can be parallelized if applicable.
   design:
     - Always include a CodeGraph impact analysis (callers, callees, blast radius of symbols/files changed).
     - Always confirm with Design Gate before coding — Design Gate requires: CodeGraph map complete, open questions answered, and reviewer sign-off.

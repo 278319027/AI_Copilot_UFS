@@ -67,7 +67,6 @@ After all tasks complete and verified:
 
 ## Integration
 
-**Required workflow skills:**
-- **superpowers:using-git-worktrees** - Ensures isolated workspace (creates one or verifies existing)
-- **superpowers:writing-plans** - Creates the plan this skill executes
-- **superpowers:finishing-a-development-branch** - Complete development after all tasks
+**Related workflow skills:**
+- **superpowers:finishing-a-development-branch** - Complete development after all tasks (merge/PR/cleanup)
+- Plan creation via `openspec-propose` → `tasks.md` (OpenSpec 5-phase lifecycle)

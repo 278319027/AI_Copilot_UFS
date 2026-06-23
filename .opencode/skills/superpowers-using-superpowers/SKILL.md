@@ -55,9 +55,8 @@ Skills speak in actions ("dispatch a subagent", "create a todo", "read a file") 
 ```dot
 digraph skill_flow {
     "User message received" [shape=doublecircle];
-    "About to enter plan mode?" [shape=doublecircle];
-    "Already brainstormed?" [shape=diamond];
-    "Invoke brainstorming skill" [shape=box];
+    "Already explored context?" [shape=diamond];
+    "Explore context" [shape=box];
     "Might any skill apply?" [shape=diamond];
     "Invoke the skill" [shape=box];
     "Announce: 'Using [skill] to [purpose]'" [shape=box];
@@ -66,12 +65,11 @@ digraph skill_flow {
     "Follow skill exactly" [shape=box];
     "Respond (including clarifications)" [shape=doublecircle];
 
-    "About to enter plan mode?" -> "Already brainstormed?";
-    "Already brainstormed?" -> "Invoke brainstorming skill" [label="no"];
-    "Already brainstormed?" -> "Might any skill apply?" [label="yes"];
-    "Invoke brainstorming skill" -> "Might any skill apply?";
+    "User message received" -> "Already explored context?";
+    "Already explored context?" -> "Explore context" [label="no"];
+    "Already explored context?" -> "Might any skill apply?" [label="yes"];
+    "Explore context" -> "Might any skill apply?";
 
-    "User message received" -> "Might any skill apply?";
     "Might any skill apply?" -> "Invoke the skill" [label="yes, even 1%"];
     "Might any skill apply?" -> "Respond (including clarifications)" [label="definitely not"];
     "Invoke the skill" -> "Announce: 'Using [skill] to [purpose]'";
@@ -105,10 +103,10 @@ These thoughts mean STOP—you're rationalizing:
 
 When multiple skills could apply, use this order:
 
-1. **Process skills first** (brainstorming, systematic-debugging) - these determine HOW to approach the task
-2. **Implementation skills second** (frontend-design, mcp-builder) - these guide execution
+1. **Process skills first** (systematic-debugging, openspec-workflow) - these determine HOW to approach the task
+2. **Implementation skills second** - these guide execution
 
-"Let's build X" → brainstorming first, then implementation skills.
+"Let's build X" → openspec-propose / openspec-explore first, then implementation skills.
 "Fix this bug" → systematic-debugging first, then domain-specific skills.
 
 ## Skill Types

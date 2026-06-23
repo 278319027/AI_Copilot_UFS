@@ -103,7 +103,6 @@ Superpowers skill 不是"建议"，是铁律。未加载 skill 直接编码 = �
   - 每个函数明确列出：正常路径用例、边界条件用例、错误路径用例
   - 不可覆盖路径已标注原因和替代验证方式（写入 review.md）
   - 硬件依赖代码标注了 HAL 接口与实现的分界，说明哪层可单元测试、哪层靠仿真/审查
-- [ ] 已加载 `superpowers-subagent-driven-development` 或 `superpowers-dispatching-parallel-agents`（多任务调度，按需）
 - [ ] CodeGraph 探索完成（影响范围明确）
 - [ ] 已理解现有代码模式（错误处理、并发、日志）
 - [ ] `tasks.md` 所有 Task 就绪，blockedBy 解析无循环
