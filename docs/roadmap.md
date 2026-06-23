@@ -36,7 +36,7 @@
 
 > **启动条件**（全部满足 ✅ 即可开始）：
 > 1. `verify.sh` 15/15 通过
-> 2. `templates/` 模板库就位
+> 2. `openspec` CLI + `openspec instructions <id>` 取模板（替代原本地 `templates/` 库，2026-06-23 移除）
 > 3. `collect_metrics.sh` 可运行
 > 4. 选定第 1 个低风险真实需求（建议：文档改进或单文件 bugfix）
 >
@@ -53,8 +53,8 @@
 
 | 任务 | 状态 | 产出 |
 |------|------|------|
-| 模板库积累 | ✅ | `templates/{proposal,design,tasks,review}-template.md` |
-| Hooks 自动化增强 | ~~已移除~~ | ~~`templates/git-hooks/{post-checkout,post-merge,post-commit}` + `scripts/install-graphify-hooks.sh`~~ — 2026-06-23 移除（commit 待提交），由 M-5 PROJECT-SPECIFIC session-start 更新替代 |
+| 模板库积累 | ~~已移除~~ | ~~`templates/{proposal,design,tasks,review}-template.md`~~ — 2026-06-23 移除（与 `openspec instructions` CLI 输出重复） |
+| Hooks 自动化增强 | ~~已移除~~ | ~~`templates/git-hooks/{post-checkout,post-merge,post-commit}` + `scripts/install-graphify-hooks.sh`~~ — 2026-06-23 移除，由 M-5 PROJECT-SPECIFIC session-start 更新替代 |
 | ~~CI/CD 流水线~~ | ~~已移除~~ | ~~`.github/workflows/verify.yml`~~ — 本地使用方法论前手动运行 `bash verify.sh` 即可，无需自动化 CI
 | 规则迭代 | 🟡 | `collect_metrics.sh` 建立度量基线，待实战数据驱动迭代 |
 | QLoRA 微调评估 | 🔲 | 内部数据微调可行性评估 |

@@ -150,7 +150,7 @@ bash verify.sh    # 只读检查，不修改任何文件
 | `docs/` | 人类文档：navigation.md、roadmap.md、本文档 |
 | `AGENTS.md` | AI 运行时指令（graphify / openspec / superpowers 规则） |
 | `scripts/` | 工具脚本：get_femu_root.sh / collect_metrics.sh / verify_spec_symbols.sh / metrics_trend.sh |
-| `templates/` | 变更模板 + 测试模板 + 证据模板（Git hooks 模板已于 2026-06-23 移除，迁至 M-5 session-start）|
+| `.opencode/templates/` | OpenSpec 制品模板（仅 `verify-report.md`，M-1 强化产物；其他 OpenSpec artifact 模板从 `openspec instructions` CLI 取）|
 
 ## 常见问题
 

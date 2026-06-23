@@ -12,10 +12,19 @@ description: Stage 1 of OpenSpec 5-phase lifecycle — create a new change and g
 - `<change-name>`：kebab-case 名称（必填）
 - `[intent-description]`：1-2 句话的意图（可选）
 
-**加载 skill**：[openspec-propose](../skills/openspec-propose/SKILL.md)
+**入口操作**：
+1. `skill(name="openspec-propose")` — 加载 propose skill
+2. `skill(name="superpowers-using-superpowers")` — 加载纪律约束
+3. 按 skill 指引执行：CLI 取模板 → 填充内容 → 过 Proposal Gate
 
 **完整流程**：
 1. `openspec new change "<name>"` 建空骨架
 2. `openspec status --change "<name>" --json` 解析 `applyRequires` / `artifactPaths`
-3. 对每个 ready artifact：`openspec instructions <id> --change --json` → 写 `resolvedOutputPath`
+3. 对每个 ready artifact：`openspec instructions <id> --change --json` → 写 `resolvedOutputPath`（**唯一来源**：模板从 CLI 取，不读本地 .md 文件）
 4. 循环 status 直到全 ready
+
+**校验命令**：
+```bash
+openspec validate --strict --changes
+bash check_change.sh <change-name>
+```

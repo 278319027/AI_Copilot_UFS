@@ -95,11 +95,13 @@ zsf/
 ├── opencode.json          ← 配置（femuRoot / agent / project）
 ├── openspec/specs/        ← 3 个基线 spec（nvme / ftl / nand）
 ├── openspec/changes/      ← 活跃变更
-├── .opencode/memory/      ← 5 个规则文件
+├── .opencode/memory/      ← 6 个规则文件（含 anti_patterns.md）
 ├── .opencode/skills/      ← 15 个 skill（按需加载）
-├── .opencode/commands/    ← 5 个 slash 命令（/opsx:*）
-├── templates/             ← proposal/design/tasks/review 模板
+├── .opencode/commands/    ← 8 个 slash 命令（/opsx:*）
+├── .opencode/templates/  ← verify-report 模板（M-1 强化产物，2026-06-23 新增）
 └── scripts/               ← verify.sh / get_femu_root.sh / collect_metrics.sh
+
+> **注意**：`templates/` 顶层目录于 2026-06-23 移除（与 `openspec instructions` CLI 输出重复，且 test_makefile_example.mk 与项目 meson 不兼容）。OpenSpec artifact 模板从 CLI 取（`openspec instructions <id> --change --json`）。
 ```
 
 ## 关键约束
