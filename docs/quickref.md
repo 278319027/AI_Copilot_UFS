@@ -76,9 +76,7 @@ graphify explain "<symbol>"
 openspec validate --strict --specs
 openspec validate --strict --changes
 
-# 度量与趋势
-bash scripts/collect_metrics.sh        # 生成当期度量报告
-bash scripts/metrics_trend.sh          # 生成历史趋势报告
+# Spec 一致性
 bash scripts/verify_spec_symbols.sh    # 验证 spec 中 C 符号存在性
 
 # 工具部署
@@ -99,7 +97,7 @@ zsf/
 ├── .opencode/skills/      ← 15 个 skill（按需加载）
 ├── .opencode/commands/    ← 8 个 slash 命令（/opsx:*）
 ├── .opencode/templates/  ← verify-report 模板（M-1 强化产物，2026-06-23 新增）
-└── scripts/               ← verify.sh / get_femu_root.sh / collect_metrics.sh
+└── scripts/               ← verify.sh / verify_spec_symbols.sh
 
 > **注意**：`templates/` 顶层目录于 2026-06-23 移除（与 `openspec instructions` CLI 输出重复，且 test_makefile_example.mk 与项目 meson 不兼容）。OpenSpec artifact 模板从 CLI 取（`openspec instructions <id> --change --json`）。
 ```

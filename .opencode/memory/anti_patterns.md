@@ -79,7 +79,7 @@
 
 ## AP-007: 运行产物误提交到 git
 
-**场景**: `collect_metrics.sh` 生成的 `metrics/2026-06-23.md` 被提交到 git（2026-06-23）
+**场景**（历史，2026-06-22）：`collect_metrics.sh` 生成的 `metrics/2026-06-23.md` 被提交到 git
 **后果**: 运行产物污染仓库历史，违反"代码优先"原则，commit 信息被噪音稀释
 **根因**: 创建度量收集脚本时未同步更新 `.gitignore` 排除 `metrics/` 目录
 **修复**: 删除已误提交的文件 + 在 `.gitignore` 追加 `metrics/`
@@ -89,7 +89,7 @@
 
 ## AP-008: 度量脚本统计模式错误 — checkbox ≠ task 标题
 
-**场景**: `collect_metrics.sh` 第 53 行用 `grep -cE '^\- \['` 统计 task 数（2026-06-23 首次实战暴露）
+**场景**（历史，2026-06-22 首次实战暴露）：`collect_metrics.sh` 第 53 行用 `grep -cE '^\- \['` 统计 task 数
 **后果**: "平均 task 数"指标失真（3 tasks × 3 checkboxes = 9 → 报告为 8，触发误报警 ⚠）
 **根因**: 实现时混淆"checkbox（测试项）"和"task 标题（任务项）"两种概念，grep 模式 `^\- \[` 实际匹配 markdown 列表中的 checkbox 而非 `## Task` 标题
 **修复**: 改用 `grep -cE '^## Task '` 严格匹配 task 标题（`## Task N: <标题>` 是 OpenSpec 通用 tasks.md 格式）

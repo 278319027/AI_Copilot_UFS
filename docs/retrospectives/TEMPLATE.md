@@ -63,4 +63,4 @@
 
 ## 附录: 当期度量快照
 
-<!-- 粘贴 collect_metrics.sh 的输出 -->
+<!-- 粘贴 collect_metrics.sh 的输出（**历史**：该脚本于 2026-06-23 移除；如需历史趋势，请参考 `git log` + `openspec list --json`） -->
