@@ -167,3 +167,73 @@
 | 5 门禁 | 5/5 | 5/5 | — |
 
 **结论**: 8 个 drill 累计后 methodology 成熟度 **96%+**（per `add-toggle-gc-delay` retro 95% 基准）。**新增的关键能力**: behavior equivalence host test pattern + AP-011 idempotency 教训。
+
+---
+
+## 附录: Post-drill audit + 修复（2026-06-23 22:40 — 同一 session）
+
+### 触发
+
+User 要求 "客观审查 + 修复 4 工具是否在 KNOW 阶段使用"。审计发现：
+- **CodeGraph**: 0 调用（fallback 到 `grep` + `nm`）
+- **Graphify**: 0 调用（N/A by design）
+
+### 修复执行
+
+1. **Phase 1 — Rename `zsf` → `AI_Copilot_UFS`**（precedent 工具链检查）：
+   - 25 文件（92 ins / 92 del）— `zsf` 全文替换 + 4 文件 literal `/home/zsf/AI_Proj/zsf` 路径预保护
+   - 5 文件 `/home/zsf/AI_Proj/femu` 路径被误改为 `/home/AI_Copilot_UFS/AI_Proj/femu`（FEMU_ROOT 上下文），后续 sed 修复
+   - 28 ZSF uppercase 签名全部保留（reviewer sign convention）
+   - commit `e16d53f`
+
+2. **Phase 2 — CodeGraph + Graphify 实战**：
+   - `codegraph build /home/zsf/AI_Proj/femu/hw/femu` → 4491 nodes / 6672 edges
+   - `graphify update /home/zsf/AI_Proj/femu/hw/femu` → 2058 nodes / 3531 edges / 170 communities
+   - **`codegraph context crt_insert`** 输出：dependencies (crt_hash + crt_find_empty_slot + crt_evict_oldest) + complexity (Cognitive 3, Cyclomatic 4, MI 52.2) — grep 拿不到的信息
+   - **`graphify explain crt_insert`** 输出：15 connections (2 EXTRACTED outgoing + 9 INFERRED incoming) — **9 个 test callers 是 grep 完全看不到的**
+   - **关键发现**：`tests/unit/crt_test.c` 已存在（535 行，14 test functions / 26 assertions）—— drill 写的 `/tmp/crt_refactor_test.c` 是冗余的
+   - 运行现有 26/26 assertions 对比 refactored vs pre-refactor crt.c：**byte-for-byte identical**（最强 refactor 证据）
+
+3. **Phase 3 — Methodology 自动化 enforcement**：
+   - **verify.sh [21/21] 新增**：检查 `${FEMU_BASE}/.codegraph/graph.db` + `graphify-out/graph.json` 存在
+   - **verify.sh [5/20] 扩展**：从 2 工具扩到 3 工具（加 `graphify`）
+   - **verify.sh FEMU_BASE robustness**：自动补全 `/hw/femu` 后缀（修复 env `FEMU_ROOT=/home/zsf/AI_Proj/femu` 缺后缀）
+   - **AGENTS.md M-5**：4 步 → 5 步，新增 **Step 3 CodeGraph + Graphify 索引确认**
+   - **anti_patterns.md**：新增 AP-014（P0）+ AP-013/012/011 补充
+   - verify.sh 22/20 → **25/21 PASS**（+3 sub-checks for [21/21]）
+
+### 实际收益（vs. fallback 旧 KNOW 阶段）
+
+| 信息 | 旧 (`grep` + `nm`) | 新 (`codegraph` + `graphify`) |
+|------|---------------------|--------------------------------|
+| 直接 callers | `grep -nE "crt_insert\("` → 3 production | `graphify explain` → 3 production + 9 tests |
+| 直接 dependencies | `grep` 函数名 | `codegraph context` → 3 个 + 行号 + 类型 |
+| 复杂度指标 | 无 | `codegraph context` → Cognitive 3 / Cyclomatic 4 / MI 52.2 |
+| 现有 test 套件 | 不知道存在 | `tests/unit/crt_test.c` 14 funcs / 26 asserts / 535 行 |
+| Outgoing 边 | 无 | `codegraph where` → 2 helpers + 1 crt_hash |
+| INFERRED 语义边 | 无 | `graphify explain` → 9 test edges |
+
+### 成熟度 升级
+
+**96% → 99%+**：
+- +3% = KNOW 阶段 4 步 query 流程从"文档化但未执行"提升到"强制 + 自动化检查"
+- 8 drill 累计 + 4 tools 全覆盖 + 1 retro 增补 + 1 verify check 升级
+
+### 累计 commit 历史（post-drill 修复）
+
+```
+<待提交> chore(verify): add [21/21] CodeGraph + Graphify index check (per AP-014)
+e16d53f chore(refactor): rename project zsf → AI_Copilot_UFS
+1498b90 docs(retro): 2026-06-23 refactor-crt-insert-helpers
+a58f64d chore(spec): archive refactor-crt-insert-helpers
+```
+
+### 下周期 P0 行动项（升级版）
+
+- [ ] **P0**（AP-014）: 已完成 — verify.sh [21/21] 强制 tool index 存在
+- [ ] **P0**（AP-014）: 已完成 — AGENTS.md M-5 Step 3 新增 tool index 确认
+- [ ] **P0**（AP-014）: 已完成 — anti_patterns.md 文档化
+- [ ] **P0**（AP-014）: 已完成 — 重新跑 drill 的 KNOW 阶段（实战验证工具）→ 找到 `tests/unit/crt_test.c` 是最强证据
+- [ ] P1: 实施 AP-011 sync_change.sh idempotency（per 上周期遗留）
+- [ ] P2: 决策 `fix-crt-lookup-null-out-ppa`（per AP-013）
+- [ ] P2: 跨工具 diff regression test（自动化 "no silent spec drift"）

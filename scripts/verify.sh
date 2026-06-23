@@ -25,7 +25,14 @@ hdr() { printf "\n[%s] %s\n" "$1" "$2"; }
 # FEMU_ROOT 约定：FEMU_ROOT 环境变量（与 opencode.json 的 codegraph --path 同步）
 # 默认值与 opencode.json → mcp.codegraph.command --path 完全一致
 # ------------------------------------------------------------
-FEMU_BASE="${FEMU_ROOT:-/home/AI_Copilot_UFS/AI_Proj/femu/hw/femu}"
+if [ -n "$FEMU_ROOT" ]; then
+    case "$FEMU_ROOT" in
+        */hw/femu) FEMU_BASE="$FEMU_ROOT" ;;
+        *)         FEMU_BASE="$FEMU_ROOT/hw/femu" ;;
+    esac
+else
+    FEMU_BASE="/home/zsf/AI_Proj/femu/hw/femu"
+fi
 
 echo "=== verify.sh — 项目健康检查 ==="
 echo "  项目根: $PROJECT_ROOT"
@@ -67,10 +74,10 @@ bash -n "$PROJECT_ROOT/scripts/deploy_tools.sh" 2>/dev/null && ok "scripts/deplo
 # [5/20] Tools on PATH
 hdr "5/20" "Essential tools on PATH"
 MT=()
-for t in codegraph openspec; do
+for t in codegraph graphify openspec; do
     command -v "$t" &>/dev/null || MT+=("$t")
 done
-[ ${#MT[@]} -eq 0 ] && ok "codegraph, openspec on PATH" || bad "missing tools: ${MT[*]}"
+[ ${#MT[@]} -eq 0 ] && ok "codegraph, graphify, openspec on PATH" || bad "missing tools: ${MT[*]}"
 
 # [6/20] Memory rules format (non-empty + has headers)
 hdr "6/20" "Memory rules format (5 files)"
@@ -322,8 +329,27 @@ else
     bad "archived changes regression detected:$ARCHIVE_REGRESSION"
 fi
 
+# [21/21] CodeGraph + Graphify indexes built in FEMU source (per AP-014: KNOW phase tool enforcement)
+# Pre-drill: the FEMU source MUST have both indexes built. If missing, drill's KNOW phase falls back
+# to grep+nm (per the refactor-crt-insert-helpers gap). Run: `cd $FEMU_BASE && codegraph build . && graphify update .`
+hdr "21/21" "CodeGraph + Graphify indexes (FEMU source — per AP-014)"
+TOOL_INDEX_OK=0
+if [ -f "$FEMU_BASE/.codegraph/graph.db" ] && [ -s "$FEMU_BASE/.codegraph/graph.db" ]; then
+    ok "CodeGraph DB built: $FEMU_BASE/.codegraph/graph.db ($(du -h "$FEMU_BASE/.codegraph/graph.db" | cut -f1))"
+    TOOL_INDEX_OK=$((TOOL_INDEX_OK+1))
+else
+    bad "CodeGraph DB missing or empty: $FEMU_BASE/.codegraph/graph.db (run: cd \$FEMU_ROOT && codegraph build .)"
+fi
+if [ -f "$FEMU_BASE/graphify-out/graph.json" ] && [ -s "$FEMU_BASE/graphify-out/graph.json" ]; then
+    ok "Graphify graph built: $FEMU_BASE/graphify-out/graph.json ($(du -h "$FEMU_BASE/graphify-out/graph.json" | cut -f1))"
+    TOOL_INDEX_OK=$((TOOL_INDEX_OK+1))
+else
+    bad "Graphify graph missing or empty: $FEMU_BASE/graphify-out/graph.json (run: cd \$FEMU_ROOT && graphify update .)"
+fi
+[ "$TOOL_INDEX_OK" -eq 2 ] && ok "both KNOW-phase tool indexes present (CodeGraph + Graphify)" || bad "missing tool index(es); drill KNOW phase will fall back to grep+nm (per AP-014)"
+
 # Summary
 printf "\n==============================================\n"
-printf "  Summary: %d/20 checks passed\n" "$P"
+printf "  Summary: %d/21 checks passed\n" "$P"
 printf "==============================================\n"
 [ "$F" -eq 0 ] && exit 0 || exit 1

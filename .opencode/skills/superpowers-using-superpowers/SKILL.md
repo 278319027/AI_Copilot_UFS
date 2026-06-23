@@ -52,7 +52,7 @@ Project context loaded:
 bash scripts/verify.sh                 # 17/17 通过
 
 # 2. 知识图谱最新
-cd /home/AI_Copilot_UFS/AI_Proj/femu/hw/femu  # 或目标代码库根
+cd /home/zsf/AI_Proj/femu/hw/femu  # 或目标代码库根
 graphify update .
 
 # 3. 4 步 CodeGraph 导航（per sd-firmware-copilot §KNOW）
@@ -62,7 +62,7 @@ codegraph context <func>           # 函数定义 + 复杂度
 codegraph impact <file>            # blast radius
 
 # 4. 读 OpenSpec 活跃变更状态（如有）
-cd /home/AI_Copilot_UFS/AI_Proj/AI_Copilot_UFS
+cd /home/zsf/AI_Proj/AI_Copilot_UFS
 openspec list --json
 ```
 

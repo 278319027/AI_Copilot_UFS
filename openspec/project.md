@@ -12,7 +12,7 @@
 
 **AI_Copilot_UFS** 是面向 **SSD 固件团队**的 AI 辅助编程体系仓库，**不是 SSD 固件代码本身**。
 
-- 目标代码库：通过 `FEMU_ROOT` 环境变量或 `opencode.json → project.femuRoot` 字段指定的 SSD 固件源码（默认 `/home/AI_Copilot_UFS/AI_Proj/femu/hw/femu`）
+- 目标代码库：通过 `FEMU_ROOT` 环境变量或 `opencode.json → project.femuRoot` 字段指定的 SSD 固件源码（默认 `/home/zsf/AI_Proj/femu/hw/femu`）
 - AI_Copilot_UFS 仓库**只**承载方法论资产：skills / commands / memory / docs / OpenSpec 规格层 / 部署与验证脚本
 - 代码修改**绝不**发生在 AI_Copilot_UFS 仓库内（除方法论资产本身）
 

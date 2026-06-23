@@ -6,7 +6,7 @@
 
 > **背景**（M-5 gap）：5 个项目级 memory 文件（architecture / design_rules / coding_style / concurrency_rules / testing_rules）原要求"session-start 必读"，但续会（continuation session）未显式重读。**修复**：强制 session-start checklist 文档化，确保每个新 drill session-start 都跑 4 步。
 
-每个 **新 OpenSpec drill session-start** 必跑 4 步（5-10 min overhead）：
+每个 **新 OpenSpec drill session-start** 必跑 5 步（5-10 min overhead）：
 
 1. **5 个 memory 文件重读**（per `superpowers-using-superpowers/SKILL.md §PROJECT-SPECIFIC`）：
    - `.opencode/memory/architecture.md` — 架构分层
@@ -14,14 +14,19 @@
    - `.opencode/memory/coding_style.md` — 命名 / 注释 / 文件
    - `.opencode/memory/concurrency_rules.md` — 锁 / 中断 / 原子操作
    - `.opencode/memory/testing_rules.md` — 测试要求（含 §4.4 Bug Injection 强制）
-2. **verify.sh baseline check**：`bash scripts/verify.sh`（应 19/20 或更新；验证工作树干净 + 4 P0/P1/P2 防御都就位）
-3. **openspec-* 5 个 skill 重读**：
+2. **verify.sh baseline check**：`bash scripts/verify.sh`（应 25/21 或更新；验证工作树干净 + 4 P0/P1/P2 防御都就位 + [21/21] tool indexes present per AP-014）
+3. **CodeGraph + Graphify 索引确认**（per AP-014 retro `2026-06-23-refactor-crt-insert-helpers`，**必跑**）：
+   - `${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}/.codegraph/graph.db` 必须存在（CodeGraph DB）
+   - `${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}/graphify-out/graph.json` 必须存在（Graphify graph）
+   - **缺一不可**——缺失则 KNOW 阶段会回退到 grep+nm（per `refactor-crt-insert-helpers` 教训：错过 9 个 test callers）
+   - 缺则重建：`cd ${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu} && codegraph build . && graphify update .`
+4. **openspec-* 5 个 skill 重读**：
    - `openspec-workflow/SKILL.md`（5 phase 概念层）
    - `openspec-propose/SKILL.md`（propose 阶段 + §1a Delta 头规则 + §1b Refactor 类型 per AP-009/AP-010）
    - `openspec-sync-specs/SKILL.md`（sync 阶段 + §6 Delta Header Rule）
    - `openspec-archive-change/SKILL.md`（archive 阶段 + §1.0 ask user + §2.5 manual sync fallback）
-   - `sd-firmware-copilot/SKILL.md`（项目级 pipeline + 五门禁 + Iron Rules）
-4. **OpenSpec 状态检查**：`cd /home/AI_Copilot_UFS/AI_Proj/AI_Copilot_UFS && openspec list --json`（盘点活跃变更）
+   - `sd-firmware-copilot/SKILL.md`（项目级 pipeline + 五门禁 + Iron Rules + **KNOW 阶段 4 步 query**）
+5. **OpenSpec 状态检查**：`cd /home/zsf/AI_Proj/AI_Copilot_UFS && openspec list --json`（盘点活跃变更）
 
 > **为什么**：这些规则在 PLAN/DESIGN/BUILD 阶段持续生效；不读会导致 DESIGN 违反 memory 规则（命名 / 风格 / 并发模型）而到 BUILD 阶段才发现。**AP-002 案例**：`add-crt-mapping-cache` 在 PLAN 阶段就违反 coding_style 的"英文命名 + 中文注释"约定，是 session 中段才纠正的。
 
@@ -29,12 +34,12 @@
 
 CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其目标路径通过 `opencode.json` 的 `mcp.codegraph.command` 数组配置。
 
-**约定**：`FEMU_ROOT` 环境变量是 FEMU 路径的标准形式，与 `opencode.json` 的 `mcp.codegraph.command --path` 的 `${FEMU_ROOT:-/default}` 语法一致。所有 shell 脚本统一使用 `${FEMU_ROOT:-/home/AI_Copilot_UFS/AI_Proj/femu/hw/femu}` 约定，**与 `opencode.json` 默认值保持同步**（修改任一处需同步另一处）。
+**约定**：`FEMU_ROOT` 环境变量是 FEMU 路径的标准形式，与 `opencode.json` 的 `mcp.codegraph.command --path` 的 `${FEMU_ROOT:-/default}` 语法一致。所有 shell 脚本统一使用 `${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}` 约定，**与 `opencode.json` 默认值保持同步**（修改任一处需同步另一处）。
 
 | 项 | 值 |
 |----|----|
 | **环境变量** | `FEMU_ROOT`（env var 优先于默认） |
-| **默认路径** | `/home/AI_Copilot_UFS/AI_Proj/femu/hw/femu`（与 `opencode.json` 的 `codegraph.command --path` 默认值相同）|
+| **默认路径** | `/home/zsf/AI_Proj/femu/hw/femu`（与 `opencode.json` 的 `codegraph.command --path` 默认值相同）|
 | **验证命令** | `bash scripts/verify.sh` 中的 `[9/17] FEMU_ROOT` 检查 |
 
 覆盖示例:

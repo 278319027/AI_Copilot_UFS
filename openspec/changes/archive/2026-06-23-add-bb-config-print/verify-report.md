@@ -21,7 +21,7 @@
 
 ### Check 2: 编译通过
 
-- 命令: `cd /home/AI_Copilot_UFS/AI_Proj/femu/build-femu && make libsystem.a.p/hw_femu_bbssd_bb.c.o`
+- 命令: `cd /home/zsf/AI_Proj/femu/build-femu && make libsystem.a.p/hw_femu_bbssd_bb.c.o`
 - 结果: exit 0, 0 warnings
 - 实际执行（fresh evidence 2026-06-23 18:46）:
   ```
@@ -143,7 +143,7 @@ Totals: 3 passed, 0 failed (3 items)
 
 ### Check 5 输出（静态分析）
 ```
-$ nm /home/AI_Copilot_UFS/AI_Proj/femu/build-femu/libsystem.a.p/hw_femu_bbssd_bb.c.o | grep bb_
+$ nm /home/zsf/AI_Proj/femu/build-femu/libsystem.a.p/hw_femu_bbssd_bb.c.o | grep bb_
 00000000000000a0 t bb_admin_cmd
 0000000000000030 t bb_init
 # (lowercase t = static/local; bb_flip is static, no external callers)

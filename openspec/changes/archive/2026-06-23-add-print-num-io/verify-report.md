@@ -22,7 +22,7 @@
 
 ### Check 2: 编译通过
 
-- 命令: `cd /home/AI_Copilot_UFS/AI_Proj/femu/build-femu && touch -d "2020-01-01" libsystem.a.p/hw_femu_bbssd_bb.c.o && make libsystem.a.p/hw_femu_bbssd_bb.c.o`
+- 命令: `cd /home/zsf/AI_Proj/femu/build-femu && touch -d "2020-01-01" libsystem.a.p/hw_femu_bbssd_bb.c.o && make libsystem.a.p/hw_femu_bbssd_bb.c.o`
 - 结果: exit 0, 0 warnings
 - 实际执行（fresh evidence 2026-06-23 21:00）:
   ```
