@@ -260,20 +260,21 @@ else
 fi
 
 # [19/19] review.md 签字检查 (per AP-005 + P2-2: AI 不能自批自审)
+# Per retro 2026-06-refactor-bb-flip-table 下周期行动项 P1: 升级为 FAIL（hard constraint）
 hdr "19/19" "review.md 签字 (per AP-005)"
 REVIEW_PLACEHOLDERS=""
 for r in openspec/changes/*/review.md; do
     [ -f "$r" ] || continue
     # Detect AI-written placeholder (签名栏是占位符而非真实签字)
-    if grep -qE "用户填写|<user-fill|Signed.*by AI|AI.*Signed|placeholder.*sign|<\s*AI\s*>" "$r" 2>/dev/null; then
+    if grep -qE "用户填写|<user-fill|Signed.*by AI|AI.*Signed|placeholder.*sign|<\s*AI\s*自身\s*>|<\s*AI\s*自身>" "$r" 2>/dev/null; then
         REVIEW_PLACEHOLDERS="$REVIEW_PLACEHOLDERS $r"
     fi
 done
 if [ -z "$REVIEW_PLACEHOLDERS" ]; then
     ok "no unsigned review.md placeholders in active changes (clean)"
 else
-    warn "unsigned review.md placeholders found (AI 不能自批自审 per AP-005):$REVIEW_PLACEHOLDERS"
-    warn "  → 建议：archive 前 ask user 签字 review.md（详见 openspec-archive-change/SKILL.md §1）"
+    bad "unsigned review.md placeholders found (AI 不能自批自审 per AP-005):$REVIEW_PLACEHOLDERS"
+    bad "  → archive 前必须 ask user 签字（详见 openspec-archive-change/SKILL.md §1.0）"
 fi
 
 # Summary
