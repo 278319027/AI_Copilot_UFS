@@ -12,7 +12,9 @@ description: Stage 4 of OpenSpec 5-phase lifecycle — merge delta specs (ADDED/
 - 无参数：取唯一活跃变更
 - `[change-name]`：指定变更
 
-**加载 skill**：[openspec-sync-specs](../skills/openspec-sync-specs/SKILL.md)
+**入口操作**：
+1. `skill(name="openspec-sync-specs")` — 加载 sync skill
+2. 按 skill 指引执行：读取 delta → 智能合并 → 验证基线
 
 **完整流程**：
 1. 读 `openspec/changes/<id>/specs/<cap>/spec.md` 找 delta 段（`## ADDED` / `MODIFIED` / `REMOVED` / `RENAMED`）
@@ -26,3 +28,8 @@ description: Stage 4 of OpenSpec 5-phase lifecycle — merge delta specs (ADDED/
 - MODIFIED 头文本必须完全一致
 - REMOVED 必含 `**Reason:**` + `**Migration:**`
 - Scenario 强制 4 个 `#`
+
+**校验命令**：
+```bash
+openspec validate --strict --specs
+```

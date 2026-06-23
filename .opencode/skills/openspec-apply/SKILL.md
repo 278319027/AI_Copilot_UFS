@@ -19,6 +19,37 @@ metadata:
 - `tasks.md` 已生成且所有前置 artifact（proposal / design / specs）done
 - 准备写生产代码
 
+## BUILD Gate 强制检查（编码前必须完成）
+
+在写第一行代码前，AI 必须完成以下检查并输出结果。**任一缺失 = 禁止编码。**
+
+### BUILD Gate Checklist
+
+- [ ] `skill(name="superpowers-executing-plans")` 已加载
+- [ ] `skill(name="superpowers-verification-before-completion")` 已加载
+- [ ] `skill(name="superpowers-test-driven-development")` 已加载（如涉及新代码）
+- [ ] `skill(name="superpowers-systematic-debugging")` 已加载（如涉及 bug 修复）
+- [ ] 测试计划已定义：正常路径 / 边界条件 / 错误路径（写入 tasks.md 或当前对话）
+- [ ] CodeGraph 影响分析已完成（`codegraph impact` / `codegraph where` 结果已查看）
+- [ ] `tasks.md` blockedBy 关系无循环
+
+### 强制输出格式
+
+AI 必须在编码前显式声明：
+
+```
+BUILD Gate 检查完成：
+- 已加载 skill: [list]
+- 测试计划: [summary]
+- CodeGraph 影响: [files affected, callers count]
+- blockedBy 检查: [no cycles / cycles found]
+- 结论: [PASS / BLOCKED: reason]
+```
+
+**若声明 BLOCKED，必须停止编码，先解决阻塞项。**
+
+---
+
 ## 关键步骤
 
 ### 1. 选定变更

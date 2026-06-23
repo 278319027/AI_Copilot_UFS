@@ -12,7 +12,9 @@ description: Stage 2 of OpenSpec 5-phase lifecycle — think with user, investig
 - 无参数：盘点活跃变更（`openspec list --json`）+ 提议建立新 proposal
 - `[topic]`：聚焦调研某主题
 
-**加载 skill**：[openspec-explore](../skills/openspec-explore/SKILL.md)
+**入口操作**：
+1. `skill(name="openspec-explore")` — 加载 explore skill
+2. 按 skill 指引执行：调研 → 对比选项 → 产出 design.md 思考段
 
 **调研手段**（按需选用）：
 - **CodeGraph**：`codegraph explore <area>` / `codegraph where <func>`

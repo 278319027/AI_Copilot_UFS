@@ -23,3 +23,6 @@ Thumbs.db
 *~
 .vscode/
 .idea/
+
+# 度量报告（运行产物）
+metrics/
