@@ -45,7 +45,6 @@
 |------|------|--------|
 | `openspec/` | **规格驱动开发**：基线（`specs/`） + 活跃变更（`changes/`） | 人 + AI |
 | `.opencode/skills/` | **AI 技能包**：Superpowers 纪律 + sd-firmware-copilot 领域规则 + OpenSpec 适配器 | AI（人偶尔查阅） |
-| `docs/adr/` | **架构决策记录**：4 条关键决策（方法论与目标库解耦、四阶段闭环、test-after、五级门禁） | 人（追溯设计意图） |
 | `.opencode/memory/` | **项目规则**：5 个规则文件（架构/并发/编码/设计/测试）+ review 规则在 `superpowers-requesting-code-review/ssd-review-rules.md` | AI（人审阅） |
 | `docs/` | **人类文档**：roadmap、navigation | 人 |
 | `graphify-out/` | **知识图谱产物**：在目标代码库运行 graphify 后生成，zsf 自身无此目录 | AI |
