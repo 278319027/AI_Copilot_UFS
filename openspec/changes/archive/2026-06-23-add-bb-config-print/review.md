@@ -55,9 +55,10 @@ N/A（待 reviewer 填写）。
 
 ## 签字
 
-- **审查人**: <用户填写 — 不能是 AI 自身>
-- **签字时间**: <YYYY-MM-DD HH:MM>
-- **结论**: ✅ APPROVED / ❌ REJECTED / ⚠️ APPROVED WITH COMMENTS
+- **审查人**: ZSF
+- **签字时间**: 2026-06-23 20:45
+- **结论**: ⚠️ APPROVED WITH COMMENTS
+- **Comments**: retroactive 补签以解决 AP-005 旧账（per retro 2026-06-refactor-bb-flip-table 下周期行动项 P0-2）；原 archive 时为 AI placeholder。
 
 ## 审查后行动
 
