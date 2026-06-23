@@ -54,7 +54,7 @@
 | 模板库积累 | ~~已移除~~ | ~~`templates/{proposal,design,tasks,review}-template.md`~~ — 2026-06-23 移除（与 `openspec instructions` CLI 输出重复） |
 | Hooks 自动化增强 | ~~已移除~~ | ~~`templates/git-hooks/{post-checkout,post-merge,post-commit}` + `scripts/install-graphify-hooks.sh`~~ — 2026-06-23 移除，由 M-5 PROJECT-SPECIFIC session-start 更新替代 |
 | ~~CI/CD 流水线~~ | ~~已移除~~ | ~~`.github/workflows/verify.yml`~~ — 本地使用方法论前手动运行 `bash scripts/verify.sh` 即可，无需自动化 CI
-| 规则迭代 | 🟡 | 通过 verify.sh [3-8/15] 检与 commit 时间戳迭代（不再依赖 collect_metrics） |
+| 规则迭代 | 🟡 | 通过 verify.sh [3-8/17] 检与 commit 时间戳迭代（不再依赖 collect_metrics） |
 | QLoRA 微调评估 | 🔲 | 内部数据微调可行性评估 |
 
 ### Phase 6：OpenSpec 规格驱动升级 ✅ 已完成

@@ -53,21 +53,22 @@ bash scripts/deploy_tools.sh /path/to/your/c/source
 bash scripts/verify.sh
 
 # 3. 确认 17/17 通过
-#   [1/13] OpenSpec specs validation
-#   [2/13] CodeGraph MCP config
-#   [3/13] Memory rules (5 files present)
-#   [4/13] deploy_tools.sh syntax
-#   [5/13] Essential tools on PATH
-#   [6/13] Memory rules format (5 files)
-#   [7/13] openspec/config.yaml
-#   [8/13] opencode.json JSON validity
-#   [9/13] FEMU_ROOT
-#   [10/13] Spec files (3 capabilities)
-#   [11/13] Skill directories
-#   [12/13] .omo/ cleanliness
-#   [13/17] FEMU path .opencode/ cleanliness
-#   [13/17] check_change.sh 工具
-#   [15/17] sd-firmware-copilot SKILL.md 关键章节
+#   [1/17] OpenSpec specs validation
+#   [2/17] CodeGraph MCP config
+#   [3/17] Memory rules (5 files present)
+#   [4/17] scripts/deploy_tools.sh syntax
+#   [5/17] Essential tools on PATH
+#   [6/17] Memory rules format (5 files)
+#   [7/17] openspec/config.yaml
+#   [8/17] opencode.json schema (mcp + codegraph)
+#   [9/17] FEMU_ROOT (CodeGraph MCP target path)
+#   [10/17] Spec files (3 capabilities, non-empty)
+#   [11/17] Skill directories
+#   [12/17] FEMU path .opencode/ cleanliness
+#   [13/17] scripts/check_change.sh 工具
+#   [14/17] sd-firmware-copilot SKILL.md 关键章节
+#   [15/17] anti_patterns.md 存在性
+#   [16/17] spec symbols existence
 ```
 
 ## 日常操作
@@ -129,7 +130,7 @@ bash scripts/verify.sh    # 只读检查，不修改任何文件
 
 | 路径 | 产出者 | `.gitignore` 状态 |
 |------|--------|------------------|
-| `metrics/` | `collect_metrics.sh` | ✅ 已覆盖 |
+| `metrics/` | 历史 `collect_metrics.sh`（2026-06-23 已删除） | ✅ 已覆盖 |
 | `.omo/` | OpenCode Agent 会话状态 | ✅ 已覆盖 |
 | `graphify-out/` | `graphify update` 知识图谱 | ✅ 已覆盖 |
 | `<femu>/.codegraph/` | `codegraph build` 调用图 | ✅ 已覆盖（由目标代码库 .gitignore 管理） |
@@ -143,13 +144,13 @@ bash scripts/verify.sh    # 只读检查，不修改任何文件
 | 路径 | 一句话说明 |
 |------|-----------|
 | `scripts/deploy_tools.sh` | 一键部署五件套工具链 |
-| `scripts/verify.sh` | 一键健康检查（15 项） |
+| `scripts/verify.sh` | 一键健康检查（16 项） |
 | `openspec/` | 规格层：基线 `specs/` + 活跃变更 `changes/` |
 | `.opencode/skills/` | 15 个 skill（工程纪律 + OpenSpec + 领域规则） |
 | `.opencode/memory/` | 6 个编码规则文件（架构/并发/编码/设计/测试/反模式） |
 | `docs/` | 人类文档：navigation.md、roadmap.md、本文档 |
 | `AGENTS.md` | AI 运行时指令（graphify / openspec / superpowers 规则） |
-| `scripts/` | 工具脚本：get_femu_root.sh / collect_metrics.sh / verify_spec_symbols.sh / metrics_trend.sh |
+| `scripts/` | 工具脚本：check_change.sh / deploy_tools.sh / verify.sh / verify_spec_symbols.sh |
 | `.opencode/templates/` | OpenSpec 制品模板（仅 `verify-report.md`，M-1 强化产物；其他 OpenSpec artifact 模板从 `openspec instructions` CLI 取）|
 
 ## 常见问题
