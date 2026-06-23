@@ -45,8 +45,8 @@
 
 ## 7. Archive
 
-- [ ] 7.1 Run `bash scripts/sync_change.sh refactor-bb-flip-table` to merge ADDED Requirement to baseline
-- [ ] 7.2 Run `bash scripts/verify.sh` and confirm 19/19 still PASS
-- [ ] 7.3 `mv openspec/changes/refactor-bb-flip-table/ openspec/changes/archive/$(date +%Y-%m-%d)-refactor-bb-flip-table/`
-- [ ] 7.4 `git add openspec/changes/ openspec/specs/ scripts/ && git commit -m "chore(spec): archive refactor-bb-flip-table"`
-- [ ] 7.5 Final `bash scripts/verify.sh` → 19/19 PASS
+- [x] 7.1 Run `bash scripts/sync_change.sh refactor-bb-flip-table` to merge ADDED Requirement to baseline
+- [x] 7.2 Run `bash scripts/verify.sh` and confirm 19/19 still PASS
+- [x] 7.3 `mv openspec/changes/refactor-bb-flip-table/ openspec/changes/archive/$(date +%Y-%m-%d)-refactor-bb-flip-table/`
+- [x] 7.4 `git add openspec/changes/ openspec/specs/ scripts/ && git commit -m "chore(spec): archive refactor-bb-flip-table"`
+- [x] 7.5 Final `bash scripts/verify.sh` → 19/19 PASS
