@@ -118,12 +118,7 @@ AI 完成 BUILD Gate checklist 并声明 "BUILD Gate 通过" 后方可开始实�
 
 ### 子代理调度策略
 
-| 用例 | 策略 |
-|------|------|
-| 单一文件修改 | `subagent-driven-development`（单代理集中） |
-| 独立并行任务 | `dispatching-parallel-agents`（最多 5 并行） |
-| 代码生成 | 直接生成（Simple Agent） |
-| 复杂逻辑 | `ultrabrain` — 提供目标而非步骤 |
+并行独立任务用 OpenCode 原生 `task(run_in_background=true)` 调度，不需要专用 sub-skill。复杂多文件任务按 tasks.md 顺序逐 task 执行，由 `executing-plans` 跟踪进度。
 
 **调度契约**：提示词必须完整（代码模式、错误处理、并发约束）；不跳过 task 步（tasks.md 是合同）；不扩大需求（不在代码生成时添加额外功能）；人负责架构设计与风险判断。
 
@@ -390,7 +385,7 @@ openspec validate --strict --specs
 
 ## Superpowers 框架整合
 
-本 skill 是 zsf 的"sole integrating skill"。下层 Superpowers 12 个 sub-skill 协同工作：4 条 Iron Rules 强制执行，Bootstrap 决策表告诉 AI 在哪种场景下加载哪个 sub-skill，阶段转换触发器串联四阶段闭环。
+本 skill 是 zsf 的"sole integrating skill"。下层 Superpowers 8 个 sub-skill 协同工作：4 条 Iron Rules 强制执行，Bootstrap 决策表告诉 AI 在哪种场景下加载哪个 sub-skill，阶段转换触发器串联四阶段闭环。
 
 ### Iron Rules（4 条，不可妥协）
 
@@ -407,14 +402,10 @@ openspec validate --strict --specs
 | 涉及 bug、test failure、异常行为 | `superpowers-systematic-debugging` | 凭直觉打补丁 |
 | 写生产代码 | `superpowers-verification-before-completion` | 无测试证据，代码不可信 |
 | 进入 BUILD 阶段 | `superpowers-executing-plans` + `superpowers-verification-before-completion` | 跳过任务、跳过验证 |
-| 复杂任务（多文件、多模块） | `superpowers-subagent-driven-development` | 上下文爆炸、需求漂移 |
-| 2+ 独立可并行任务 | `superpowers-dispatching-parallel-agents` | 串行浪费 |
 | 合并前 / 用户说「review my work」 | `superpowers-requesting-code-review` | AI 自批自审 |
 | 收到审查反馈 | `superpowers-receiving-code-review` | 表演性认同 / 盲目实现 |
 | 所有任务完成，准备合并 | `superpowers-finishing-a-development-branch` | 直接合并不清理 |
 | 宣称「完成 / 修复 / 通过」 | `superpowers-verification-before-completion` | 无证据断言 |
-| 写计划（5+ 步骤任务） | `superpowers-writing-plans` | 无 plan 直接 coding |
-| 复杂/创造性问题 | `superpowers-brainstorming` | 需求理解偏差 |
 
 ### 阶段转换触发器（4 阶段闭环）
 
@@ -432,19 +423,15 @@ openspec validate --strict --specs
 - [ ] 即将「写生产代码」？→ 确认测试计划已定义，覆盖正常路径、边界条件、错误路径
 - [ ] 即将「合并」？→ 使用 `superpowers-requesting-code-review` 并完成 Review Gate
 
-### Skill map 速查（12 sub-skill）
+### Skill map 速查（8 sub-skill）
 
 | Sub-skill | 何时调用 |
 |-----------|----------|
 | `superpowers-using-superpowers` | 任何会话开始 |
-| `superpowers-brainstorming` | 创意/需求探索 |
-| `superpowers-writing-plans` | 5+ 步骤任务前写 plan |
 | `superpowers-test-driven-development` | 实现后补充测试，覆盖正常/边界/错误路径（test-after） |
 | `superpowers-systematic-debugging` | 任何 bug / test failure / 异常行为 |
 | `superpowers-verification-before-completion` | 任何"完成"声明前 |
 | `superpowers-executing-plans` | 按 plan 顺序执行 |
-| `superpowers-subagent-driven-development` | 多文件复杂 plan 配 review |
-| `superpowers-dispatching-parallel-agents` | 2+ 独立并行任务 |
 | `superpowers-requesting-code-review` | 合并前 / 完成后 |
 | `superpowers-receiving-code-review` | 收到审查反馈时 |
 | `superpowers-finishing-a-development-branch` | 全部完成准备集成 |
