@@ -2,6 +2,29 @@
 
 > **AI 完整工作流**（4 阶段闭环、4 Iron Rules、Bootstrap 决策表、Skill map）见 `.opencode/skills/sd-firmware-copilot/SKILL.md` —— 本文档仅含项目特有的 OpenCode 启动配置（环境变量、插件规则、CLI 命令清单）。
 
+## Session Start Checklist（**per M-5 closure, retro 2026-06-add-toggle-gc-delay**）
+
+> **背景**（M-5 gap）：5 个项目级 memory 文件（architecture / design_rules / coding_style / concurrency_rules / testing_rules）原要求"session-start 必读"，但续会（continuation session）未显式重读。**修复**：强制 session-start checklist 文档化，确保每个新 drill session-start 都跑 4 步。
+
+每个 **新 OpenSpec drill session-start** 必跑 4 步（5-10 min overhead）：
+
+1. **5 个 memory 文件重读**（per `superpowers-using-superpowers/SKILL.md §PROJECT-SPECIFIC`）：
+   - `.opencode/memory/architecture.md` — 架构分层
+   - `.opencode/memory/design_rules.md` — 设计规则（含 §设计-实现一致性）
+   - `.opencode/memory/coding_style.md` — 命名 / 注释 / 文件
+   - `.opencode/memory/concurrency_rules.md` — 锁 / 中断 / 原子操作
+   - `.opencode/memory/testing_rules.md` — 测试要求（含 §4.4 Bug Injection 强制）
+2. **verify.sh baseline check**：`bash scripts/verify.sh`（应 19/20 或更新；验证工作树干净 + 4 P0/P1/P2 防御都就位）
+3. **openspec-* 5 个 skill 重读**：
+   - `openspec-workflow/SKILL.md`（5 phase 概念层）
+   - `openspec-propose/SKILL.md`（propose 阶段 + §1a Delta 头规则 + §1b Refactor 类型 per AP-009/AP-010）
+   - `openspec-sync-specs/SKILL.md`（sync 阶段 + §6 Delta Header Rule）
+   - `openspec-archive-change/SKILL.md`（archive 阶段 + §1.0 ask user + §2.5 manual sync fallback）
+   - `sd-firmware-copilot/SKILL.md`（项目级 pipeline + 五门禁 + Iron Rules）
+4. **OpenSpec 状态检查**：`cd /home/zsf/AI_Proj/zsf && openspec list --json`（盘点活跃变更）
+
+> **为什么**：这些规则在 PLAN/DESIGN/BUILD 阶段持续生效；不读会导致 DESIGN 违反 memory 规则（命名 / 风格 / 并发模型）而到 BUILD 阶段才发现。**AP-002 案例**：`add-crt-mapping-cache` 在 PLAN 阶段就违反 coding_style 的"英文命名 + 中文注释"约定，是 session 中段才纠正的。
+
 ## codegraph 与 FEMU_ROOT
 
 CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其目标路径通过 `opencode.json` 的 `mcp.codegraph.command` 数组配置。
