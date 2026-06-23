@@ -20,7 +20,7 @@
 |------|------|------|
 | 编写 Memory V1 | ✅ | 5 个规则文件（review 规则后迁至 skill） |
 | 拆分领域 Skill | 🔲 | NAND_driver/NVMe_cmd 等 |
-| 建立效果度量 | 🔲 | 度量指标定义和收集 |
+| 建立效果度量 | ✅ | `scripts/collect_metrics.sh`（7 项指标：活跃变更数/闭环率/task 数/spec 基线数等） |
 | 模型对比测试 | 🔲 | 不同规模模型对比 |
 
 ### Phase 3：建设 Skills + RAG ✅ 部分完成
@@ -32,22 +32,31 @@
 | RAG 知识库建设 | 🔲 | 文档+代码向量化检索 |
 | 编译-修复闭环 | 🔲 | 自动编译→错误反馈→AI 修复 |
 
-### Phase 4：试点实战 🔲 待做
+### Phase 4：试点实战 🟡 准备就绪
+
+> **启动条件**（全部满足 ✅ 即可开始）：
+> 1. `verify.sh` 15/15 通过
+> 2. `templates/` 模板库就位
+> 3. `collect_metrics.sh` 可运行
+> 4. 选定第 1 个低风险真实需求（建议：文档改进或单文件 bugfix）
+>
+> **当前状态**：条件 1-3 已满足。等待条件 4（需求选择）。
 
 | 任务 | 状态 | 产出 |
 |------|------|------|
 | 选择 3-5 个真实需求 | 🔲 | 接口层/命令处理类需求优先 |
 | 模拟器验证集成 | 🔲 | QEMU NVMe 模拟或 Test Harness |
 | 完整闭环跑通 | 🔲 | CodeGraph + sd-firmware-copilot + 编译 + 模拟 |
-| 收集度量数据 | 🔲 | 开发时间、Review 时间、问题数量 |
+| 收集度量数据 | ✅ | `scripts/collect_metrics.sh`（活跃变更数/闭环率/spec 基线数等 7 项指标） |
 
-### Phase 5：持续优化 🔲 待做
+### Phase 5：持续优化 🟡 部分完成
 
 | 任务 | 状态 | 产出 |
 |------|------|------|
-| 模板库积累 | 🔲 | 常见模式模板和范例 |
-| Hooks 自动化增强 | 🔲 | clang-format + cppcheck + 编译 + 测试 |
-| 规则迭代 | 🔲 | 根据实战结果更新 Memory 和 Skill |
+| 模板库积累 | ✅ | `templates/{proposal,design,tasks,review}-template.md` |
+| Hooks 自动化增强 | ~~已移除~~ | ~~`templates/git-hooks/{post-checkout,post-merge,post-commit}` + `scripts/install-graphify-hooks.sh`~~ — 2026-06-23 移除（commit 待提交），由 M-5 PROJECT-SPECIFIC session-start 更新替代 |
+| ~~CI/CD 流水线~~ | ~~已移除~~ | ~~`.github/workflows/verify.yml`~~ — 本地使用方法论前手动运行 `bash verify.sh` 即可，无需自动化 CI
+| 规则迭代 | 🟡 | `collect_metrics.sh` 建立度量基线，待实战数据驱动迭代 |
 | QLoRA 微调评估 | 🔲 | 内部数据微调可行性评估 |
 
 ### Phase 6：OpenSpec 规格驱动升级 ✅ 已完成

@@ -24,26 +24,13 @@
 
 在生成代码或修改代码前，AI 必须先通过 CodeGraph 了解影响范围。
 
-### 4.2 查询工具
+### 4.2 查询工具与使用规则
 
-主工具: ops-codegraph（MCP 服务器，30+ 工具）
-> 当前部署于 FEMU 项目 `../femu/hw/femu/`
+主工具: ops-codegraph（MCP 服务器，30+ 工具），部署于 FEMU 项目。
 
-| 场景 | MCP 工具（v3.13.0+） |
-|------|---------|
-| 谁调用了函数 X | `codegraph where <symbol>` |
-| 函数 X 调用了谁 | `codegraph callees <symbol>` |
-| 函数定义 + 复杂度 | `codegraph context <func>` |
-| 修改文件的影响范围 | `codegraph impact <file>` |
-| 结构体/符号搜索 | `codegraph symbol_search` |
-| 模块间依赖图 | `codegraph dependency_graph` |
-| #include 依赖 | `codegraph find_by_imports` |
-| 宏使用 | `codegraph find_by_pattern` |
-| 函数指针调用 | ⚠️ 有限 — 用 `symbol_search` 查注册点 + 手工读 dispatch 函数 |
+**详细工具列表、查询场景、使用规则、安装配置** → 见 `sd-firmware-copilot/SKILL.md §KNOW 阶段`。
 
-补充工具: ctags（命令行）
-
-### 4.3 查询结果使用规则
+本节仅保留**核心约束**（不可省略）：
 
 - 修改任何接口前，必须先查询 `codegraph impact`
 - 修改任何结构体前，必须先查询 `codegraph symbol_search` + `codegraph find_by_imports`
@@ -51,19 +38,11 @@
 - 新增模块前，必须先了解 `codegraph dependency_graph`
 - **函数指针相关查询：CodeGraph AST 不追踪间接调用，用 `symbol_search` 查注册点 + 手工读 dispatch 函数**
 
-### 4.4 ops-codegraph 安装与配置
-
-> 当前部署于 FEMU 项目 `../femu/hw/femu/`
-- 安装: `npm install -g @optave/codegraph`
-- 构建索引: `codegraph build`
-|- 查询统计: `codegraph status`
-- MCP 服务器: `codegraph serve --mcp`（见 `opencode.json` 的 `mcp.codegraph.command`）
-
 ## 5. Graphify 查询规则
 
 ### 5.1 Graphify 与 CodeGraph 分工
 
-|- **CodeGraph**（ops-codegraph，当前部署于 FEMU `../femu/hw/femu/`）：代码结构查询——调用图、依赖图、影响分析
+- **CodeGraph**（ops-codegraph，当前部署于 FEMU `../femu/hw/femu/`）：代码结构查询——调用图、依赖图、影响分析
 - **Graphify**：知识图谱查询——概念关系、社区结构、跨文件语义导航
 - 原则：结构问题用 CodeGraph / cscope，概念问题用 Graphify
 
@@ -84,22 +63,70 @@
 - 图谱变陈旧时增量刷新（同上策略）
 - 只有当任务目标就是修复图谱输出，或用户明确要求不用 graphify 时才跳过
 
+### 5.4 自动更新机制（**已废弃**）
+
+> **2026-06-23 移除**：原 `templates/git-hooks/{post-checkout, post-merge, post-commit}` + `scripts/install-graphify-hooks.sh` 已删除（commit 待提交）。原因：
+> 1. **意图不匹配**：设计目标"git 操作后自动更新" ≠ 用户本意"AI session 开始时更新"
+> 2. **M-5 强化后冗余**：`superpowers-using-superpowers/SKILL.md` PROJECT-SPECIFIC 段已强制 session 开头跑 4 步环境准备（含 `graphify update`），更准确更及时
+> 3. **不完整**：只更新 graphify，不更新 codegraph
+> 4. **从未被使用**：`.git/hooks/` 只有 `.sample`，作者也承认"大项目较慢"
+>
+> **替代方案**：session-start 由 M-5 的 4 步 CodeGraph 导航覆盖（见 `superpowers-using-superpowers/SKILL.md` §PROJECT-SPECIFIC）
+
 ## 6. Agent 配置与 Context 管理
 
-### 6.1 Agent 超时处理
+### 6.1 opencode.json 配置规范
 
-大型文件修改任务（500+ 行文件）容易触发 agent 超时（默认 4-6 分钟 staleness）。对策：
+`opencode.json` 是 OpenCode Agent 的运行时配置单一文件，结构如下：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "codegraph": {
+      "type": "local",
+      "command": ["codegraph", "serve", "--mcp", "--path", "${FEMU_ROOT:-/path/to/femu/hw/femu}"],
+      "enabled": true,
+      "env": {}
+    }
+  },
+  "agent": {
+    "timeout": 300,
+    "maxConcurrentAgents": 5,
+    "contextWindowThreshold": 0.7,
+    "staleTaskTimeoutMs": 360000
+  },
+  "project": {
+    "femuRoot": "${FEMU_ROOT:-/path/to/femu/hw/femu}",
+    "graphifyUpdateStrategy": "subdirectory",
+    "defaultBuildCommand": "make clean && make -j$(nproc)",
+    "specCapabilities": ["nvme-commands", "ftl-mapping", "nand-driver"]
+  }
+}
+```
+
+| 配置节 | 用途 | 校验位置 |
+|--------|------|----------|
+| `mcp.codegraph` | CodeGraph MCP 服务配置 | verify.sh [2/15] |
+| `agent` | Agent 行为参数（超时、并发、context 阈值） | verify.sh [8/15] |
+| `project` | 项目特定设置（femuRoot、构建命令、graphify 策略） | verify.sh [8/15] |
+
+**严禁**在脚本中直接硬编码 FEMU_ROOT 路径。统一通过 `scripts/get_femu_root.sh` 从 `opencode.json` 解析。
+
+### 6.2 Agent 超时处理
+
+大型文件修改任务（500+ 行文件）容易触发 agent 超时。对策：
 - 拆分为更小的 sub-task（每个 task 修改不超过 100 行）
-- 在 `.opencode/oh-my-openagent.json` 中调整 `background_task.staleTimeoutMs`（按需）
+- 在 `opencode.json` 的 `agent.staleTaskTimeoutMs` 中调整（默认 360000ms = 6 分钟）
 
-### 6.2 Context 膨胀控制
+### 6.3 Context 膨胀控制
 
 - 每个阶段结束后主动执行 context 压缩
-- 单次并发 explore/librarian agent 不超过 5 个
-- context 使用率超过 70% 时暂停新任务
+- 单次并发 explore/librarian agent 不超过 `agent.maxConcurrentAgents` 个（默认 5）
+- context 使用率超过 `agent.contextWindowThreshold`（默认 0.7 = 70%）时暂停新任务
 - 工具调试不超过 2 轮
 
-### 6.3 OpenSpec 规格基线查询优先级
+### 6.4 OpenSpec 规格基线查询优先级
 
 AI 在理解系统行为时，按以下优先级查询（从快到慢）：
 1. **openspec/specs/** → 获取当前行为全貌

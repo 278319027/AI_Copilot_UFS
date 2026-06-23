@@ -123,20 +123,34 @@ graphify merge-graphs hw/femu/graphify-out/graph.json \
 bash verify.sh    # 只读检查，不修改任何文件
 ```
 
+### 运行产物管理
+
+以下目录/文件是脚本运行产物，**不应提交到 git**。新增任何"产生文件到新目录"的脚本/命令时，必须同步检查 `.gitignore` 是否覆盖该目录。
+
+| 路径 | 产出者 | `.gitignore` 状态 |
+|------|--------|------------------|
+| `metrics/` | `collect_metrics.sh` | ✅ 已覆盖 |
+| `.omo/` | OpenCode Agent 会话状态 | ✅ 已覆盖 |
+| `graphify-out/` | `graphify update` 知识图谱 | ✅ 已覆盖 |
+| `<femu>/.codegraph/` | `codegraph build` 调用图 | ✅ 已覆盖（由目标代码库 .gitignore 管理） |
+
+**反模式**: AP-007（运行产物误提交）记录在 `.opencode/memory/anti_patterns.md`。
+
 ## 目录结构速查
+
+> 完整目录地图见 [docs/navigation.md §关键目录速查](navigation.md#关键目录速查)。
 
 | 路径 | 一句话说明 |
 |------|-----------|
 | `deploy_tools.sh` | 一键部署五件套工具链 |
 | `verify.sh` | 一键健康检查（15 项） |
 | `openspec/` | 规格层：基线 `specs/` + 活跃变更 `changes/` |
-| `.opencode/skills/superpowers-*/` | 工程纪律层（8 子技能），入口整合至 `sd-firmware-copilot/SKILL.md §Superpowers 框架整合` |
-| `.opencode/skills/openspec-workflow/` | OpenSpec 概念层（Iron Rules + 5 phase 路由），5 phase skill 见 `openspec-{phase}/` |
-| `.opencode/commands/opsx-*.md` | 5 个原生 slash 命令（propose/explore/apply/sync/archive） |
-| `.opencode/skills/sd-firmware-copilot/` | SSD 领域规则 + 规格管理 |
-| `.opencode/memory/` | 5 个编码规则文件（架构/并发/编码/设计/测试）；Review 规则在 `superpowers-requesting-code-review/ssd-review-rules.md` |
+| `.opencode/skills/` | 15 个 skill（工程纪律 + OpenSpec + 领域规则） |
+| `.opencode/memory/` | 6 个编码规则文件（架构/并发/编码/设计/测试/反模式） |
 | `docs/` | 人类文档：navigation.md、roadmap.md、本文档 |
 | `AGENTS.md` | AI 运行时指令（graphify / openspec / superpowers 规则） |
+| `scripts/` | 工具脚本：get_femu_root.sh / collect_metrics.sh / verify_spec_symbols.sh / metrics_trend.sh |
+| `templates/` | 变更模板 + 测试模板 + 证据模板（Git hooks 模板已于 2026-06-23 移除，迁至 M-5 session-start）|
 
 ## 常见问题
 

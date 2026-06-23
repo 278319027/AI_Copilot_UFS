@@ -26,10 +26,32 @@ set -e
 # ============================================================
 # 参数解析
 # ============================================================
-SRC_DIR="${1:-}"
+DRY_RUN=0
+SRC_DIR=""
+
+for arg in "$@"; do
+    case "$arg" in
+        --dry-run)
+            DRY_RUN=1
+            echo "=== DRY RUN 模式 ==="
+            echo "  只检查依赖和输出操作计划，不实际安装或构建"
+            echo ""
+            ;;
+        -*)
+            echo "未知选项: $arg"
+            echo "用法: bash $0 [--dry-run] <C源码路径>"
+            exit 1
+            ;;
+        *)
+            SRC_DIR="$arg"
+            ;;
+    esac
+done
+
 if [ -z "$SRC_DIR" ]; then
-    echo "用法: bash $0 <C源码路径>"
+    echo "用法: bash $0 [--dry-run] <C源码路径>"
     echo "示例: bash $0 /path/to/ssd_firmware/src"
+    echo "       bash $0 --dry-run /path/to/ssd_firmware/src"
     exit 1
 fi
 
@@ -54,7 +76,7 @@ echo ""
 # ============================================================
 # Step 1: Node.js 22 (codegraph 依赖)
 # ============================================================
-echo "=== [1/6] Node.js 22 ==="
+echo "=== [1/5] Node.js 22 ==="
 
 export NVM_DIR="${HOME}/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
@@ -74,7 +96,7 @@ fi
 # Step 2: codegraph
 # ============================================================
 echo ""
-echo "=== [2/6] codegraph (调用图/影响分析) ==="
+echo "=== [2/5] codegraph (调用图/影响分析) ==="
 
 if command -v codegraph &>/dev/null; then
     echo "  ✓ codegraph $(codegraph --version) 已安装"
@@ -86,53 +108,90 @@ fi
 
 # 构建/更新 codegraph 索引
 CODEGRAPH_DIR="$SRC_DIR/.codegraph"
+_CODEGRAPH_BUILD_OK=0
 if [ -f "$CODEGRAPH_DIR/graph.db" ]; then
     echo "  → codegraph 索引已存在，增量更新..."
-
-    if ! (cd "$PROJECT_ROOT" && codegraph init "$(basename "$SRC_DIR")" 2>/dev/null || \
-
-        (cd "$SRC_DIR" && codegraph build 2>/dev/null)); then
-
-        echo "  ⚠ codegraph 增量更新失败, 可手动: cd $PROJECT_ROOT && codegraph init $(basename "$SRC_DIR")"
-
+    if cd "$PROJECT_ROOT" && codegraph init "$(basename "$SRC_DIR")" 2>/dev/null || \
+       (cd "$SRC_DIR" && codegraph build 2>/dev/null); then
+        _CODEGRAPH_BUILD_OK=1
+        echo "  ✓ codegraph 索引已更新"
+    else
+        echo "  ✗ codegraph 增量更新失败"
+        exit 1
     fi
-
-    echo "  ✓ codegraph 索引已更新"
-
 else
     echo "  → 首次构建 codegraph 索引 (仅扫描 $SRC_DIR)..."
-    cd "$PROJECT_ROOT" && codegraph init "$(basename "$SRC_DIR")" 2>/dev/null || \
-        (cd "$SRC_DIR" && codegraph build 2>/dev/null) || \
-        echo "  ⚠ codegraph 索引构建需手动执行: cd $PROJECT_ROOT && codegraph init $(basename "$SRC_DIR")"
+    if cd "$PROJECT_ROOT" && codegraph init "$(basename "$SRC_DIR")" 2>/dev/null || \
+       (cd "$SRC_DIR" && codegraph build 2>/dev/null); then
+        _CODEGRAPH_BUILD_OK=1
+        echo "  ✓ codegraph 索引构建完成"
+    else
+        echo "  ✗ codegraph 索引构建失败"
+        exit 1
+    fi
+fi
+
+# codegraph 索引有效性验证
+if [ "$_CODEGRAPH_BUILD_OK" -eq 1 ] && command -v codegraph &>/dev/null; then
+    echo "  → 验证 codegraph 索引有效性..."
+    _CG_STATS=$(cd "$SRC_DIR" && codegraph stats 2>/dev/null || echo "")
+    _CG_NODES=$(echo "$_CG_STATS" | grep -oE "Nodes: [0-9]+" | awk '{print $2}')
+    _CG_EDGES=$(echo "$_CG_STATS" | grep -oE "Edges: [0-9]+" | awk '{print $2}')
+    if [ -n "$_CG_NODES" ] && [ "$_CG_NODES" -gt 0 ] && [ -n "$_CG_EDGES" ] && [ "$_CG_EDGES" -gt 0 ]; then
+        echo "  ✓ codegraph 索引有效 (Nodes=$_CG_NODES, Edges=$_CG_EDGES)"
+    else
+        echo "  ✗ codegraph 索引无效 (Nodes=${_CG_NODES:-0}, Edges=${_CG_EDGES:-0})"
+        echo "    可能原因: codegraph 版本不支持 C 语言提取器"
+        echo "    修复: npm install -g @optave/codegraph@latest && rm -rf .codegraph && codegraph build"
+        exit 1
+    fi
 fi
 
 # ============================================================
 # Step 3: graphify (知识图谱)
 # ============================================================
-# pip 依赖先确装（graphify 本身也通过 pip 安装，避免 uv/curl 链路不稳定的问题）
+
 echo ""
-echo "=== [3a/4] python3-pip (graphify 安装前置) ==="
+echo "=== [3/5] python3-pip + graphify (知识图谱) ==="
+
 if python3 -m pip --version &>/dev/null; then
     echo "  ✓ pip $(python3 -m pip --version | awk '{print $2}') 已安装"
 else
-    echo "  → apt install python3-pip ..."
-    sudo apt-get install -y python3-pip
-    echo "  ✓ python3-pip 安装完成"
+    if [ "$DRY_RUN" -eq 1 ]; then
+        echo "  [DRY-RUN] 将执行: sudo apt-get install -y python3-pip"
+    else
+        echo "  → apt install python3-pip ..."
+        sudo apt-get install -y python3-pip
+        echo "  ✓ python3-pip 安装完成"
+    fi
 fi
 
-echo ""
-echo "=== [3b/4] graphify (知识图谱) ==="
+GRAPHIFY_VENV="$HOME/.local/share/graphify-venv"
+GRAPHIFY_PKG="graphifyy==0.4.2"
 if command -v graphify &>/dev/null; then
     echo "  ✓ graphify $(graphify --version 2>&1 | head -1 | awk '{print $NF}') 已安装"
+elif [ "$DRY_RUN" -eq 1 ]; then
+    echo "  [DRY-RUN] graphify 未安装，将创建 venv 并安装 $GRAPHIFY_PKG"
 else
-    echo "  → pip install graphifyy ..."
-    # graphifyy 是 PyPI 上的包名（github.com/safishamsi/graphify）
-    # 依赖较多（networkx / numpy / rapidfuzz / 25+ tree-sitter parsers），需等待下载
-    python3 -m pip install --break-system-packages graphifyy
-    echo "  ✓ graphify $(graphify --version 2>&1 | head -1 | awk '{print $NF}') 安装完成"
+    if [ "$DRY_RUN" -eq 1 ]; then
+        echo "  [DRY-RUN] 将执行: python3 -m venv $GRAPHIFY_VENV"
+        echo "  [DRY-RUN] 将执行: pip install $GRAPHIFY_PKG"
+    else
+        echo "  → 创建隔离 venv 并安装 $GRAPHIFY_PKG ..."
+        python3 -m venv "$GRAPHIFY_VENV"
+        "$GRAPHIFY_VENV/bin/pip" install --upgrade pip
+        if ! "$GRAPHIFY_VENV/bin/pip" install "$GRAPHIFY_PKG"; then
+            echo "  ✗ graphify 安装失败 (包名: $GRAPHIFY_PKG)"
+            echo "    请检查网络连接和 PyPI 可达性"
+            exit 1
+        fi
+        mkdir -p "$HOME/.local/bin"
+        ln -sf "$GRAPHIFY_VENV/bin/graphify" "$HOME/.local/bin/graphify"
+        export PATH="$HOME/.local/bin:$PATH"
+        echo "  ✓ graphify $(graphify --version 2>&1 | head -1 | awk '{print $NF}') 安装完成 (venv: $GRAPHIFY_VENV)"
+    fi
 fi
 
-# 注册 OpenCode Skill + Git Hook
 GRAPHIFY_SKILL_DIR=".opencode/skills/graphify"
 if [ -d "$GRAPHIFY_SKILL_DIR" ]; then
     echo "  ✓ graphify Skill 已注册"
@@ -141,24 +200,35 @@ else
     graphify opencode install 2>/dev/null || echo "  ⚠ Skill 注册失败，可手动: graphify opencode install"
 fi
 
-# 构建知识图谱（code-only，无需 LLM API key）
+GRAPHIFY_OK=0
 if [ -d "$SRC_DIR/graphify-out" ] && [ -f "$SRC_DIR/graphify-out/graph.json" ]; then
     echo "  → 知识图谱已存在，增量更新..."
-    cd "$PROJECT_ROOT" && graphify update "$(basename "$SRC_DIR")" --no-cluster 2>/dev/null || \
-        echo "  ⚠ graphify 增量更新失败, 可手动: cd $PROJECT_ROOT && graphify update $(basename "$SRC_DIR") --no-cluster"
-    echo "  ✓ 知识图谱已更新"
+    if cd "$PROJECT_ROOT" && graphify update "$(basename "$SRC_DIR")" --no-cluster 2>/dev/null; then
+        echo "  ✓ 知识图谱已更新"
+        GRAPHIFY_OK=1
+    else
+        echo "  ✗ graphify 增量更新失败"
+        exit 1
+    fi
 else
     echo "  → 首次构建知识图谱 (AST-only, 无需 LLM key)..."
-    cd "$PROJECT_ROOT" && graphify update "$(basename "$SRC_DIR")" --no-cluster 2>/dev/null || \
-        echo "  ⚠ graphify 首次构建失败, 可手动: cd $PROJECT_ROOT && graphify update $(basename "$SRC_DIR") --no-cluster"
+    if cd "$PROJECT_ROOT" && graphify update "$(basename "$SRC_DIR")" --no-cluster 2>/dev/null; then
+        echo "  ✓ 知识图谱构建完成"
+        GRAPHIFY_OK=1
+    else
+        echo "  ✗ graphify 首次构建失败"
+        exit 1
+    fi
 fi
 
-# 社区检测
-echo "  → 社区检测 (Louvain)..."
-if cd "$PROJECT_ROOT" && graphify cluster-only "$(basename "$SRC_DIR")" --no-label 2>/dev/null; then
-    echo "  ✓ 社区检测完成"
-else
-    echo "  ⚠ graphify 社区检测失败, 可手动: cd $PROJECT_ROOT && graphify cluster-only $(basename "$SRC_DIR") --no-label"
+if [ "$GRAPHIFY_OK" -eq 1 ]; then
+    echo "  → 社区检测 (Louvain)..."
+    if cd "$PROJECT_ROOT" && graphify cluster-only "$(basename "$SRC_DIR")" --no-label 2>/dev/null; then
+        echo "  ✓ 社区检测完成"
+    else
+        echo "  ✗ graphify 社区检测失败"
+        exit 1
+    fi
 fi
 echo "  → 语义提取需配置 DEEPSEEK_API_KEY (当前仅 code-only)"
 # ============================================================
@@ -166,7 +236,7 @@ echo "  → 语义提取需配置 DEEPSEEK_API_KEY (当前仅 code-only)"
 # Step 4: OpenSpec CLI (规格驱动开发)
 # ============================================================
 echo ""
-echo "=== [4/4] openspec (规格驱动开发) ==="
+echo "=== [4/5] openspec (规格驱动开发) ==="
 
 if command -v openspec &>/dev/null; then
     echo "  ✓ openspec $(openspec --version 2>&1 | head -1 | awk '{print $NF}') 已安装"
@@ -259,22 +329,21 @@ echo "    test-driven-development                       # 先写失败测试"
 echo "    systematic-debugging                          # 无根因不修"
 echo "    verification-before-completion                # 不验证不宣称完成"
 echo ""
+echo "    # 知识图谱更新（per M-5 PROJECT-SPECIFIC，AI session 开始时必跑）"
+echo "    cd ${SRC_DIR} && graphify update .            # 刷新 graphify"
+echo "    codegraph build .                             # 刷新 codegraph AST cache"
+echo ""
 echo "    ${SRC_DIR}"
 echo ""
 echo "=============================================="
 
 
-# ============================================================
-# Step 7: 项目根环境验证
-#   部署工具链后，验证 rules / specs / graphify 三项就位
-# ============================================================
+# Step 5: 项目根环境验证
 SCRIPT_ROOT="$(cd "$(dirname "$0")" && pwd)"
 ERR=0
 
 echo ""
-echo "=============================================="
-echo "  Step 7: 环境验证"
-echo "=============================================="
+echo "=== [5/5] 项目根环境验证 ==="
 
 echo -n "  [1/2] Rules (5 files)... "
 MISS=0
