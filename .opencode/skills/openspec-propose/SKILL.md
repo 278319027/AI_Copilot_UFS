@@ -81,6 +81,43 @@ openspec status --change "<name>" --json
 - **不复制 context 块** —— context 内的项目背景信息只能作为约束，不能粘贴到 artifact
 - **kebab-case 名称** —— 不接受 snake_case / camelCase
 
+### 1a. Delta 头规则（**统一措辞，per AP-009 retro 2026-06-add-bb-config-print**）
+
+> 详见 `../openspec-sync-specs/SKILL.md §6`（规则定义 + 实施细节）和 `../openspec-archive-change/SKILL.md §2.5`（触发条件 + 手动 fallback）。本节只提醒 propose 阶段的约束。
+
+**约束**：
+- **绝不**在 `proposal.md` 的 "Modified Capabilities" 段列 refactor 类型的 change（refactor 不改 behavior）
+- Refactor 类型的 change 必须在 `specs/<cap>/spec.md` 写至少 1 个 `## ADDED Requirements`，documenting **architecture choice**（如 dispatch pattern、extract pattern）
+- 禁止把 `## ADDED Requirements` / `## MODIFIED Requirements` 头放进 `openspec/specs/<cap>/spec.md` baseline（这是 sync 阶段的职责，per `openspec-sync-specs §6`）
+
+### 1b. Refactor 类型（**per AP-010 retro 2026-06-refactor-bb-flip-table**）
+
+> **背景**（AP-010）：openspec validate 强制 `at least one delta`，refactor 类型 change 无 behavior change 时会被拒。当前 workaround：refactor 必含至少 1 个 ADDED Requirement documenting architecture。openspec upstream 待加 "Pure Refactor" change type（不可在本项目解决）。
+
+**识别 refactor 类型 change**：
+- 改 HOW（实现）不 改 WHAT（行为）
+- 典型特征：switch → table、extract function、inline、rename、move code
+- proposal.md Why 段说"refactor / 提取 / 重构"等
+- 行为对比表（design.md D5 风格）："refactor 前 X → refactor 后 Y，行为 identical"
+
+**specs/<cap>/spec.md 必含**（per AP-010 workaround）：
+- 至少 1 个 `### Requirement: <architecture choice>`
+- body 描述新采用的实现模式（如"dispatch MUST be table-driven"）
+- 至少 1 个 `#### Scenario: behavior identical`（断言"refactor 后 behavior unchanged"）
+- **不要**列其他"behavior change" Scenario（refactor 改的是 HOW 不是 WHAT）
+
+**示例**（per `refactor-bb-flip-table`）：
+```markdown
+## ADDED Requirements
+
+### Requirement: BB Flip Dispatch Architecture
+The system SHALL implement the `bb_flip` admin flip dispatch as a **table-driven pattern**...
+
+#### Scenario: All 11 existing admin flips remain behavior-identical after refactor
+- **WHEN** operator issues any of FEMU_ENABLE_GC_DELAY...FEMU_PRINT_BB_CONFIG
+- **THEN** system produces the same `femu_log` string and same state changes...
+```
+
 ## CLI 调用清单
 
 ```bash
