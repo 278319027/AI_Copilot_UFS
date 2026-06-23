@@ -118,12 +118,10 @@ try:
         errs.append('missing mcp')
     if 'agent' not in cfg:
         errs.append('missing agent')
-    if 'project' not in cfg:
-        errs.append('missing project')
     if 'mcp' in cfg and 'codegraph' not in cfg.get('mcp', {}):
         errs.append('missing mcp.codegraph')
-    if 'project' in cfg and 'femuRoot' not in cfg.get('project', {}):
-        errs.append('missing project.femuRoot')
+    # 注: project.* 字段已废弃——FEMU_ROOT 现在通过 env var 约定
+    # (opencode.json mcp.codegraph.command --path 是单一真相源)
     if errs:
         print('FAIL: ' + '; '.join(errs))
         sys.exit(1)
