@@ -83,6 +83,41 @@ fi
 - 选项 A：先 sync 再 archive（保留变更意图在 baseline）
 - 选项 B：archive without sync（baseline 不动）
 
+### 2.5 Manual sync fallback（**新增，per AP-009 in retro 2026-06-add-bb-config-print**）
+
+> **背景**（AP-009 发现）：`openspec sync` CLI 缺失（`error: unknown command 'sync'`），slash 命令 `/opsx:sync` 仅在 OpenCode IDE 内可用。在 shell / CI / 无 IDE 环境下，需要 manual fallback。
+
+**触发条件**：
+- `openspec sync <change-id>` 返回 `unknown command 'sync'` 或类似错误
+- 或在 OpenCode IDE 外的 shell / CI 环境中执行
+- 或 baseline 未含 delta 的 Requirement（步骤 1.5 报"not yet synced"）
+
+**操作**：
+
+```bash
+bash scripts/sync_change.sh <change-id>
+```
+
+脚本行为（per `scripts/sync_change.sh`）：
+1. 读 `openspec/changes/<id>/specs/<cap>/spec.md`（delta）
+2. 检测 delta 类型（v1 仅支持 `## ADDED Requirements`；其他类型显式错误）
+3. **去掉 delta 头**（`## ADDED Requirements`）—— 关键！绝不能复制到 baseline（否则 validate 报"Delta headers are only valid inside openspec/changes/..."）
+4. 把 Requirement + Scenarios 插入 baseline `openspec/specs/<cap>/spec.md` 的 `## Requirements` 段末尾
+5. 自动运行 `openspec validate --strict --specs`；失败则回滚（从 `.sync_change.bak` 恢复）
+6. 退出码：0=成功, 1=失败, 2=no-op
+
+**关键约束**（避免 AP-009 重演）：
+- **绝不**把 `## ADDED Requirements` / `## MODIFIED Requirements` 等 delta 头复制到 baseline
+- **绝不**程序化覆盖 baseline —— 智能匹配 `## Requirements` 段
+- 失败时自动回滚（基于 `.sync_change.bak` 备份）
+- v1 仅支持 `## ADDED`；MODIFIED/REMOVED/RENAMED 需手动执行
+
+**验证**（sync 后必做）：
+```bash
+openspec validate --strict --specs          # 必须 3/3 PASS
+git diff openspec/specs/                    # 检查只有 Requirement 进了 baseline，无 delta 头
+```
+
 ### 3. 移动目录
 
 ```bash
@@ -135,5 +170,6 @@ git add openspec/changes/ && git commit -m "chore(spec): archive <id>"
 | 仍有 `- [ ]` 未勾选 | 警告用户，**不归档**。让用户决定：(a) 继续完成 (b) 强制 archive（不推荐） |
 | `applyRequires` 含非 done 项 | 警告并阻止 archive |
 | delta 存在但未 sync | 提示先 `/opsx:sync` 或让用户显式确认 archive-without-sync |
+| `openspec sync` CLI 缺失（`unknown command 'sync'`）| 用 `bash scripts/sync_change.sh <change-id>` fallback（见 §2.5）|
 | 目标目录 `archive/YYYY-MM-DD-<id>/` 已存在（重复 archive） | 改名追加 `-v2` 或检查是否已 archive 过 |
 | `actionContext.mode == "workspace-planning"` | 跳过 archive，让用户选作用域 |
