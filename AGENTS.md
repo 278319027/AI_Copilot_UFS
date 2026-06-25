@@ -16,10 +16,10 @@
    - `.opencode/memory/testing_rules.md` — 测试要求（含 §4.4 Bug Injection 强制）
 2. **verify.sh baseline check**：`bash scripts/verify.sh`（应 25/21 或更新；验证工作树干净 + 4 P0/P1/P2 防御都就位 + [21/21] tool indexes present per AP-014）
 3. **CodeGraph + Graphify 索引确认**（per AP-014 retro `2026-06-23-refactor-crt-insert-helpers`，**必跑**）：
-   - `${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}/.codegraph/graph.db` 必须存在（CodeGraph DB）
-   - `${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}/graphify-out/graph.json` 必须存在（Graphify graph）
-   - **缺一不可**——缺失则 KNOW 阶段会回退到 grep+nm（per `refactor-crt-insert-helpers` 教训：错过 9 个 test callers）
-   - 缺则重建：`cd ${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu} && codegraph build . && graphify update .`
+    - `${FEMU_ROOT:-/home/zsf/AI_Proj/AI_SSD_SIM}/.codegraph/graph.db` 必须存在（CodeGraph DB）
+    - `${FEMU_ROOT:-/home/zsf/AI_Proj/AI_SSD_SIM}/graphify-out/graph.json` 必须存在（Graphify graph）
+    - **缺一不可**——缺失则 KNOW 阶段会回退到 grep+nm（per `refactor-crt-insert-helpers` 教训：错过 9 个 test callers）
+    - 缺则重建：`cd ${FEMU_ROOT:-/home/zsf/AI_Proj/AI_SSD_SIM} && codegraph build . && graphify update .`
 4. **openspec-* 5 个 skill 重读**：
    - `openspec-workflow/SKILL.md`（5 phase 概念层）
    - `openspec-propose/SKILL.md`（propose 阶段 + §1a Delta 头规则 + §1b Refactor 类型 per AP-009/AP-010）
@@ -34,12 +34,12 @@
 
 CodeGraph MCP 服务用于查询目标代码库的调用图/影响分析，其目标路径通过 `opencode.json` 的 `mcp.codegraph.command` 数组配置。
 
-**约定**：`FEMU_ROOT` 环境变量是 FEMU 路径的标准形式，与 `opencode.json` 的 `mcp.codegraph.command --path` 的 `${FEMU_ROOT:-/default}` 语法一致。所有 shell 脚本统一使用 `${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}` 约定，**与 `opencode.json` 默认值保持同步**（修改任一处需同步另一处）。
+**约定**：`FEMU_ROOT` 环境变量是 FEMU 路径的标准形式，与 `opencode.json` 的 `mcp.codegraph.command --path` 的 `${FEMU_ROOT:-/default}` 语法一致。所有 shell 脚本统一使用 `${FEMU_ROOT:-/home/zsf/AI_Proj/AI_SSD_SIM}` 约定，**与 `opencode.json` 默认值保持同步**（修改任一处需同步另一处）。
 
 | 项 | 值 |
 |----|----|
 | **环境变量** | `FEMU_ROOT`（env var 优先于默认） |
-| **默认路径** | `/home/zsf/AI_Proj/femu/hw/femu`（与 `opencode.json` 的 `codegraph.command --path` 默认值相同）|
+| **默认路径** | `/home/zsf/AI_Proj/AI_SSD_SIM`（与 `opencode.json` 的 `codegraph.command --path` 默认值相同）|
 | **验证命令** | `bash scripts/verify.sh` 中的 `[9/17] FEMU_ROOT` 检查 |
 
 覆盖示例:

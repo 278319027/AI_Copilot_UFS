@@ -31,7 +31,7 @@ if [ -n "$FEMU_ROOT" ]; then
         *)         FEMU_BASE="$FEMU_ROOT/hw/femu" ;;
     esac
 else
-    FEMU_BASE="/home/zsf/AI_Proj/femu/hw/femu"
+    FEMU_BASE="/home/zsf/AI_Proj/AI_SSD_SIM"
 fi
 
 echo "=== verify.sh — 项目健康检查 ==="

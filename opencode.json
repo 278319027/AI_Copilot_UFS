@@ -3,7 +3,7 @@
   "mcp": {
     "codegraph": {
       "type": "local",
-      "command": ["codegraph", "serve", "--mcp", "--path", "${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}"],
+      "command": ["codegraph", "serve", "--mcp", "--path", "${FEMU_ROOT:-/home/zsf/AI_Proj/AI_SSD_SIM}"],
       "enabled": true,
       "env": {}
     }

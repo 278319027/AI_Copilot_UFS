@@ -7,7 +7,7 @@
 set -e
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-FEMU_ROOT="${FEMU_ROOT:-/home/zsf/AI_Proj/femu/hw/femu}"
+FEMU_ROOT="${FEMU_ROOT:-/home/zsf/AI_Proj/AI_SSD_SIM}"
 [ ! -d "$FEMU_ROOT" ] && { echo "Warning: FEMU_ROOT not found, skipping"; exit 0; }
 
 echo "=== Spec 符号存在性检查 (FEMU_ROOT=$FEMU_ROOT) ==="
