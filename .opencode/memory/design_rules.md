@@ -241,3 +241,78 @@ design.md + tasks.md 必须满足以下指标，方可进入 BUILD Gate：
 
 
 **简化豁免**：单文件 bugfix / 文档变更 / 配置变更 / 跨模块变更的处理见 `.opencode/skills/sd-firmware-copilot/SKILL.md`。
+
+---
+
+## §BUILD Gate — 强制编码前纪律检查
+
+本段为硬性约束，不因 session 上下文而豁免。
+
+### 触发条件
+
+**每次编辑任何 `.c` / `.h` 文件前**，AI 必须依次执行以下 3 步：
+
+#### Step 1 — 加载纪律 Skill
+
+```c
+skill(name="superpowers-verification-before-completion")   // 完成前必须验证
+skill(name="superpowers-executing-plans")                   // 按 tasks.md 顺序执行
+skill(name="superpowers-test-driven-development")           // 测试覆盖
+```
+
+**缺一不可**。任一缺失 = 流程违规。AI 应在加载完成后声明 "BUILD Gate 通过"。
+
+#### Step 2 — 确认测试计划
+
+在 tasks.md 或 design.md 中确认以下三项之一：
+
+- **正常路径**: 该函数的典型调用场景已定义预期行为
+- **边界条件**: 数组边界/空值/最大最小值场景已覆盖
+- **错误路径**: 参数错误/资源耗尽/状态异常场景已覆盖
+
+硬件依赖代码（寄存器/DMA/ISR）在 `review.md` 中标注不可测原因，不要求强制测试。
+
+#### Step 3 — 确认 CodeGraph 影响范围
+
+- 修改结构体前：`codegraph symbol_search` + `codegraph find_by_imports`
+- 修改函数签名前：`codegraph where <symbol>`
+- 新增模块前：`codegraph dependency_graph`
+
+### 违规处理
+
+AI 检测到未过 BUILD Gate 就编码时，应：
+1. 立即暂停当前编辑
+2. 加载缺失 skill
+3. 补充测试计划
+4. 恢复编码
+
+---
+
+## §Completion Self-Checklist
+
+在标记任何 task 为 **`- [x]`** 前，AI 必须逐条自查：
+
+- [ ] 本次变更是否涉及 `.c` / `.h` 文件？
+  - 是 → BUILD Gate 的 3 个 skill 是否已加载？
+  - 否 → 跳过后三项
+- [ ] 新增/修改的每个公共函数是否有对应的测试？
+  - 硬件依赖路径在 `review.md` 标注了原因？
+- [ ] 编译验证: `make clean && make -j$(nproc)` exit 0？
+- [ ] 知识图谱: `graphify update` 已执行？
+- [ ] bugfix: commit message 或 `review.md` 记录了根因？
+- [ ] 跨模块变更: OpenSpec change 的 `proposal.md` + `tasks.md` 已创建？
+
+---
+
+## §OpenSpec Change 门槛
+
+| 场景 | 必须创建 OpenSpec change | 可豁免 |
+|------|------------------------|--------|
+| 跨模块修改（2+ 个 `.c` 文件） | ✅ | — |
+| 新增公共 API / 结构体 | ✅ | — |
+| 修改现有接口签名 | ✅ | — |
+| 任何重构 | ✅ | — |
+| 单文件 bugfix（仅改 1 个 `.c`） | — | ✅ 但 commit 需写根因 |
+| 注释/文档/配置变更 | — | ✅ |
+
+豁免时仍需走 BUILD Gate 和 Completion Self-Checklist。
