@@ -26,3 +26,6 @@ Thumbs.db
 
 # 度量报告（运行产物）
 metrics/
+
+# codex
+.agents/skills
