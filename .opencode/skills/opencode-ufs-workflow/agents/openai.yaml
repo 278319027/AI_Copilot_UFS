@@ -1,0 +1,15 @@
+interface:
+  display_name: "Opencode C Workflow"
+  short_description: "Graph-constrained spec-first C programming pipeline"
+  default_prompt: "Use $opencode-c-workflow to implement this C change safely through the six-phase pipeline: SCOPE GROUND PLAN PATCH VERIFY REPORT."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "codegraph"
+      description: "CodeGraph MCP server for call graph analysis"
+      transport: "streamable_http"
+      url: "http://localhost:8080/mcp/"
+
+policy:
+  allow_implicit_invocation: true
