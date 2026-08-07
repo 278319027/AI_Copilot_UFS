@@ -7,7 +7,7 @@
 # 用法:
 #   # 在目标项目根目录直接执行（部署到当前目录）
 #   ./deploy-auto-compact.sh
-#   # 或指定目标项目根目录
+#   # 或指定目标项目根目录1
 #   ./deploy-auto-compact.sh /path/to/project
 #
 # 生成文件:
