@@ -1,541 +1,693 @@
+好的。下面输出完整的 agent总结.md 内容。你可以直接复制保存为文件。
+# UFS Firmware AI Assisted Development Platform - Agent总结
 
-/opsx:explore 分析新增 [功能名称] 的可行性及实现路径。
-
-【功能需求】
-- 功能描述：[如：新增一个定期巡检任务，扫描并修复弱NAND单元]
-- 触发条件：[如：每30秒由定时器触发，或主机发来特定NVMe命令]
-- 预期行为：[如：扫描FTL映射表对应的物理块，对读干扰过大的块进行数据搬移]
-
-【探索要求】
-1. 架构集成：
-   - 识别当前任务框架（如 scheduler/task_manager），新任务应注册到哪个位置？
-   - 是否可复用现有 GC 或 Read/Write 路径的代码？
-
-2. 依赖分析：
-   - 新功能需要调用哪些现有模块（FTL、NAND驱动、DMA）？
-   - 是否依赖当前未公开的接口？是否需要新增锁？
-
-3. 冲突与风险：
-   - 是否会影响前台 IO 命令的延迟？（如占用队列锁/占用NAND通道）
-   - 在电源异常（突然掉电）场景下，是否需要特殊保护？
-
-4. 规范影响：
-   - 如果需要修改 `specs/ftl.md`（如新增物理块状态），请指出。
-   - 是否需要新增一个 `specs/scrub.md` 规范文件？
-
-【忽略项】
-- 不需要分析寄存器位域的具体配置。
-- 不需要关注 NAND 命令的物理时序细节。
-- 如果信息不足，请明确指出，并建议下一步调查方向。
-
-
-
-
-第1步：openspec init                  # 初始化项目
-第2步：编写核心规范（FTL/GC/NVMe）     # 手动编写 3-5 个核心模块
-第3步：配置 config.yaml context        # 注入固件背景和探索偏好
-第4步：集成 CodeGraph（MCP）           # 在 AI 助手层面配置
-第5步：/opsx:explore 分析痛点          # 如"分析 GC 锁竞争风险"
-第6步：/opsx:propose 创建变更          # 基于探索结论写提案
-第7步：/opsx:apply 实现 + archive归档  # 增量规范自动合入主规范
-
-
-
-
-
-
-对话总结：OpenSpec Explore 在 SSD 固件项目中的深度应用
-
-一、核心问题链条
-
-1. OpenSpec Explore 命令详解 → 2. 大型代码库探索策略 → 3. C语言固件项目适配 → 4. 探索规则定制 → 5. CodeGraph 集成 → 6. 规范生成方法 → 7. 规范组织形式 → 8. 完整规范的价值
+版本：V1.0
 
 ---
 
-二、关键认知总结
+# 1. 项目目标
 
-1. openspec-explore 的本质
+目标不是简单使用 AI 自动生成代码，而是构建一个面向 **UFS Firmware Feature 开发** 的 AI 增强软件工程体系。
 
-· 定位：带着"规范意图"思考的强制对话机制，不写代码，只做分析
-· 精髓公式：explore = 外部工作记忆 + 安全沙盒 + 规范前置处理器
-· 核心原则：思考与执行彻底分离，是"规范的催化剂"而非"代码阅读器"
+核心思想：
 
-2. 大型 C 语言固件项目的适配策略
+> 通过 Workflow Governance + Multi-Agent + Knowledge Plane，让 AI 按照资深固件团队的方法完成需求分析、架构设计、编码、验证和知识沉淀。
 
-· 优势：固件分层清晰（FTL/GC/NVMe/NAND），状态机密集，非常适合结构化探索
-· 策略：
-  · 明确"忽略寄存器细节，聚焦逻辑架构"
-  · 通过 config.yaml 的 context 注入项目背景
-  · 使用 CodeGraph（MCP 集成）获取精准调用链
+最终目标：
 
-3. 探索规则的定制方式（重要纠正）
+构建一个：
 
-方式 是否影响 Explore 说明
-config.yaml 的 context ✅ 是 唯一通过配置文件影响 explore 的方式
-config.yaml 的 rules ❌ 否 explore 不是工件，不受 rules 约束
-自定义 Schema 的 instruction ❌ 否 仅约束工件生成（proposal/design 等）
-对话中直接声明 ✅ 是 最直接有效，单次生效
-CodeGraph MCP 集成 ✅ 是 需在 AI 助手层面配置，非 OpenSpec 能力
+> AI 增强的 UFS Firmware Engineering Team
 
-4. 规范的组织形式
+而不是：
 
-· 二元结构：specs/（当前真相）+ changes/（工作台增量）
-· 增量机制：使用 ADDED/MODIFIED/REMOVED 操作，归档时自动合并
-· 格式要求：### Requirement: + #### Scenario: + GIVEN/WHEN/THEN
-
-5. 规范生成的两种路径
-
-方式 适用场景 注意事项
-增量生长（官方推荐） 通过真实变更逐步积累 最可持续，避免文档腐烂
-spec-gen（社区工具） 冷启动辅助 需验证 C 语言支持，输出作为"种子"而非成品
-
-6. 完整规范对 Explore 的影响
-
-· 精度提升：从"猜测"升级到"验证"，可精准定位代码与规范的偏差
-· 深度提升：可分析跨模块依赖和连锁反应
-· 风险识别：主动检测跨规范矛盾（如 FTL 与 GC 对原子性的不同假设）
-· 输出质量：直接生成可转为 proposal/design 的决策草案
-· ⚠️ 风险：一次性为所有模块写规范，维护成本极高，易成"死文档"
-· 推荐：先为核心 3-5 个模块（FTL/GC/NVMe）写规范，其余按变更增量生长
+> 一个自动写代码的 AI 工具。
 
 ---
 
-三、对 SSD 固件项目的最佳实践路径
+# 2. 总体架构理念
 
-```
-第1步：openspec init                  # 初始化项目
-第2步：编写核心规范（FTL/GC/NVMe）     # 手动编写 3-5 个核心模块
-第3步：配置 config.yaml context        # 注入固件背景和探索偏好
-第4步：集成 CodeGraph（MCP）           # 在 AI 助手层面配置
-第5步：/opsx:explore 分析痛点          # 如"分析 GC 锁竞争风险"
-第6步：/opsx:propose 创建变更          # 基于探索结论写提案
-第7步：/opsx:apply 实现 + archive归档  # 增量规范自动合入主规范
-```
+核心组件：
+
+|组件|职责|
+|-|-|
+|Comet Classic|Workflow Governance|
+|OpenCode|Agent Runtime|
+|Main Agent|主开发工程师|
+|Artifact Review Agent|流程产物审查|
+|Firmware Expert Agent|固件专家咨询|
+|OpenSpec|需求和变更规范|
+|Superpowers|设计方法和工程流程|
+|MCP|工具连接层|
+|CodeGraph|代码知识图谱|
+|Graphify|工程关系图|
+|OpenViking|长期知识记忆|
+|OpenWiki|结构化工程知识|
+
+总体关系：
+Human Engineer
+
+                   |
+                   |
+
+          Comet Classic Workflow
+
+                   |
+                   |
+
+             OpenCode Runtime
+
+                   |
+   -----------------------------------
+
+   |                 |               |
+
+   v                 v               v
+Main Agent       Artifact Review   Firmware Expert Developer            Agent             Agent
+|
+   |
+   +-------------------------------+
+
+                   |
+
+             Knowledge Plane
+
+                   |
+
+   -----------------------------------
+
+   |              |              |
+CodeGraph      Graphify     OpenViking    OpenWiki
+|
+
+                   |
+
+         UFS Firmware Repository
 
 ---
 
-四、需要避免的误区
+# 3. Comet 与 OpenCode 的关系
 
-1. ❌ 认为 config.yaml 的 rules 能控制 explore
-2. ❌ 认为自定义 Schema 的 instruction 能影响 explore
-3. ❌ 认为 spec-gen 能一次性生成完美的全量规范
-4. ❌ 认为 CodeGraph 可以通过 config.yaml 配置集成
-5. ❌ 试图在 explore 阶段就写代码或修改文件
+## Comet Classic
+
+职责：
+
+- Workflow 状态管理
+- 阶段转换
+- Artifact 管理
+- Quality Gate
+- 人工审批节点
+
+
+## OpenCode
+
+职责：
+
+- Agent 推理
+- Tool 调用
+- 代码理解
+- 代码修改
+- 测试执行
+
+
+关系：
+Comet = 项目经理
+OpenCode = 开发工程师
+
+Comet 决定：
+
+> 当前应该做什么。
+
+
+OpenCode 决定：
+
+> 如何完成当前任务。
 
 ---
 
-最终结论：openspec-explore 在大型 C 语言固件项目中的价值，取决于规范的完善程度和工具的集成深度。核心策略是：用核心规范提供导航，用 CodeGraph 提供精确制导，用增量变更让规范自然生长，三者结合才能发挥最大效能。
-
-完全正确！而且这是投入产出比最高的优化点之一。
-
-如果把 config.yaml 的 context 比作"固件编译时的宏定义"（静态全局配置），那动态对话提示词就是"运行时传入的函数参数"——它直接决定了当次探索的精度和深度。对其做一定规范，价值巨大。
+# 4. 三类核心 Agent
 
 ---
 
-💡 为什么需要规范动态提示词？
+# 4.1 Main Agent
 
-在大型 C 语言固件项目中，提问的清晰度直接决定 AI 的侦察范围：
+角色：
 
-提问方式 Explore 的分析范围 输出价值
-"分析 GC 代码" 搜索所有带 gc 的文件，输出 10+ 个文件的概要描述 ❌ 低（信息过载，需要人工提炼）
-"分析 GC 任务在写入压力下的锁竞争，忽略 NAND 时序细节" 聚焦 gc_sched.c + io_queue.c 的锁操作 ✅ 高（直接输出锁竞争分析报告）
-"分析 GC 任务的调度策略，标注其与 IO 命令路径的共享锁，评估优先级反转风险" 精准定位 gc_sched.c、io_queue.c、scheduler.c 的锁机制和优先级逻辑 ⭐ 极高（输出可直接写入 design.md）
+> AI Firmware Developer
 
-差异在哪？ 规范化的提示词为 AI 提供了：
 
-· 边界（忽略什么）
-· 聚焦点（关注什么）
-· 输出预期（输出什么格式/内容）
+职责：
+
+- 理解 Feature 需求
+- 分析 UFS 固件代码
+- 使用知识工具
+- 生成 Proposal
+- 生成 Design
+- 修改代码
+- 执行验证
+
+
+权限：
+Read Code
+Modify Code
+Build
+Test
+Knowledge Query
 
 ---
 
-📋 如何规范化动态提示词？
+# 4.2 Artifact Review Agent
 
-1. 建立团队共享的"提问模板库"
+角色：
 
-为固件项目的常见探索场景定义标准化提问模板：
+> Workflow Artifact Reviewer
 
-```text
-## 场景：分析锁竞争
-模板：
-"分析 [模块名] 中 [具体功能/函数] 的锁使用情况，重点关注：
-1. 持锁时是否执行了耗时操作（NAND 等待、数据搬移）
-2. 是否存在锁嵌套，是否可能死锁
-3. [其他模块] 是否也依赖此锁
-忽略：寄存器配置、硬件时序细节"
 
-## 场景：分析任务调度
-模板：
-"分析 [后台任务名] 的调度策略，重点关注：
-1. 触发条件（定时器/事件/阈值）
-2. 是否会影响前台 IO 命令的响应延迟
-3. 画出任务切换的时间线图"
-```
+注意：
 
-将这些模板沉淀在团队的 docs/explore-templates.md 或 openspec/ 目录下，随项目版本控制。
+它不是 Code Review Agent。
 
-2. 在 config.yaml 中引用模板规范
+它审查的是：
+proposal.md
+design.md
+task.md
+verification plan
 
-虽然 context 不能直接"引用"外部文件，但你可以将核心框架写入 context：
+检查：
+
+## 完整性
+
+例如：
+
+- 是否描述问题背景
+- 是否说明影响范围
+- 是否定义验收标准
+
+
+## 一致性
+
+例如：
+
+- Design 是否符合当前架构
+- 修改范围是否合理
+
+
+## 流程要求
+
+例如：
+
+Design 阶段必须包含：
+Architecture
+Data Flow
+API Change
+Memory Impact
+Performance Impact
+Risk
+Test Plan
+
+输出：
+PASS
+或者
+FAIL
+
+Feedback
+
+---
+
+# 4.3 Firmware Expert Agent
+
+角色：
+
+> Senior UFS Firmware Architect
+
+
+用途：
+
+解决 Main Agent 无法解决的领域问题。
+
+
+典型问题：
+为什么这里必须这样设计？
+这个状态切换有什么硬件限制？
+这个接口为什么不能直接修改？
+历史上为什么这样实现？
+
+知识范围：
+
+- UFS Protocol
+- FTL
+- NAND
+- Power Management
+- Firmware Architecture
+- Historical Bugs
+
+
+权限：
+
+允许：
+Knowledge Search
+Code Analysis
+Architecture Analysis
+
+禁止：
+Code Modify
+Git Commit
+
+定位：
+
+> Consultant，而不是 Developer。
+
+---
+
+# 5. Main Agent 如何发现自己不知道？
+
+不能依赖 LLM 自觉。
+
+需要机制。
+
+---
+
+# 5.1 Self Assessment
+
+每阶段 Artifact 强制输出：
+Confidence
+Unknowns
+Risks
+Assumptions
+
+例如：
 
 ```yaml
-context: |
-  本项目为 C 语言 SSD 固件。
-  探索提问时，建议按照以下结构：
-  1. 明确"忽略什么"（硬件细节、日志输出）
-  2. 明确"关注什么"（锁、调度、状态机）
-  3. 如需图表，请说明类型（时序图/状态机图/依赖关系图）
-```
 
-这相当于给 AI 一个"提示词解析器"，让它在理解你的自然语言时，能自动提取关键要素。
+unknowns:
 
-3. 利用 Explore 自身的"追问能力"
+  - Write Booster disable timing
 
-你不必一开始就给出完美提示词，可以分层推进：
+confidence:
 
-```text
-你: /opsx:explore 分析 GC 的调度
-AI: [输出 8 个文件的概要]
-你: 聚焦到 gc_sched.c 和 io_queue.c 的锁交互，忽略其他文件
-AI: [输出锁竞争分析]
-你: 很好，再画出 GC 和 IO 命令的时间线图
-AI: [输出 ASCII 时序图]
-```
+  0.4
 
-这种"逐步规范化"的方式，适合你对模块了解不深时使用。
 
----
+need_expert:
 
-🎯 最佳实践：构建"三层提示词规范"
+  true
+5.2 Knowledge Failure Detection
+Main Agent 查询：
+CodeGraph
 
-层级 内容 存放位置 生效时机
-静态层 项目背景、通用约束（"忽略寄存器"） config.yaml 的 context 每次探索自动生效
-半静态层 常用提问模板（"锁分析模板"） docs/explore-templates.md 手动复制粘贴到对话
-动态层 当次探索的精准指令 直接在对话中输入 即时生效
+OpenWiki
 
----
+OpenViking
 
-🚀 对固件项目的具体建议
+Graphify
+如果：
+没找到结果
+信息不足
+信息冲突
+触发：
+Firmware Expert Agent
+5.3 Review Agent Trigger
+Review Agent 如果发现：
+例如：
+设计依赖 Power Management
 
-下周就开始积累你的"提示词资产"：
+但是没有分析 Power State
+输出：
+FAIL
 
-1. 为每次成功的探索，把提问和输出一起保存到 docs/explore-logs/ 目录
-2. 提炼高频提问模式，形成团队的"探索手册"
-3. 持续迭代 config.yaml 的 context，将最通用的约束固化进去
+Need Firmware Expert Consultation
+6. Firmware Expert Agent 能力定义
+不能只靠：
+You are UFS expert
+需要四部分。
+6.1 Role Prompt
+定义：
+Senior UFS Firmware Architect
+6.2 Knowledge Scope
+例如：
+UFS Specification
 
-这样，你的 "Explore 侦察兵" 会随着时间越用越聪明——不是因为它自己变强了，而是因为你教会了它如何理解你的固件语言。😊
+Firmware Architecture Docs
 
+FTL Design
 
+NAND Behavior
 
-已优化完成，以下是最终版职场汇报文档：
+Historical Bug Database
 
----
+Performance Reports
+6.3 Tool Permission
+允许：
+CodeGraph Search
 
-Comet 项目实践汇报
+OpenViking Query
 
-> AI 编码工作流探索：从"自由发挥"到"流程固化"
+OpenWiki Search
 
-汇报人：xxx | 日期：2026年7月
+Graphify Query
+禁止：
+Code Modify
 
----
+Git Operation
+6.4 Workflow Role
+定义：
+Consultant
+不能：
+Executor
+7. Knowledge Plane 设计
+Knowledge Plane 是整个系统核心。
+7.1 CodeGraph
+职责：
+代码结构理解。
+提供：
+Function Call Graph
 
-一、背景：我们遇到了什么问题？
+Dependency
 
-团队在使用 AI 辅助编码的过程中，积累了一些实践经验，但也遇到了明显的瓶颈：
+Impact Analysis
+回答：
+哪里需要修改？
+7.2 Graphify
+职责：
+工程关系分析。
+建立：
+Feature
 
-问题	具体表现	影响	
-需求确认环节薄弱	AI 容易在需求还没对齐时就开始写代码	方向跑偏，后期返工	
-阶段切换依赖个人经验	每个人判断"该做什么"的标准不一致	流程不统一，质量波动大	
-会话中断后难以续接	关闭 AI 工具后，上下文丢失	重复沟通，浪费时间和 Token	
-知识难以沉淀	做完的需求没有归档，下次同类问题从零开始	经验无法复用，重复造轮子	
+ |
 
-> 核心矛盾：我们掌握了 AI 编码的方法，但缺少一个能把方法固化成流程、把流程沉淀成资产的机制。
+Module
 
----
+ |
 
-二、调研：业界如何解决？
+Function
 
-在探索过程中，我们关注到两个开源项目：
+ |
 
-2.1 OpenSpec —— 需求与规格管理
+Test
 
-解决什么问题：让 AI 编码的"需求侧"有章可循
+ |
 
-能力	价值	
-提案管理	把模糊需求变成结构化提案，不再是一句话需求	
-规格生命周期	需求从提出到归档全程追踪，文档与代码同步演进	
-Delta Spec 同步	变更规格自动合并到主规格，避免"代码改了、文档还是旧的"	
-归档闭环	变更完成后自动归档，形成可复用的知识资产	
+Issue
+回答：
+修改影响什么？
+7.3 OpenViking
+职责：
+长期工程记忆。
+保存：
+历史 Bug
 
-一句话：OpenSpec 让"做什么"变得清晰、可追溯、可复用。
+设计讨论
 
-2.2 Superpowers —— 工程方法论
+调试经验
 
-解决什么问题：让 AI 编码的"执行侧"有方法论支撑
+Review记录
+回答：
+为什么这样设计？
+7.4 OpenWiki
+职责：
+结构化知识。
+保存：
+架构文档
 
-能力	价值	
-头脑风暴	苏格拉底式追问，输出带推荐的技术方案	
-设计文档	生成 Design Doc，记录决策过程	
-计划拆分	把任务细化到 2-5 分钟的原子步骤	
-TDD 驱动	每个步骤先写测试、再写实现	
-三角色审查	Implementer → Spec Reviewer → Quality Reviewer 流水线	
+模块说明
 
-一句话：Superpowers 让"怎么做"有方法、有质量、有保障。
+设计规范
 
-2.3 两者单独使用的局限
+流程文档
+回答：
+当前系统知识是什么？
+8. Comet Classic 中 Agent 协作流程
+典型流程：
+Feature Request
 
-```
-只用 OpenSpec：                    只用 Superpowers：
-┌─────────────────┐              ┌─────────────────┐
-│ 需求清晰了 ✓     │              │ 技术方案有了 ✓   │
-│ 规格文档有了 ✓   │              │ 代码写出来了 ✓   │
-│ 但怎么实现？❌   │              │ 但需求对吗？❌   │
-│ 测试怎么做？❌   │              │ 归档了吗？❌     │
-│ 质量谁把关？❌   │              │ 下次能复用吗？❌ │
-└─────────────────┘              └─────────────────┘
-```
+        |
 
-> 调研结论：OpenSpec 和 Superpowers 各自很强，但中间存在断层——从"确定做什么"到"知道怎么做"之间，缺少一个自动衔接的编排层。
+        v
 
----
+Proposal Stage
 
-三、方案：引入 Comet 编排层
 
-3.1 Comet 的定位
+        |
 
-组件	职责	关注点	角色比喻	
-OpenSpec	需求、提案、规格、归档	WHAT（做什么）	🧭 导航系统 —— 定目标	
-Superpowers	设计、计划、编码、审查	HOW（怎么做）	⚡ 动力总成 —— 负责执行	
-Comet	把二者编排成流水线	WHEN & NEXT（什么时候做什么）	☄️ 行车电脑 —— 自动衔接	
+        v
 
-> 一句话：Comet 不是替代两者，而是让两者协同工作的编排层。
+Main Agent
 
-3.2 如何结合两者的优点
+        |
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                           Comet 编排层                                   │
-│  ┌─────────────┐         ┌─────────────────┐         ┌─────────────┐   │
-│  │  OpenSpec   │  ──→   │     Comet       │  ──→   │ Superpowers │   │
-│  │   优点：     │  自动   │   阶段守卫 +      │  自动   │   优点：     │   │
-│  │ • 需求清晰   │  衔接   │   状态机 +        │  衔接   │ • 方案深度   │   │
-│  │ • 规格追踪   │         │   断点恢复 +      │         │ • 质量保障   │   │
-│  │ • 归档复用   │         │   自动归档        │         │ • TDD 规范   │   │
-│  │   缺点：     │         │                 │         │   缺点：     │   │
-│  │ • 实现缺方法 │  ←────  │   弥补各自短板    │  ──→  │ • 缺需求闭环 │   │
-│  │ • 质量缺把关 │         │                 │         │ • 缺知识沉淀 │   │
-│  └─────────────┘         └─────────────────┘         └─────────────┘   │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+        v
 
-Comet 的衔接作用：
+proposal.md
 
-衔接点	OpenSpec 输出	Comet 做了什么	Superpowers 输入	
-Open → Design	proposal（需求提案）	自动触发 brainstorming，生成上下文包	Design Doc（技术方案）	
-Design → Build	delta spec（变更规格）	自动同步到 plan，锁定隔离模式	Writing Plans（执行计划）	
-Build → Verify	tasks（任务清单）	强制检查每个 task 是否完成	测试报告、审查结果	
-Verify → Archive	verification（验证报告）	自动合并 delta spec → 主 spec	归档完成，知识沉淀	
 
-> 效果：需求清晰 + 方案深度 + 自动衔接 = 从想法到归档，一条命令串到底，知识可复用。
+        |
 
----
+        v
 
-四、五阶段工作流
+Artifact Review Agent
 
-```
-┌─────────┐     ┌──────────┐     ┌─────────┐     ┌─────────┐     ┌──────────┐
-│  1.Open │ --> │ 2.Design │ --> │ 3.Build │ --> │ 4.Verify│ --> │ 5.Archive│
-│  开启   │     │  深度设计  │     │ 计划构建  │     │ 验证收尾  │     │  归档闭环  │
-└─────────┘     └──────────┘     └─────────┘     └─────────┘     └──────────┘
-  OpenSpec         Superpowers       Superpowers      两者协同         OpenSpec
-  需求→提案         头脑风暴→设计     TDD编码→提交      强制检查         归档复用
-```
 
-> 开启 `auto_transition` 后，阶段自动衔接，无需手动判断"现在该做什么"。
+        |
 
----
+     PASS
 
-五、核心价值与前后对比
+        |
 
-5.1 引入 Comet 带来的变化
+        v
 
-维度	引入前（自由发挥）	引入后（流程固化）	
-需求确认	容易跳过，直接写代码	Guard 强制确认，未通过无法推进	
-阶段切换	依赖个人经验，标准不一	自动检测当前阶段，一键推进	
-会话中断	上下文丢失，需重新沟通	`.comet.yaml` 自动续接，无缝恢复	
-测试验证	容易"差不多就行"，漏测	强制验证，不通过无法归档	
-知识沉淀	手动归档，容易遗漏	自动归档，同类需求直接复用	
-开发纪律	依赖个人习惯，质量波动	流程固化，"每次都能写得好"	
 
-5.2 对团队的具体收益
+Design Stage
 
-收益	说明	
-降低返工成本	需求确认前置，Guard 拦截"方向跑偏"	
-减少重复沟通	断点恢复机制，会话中断后无需从头说明	
-统一质量标准	三角色审查 + 强制验证，不因个人习惯而波动	
-沉淀组织资产	归档后同类需求直接复用，经验不再随人走	
 
----
+        |
 
-六、从 Comet 学到的 Skill 编排思想
+        v
 
-6.1 核心洞察："组合大于创造"
+Main Agent
 
-> 市面上的 AI 工具/Skill 已经很多，但能够组合这些 Skill、创造适合自己团队工作流的能力，才是核心竞争力。
 
-Comet 展示了一种可复用的 Skill 编排范式：
+        |
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Skill 编排通用框架                        │
-├─────────────────────────────────────────────────────────────┤
-│  1. 识别底层能力（WHAT / HOW / 其他维度）                    │
-│  2. 定义阶段边界（每个阶段的输入、输出、验收标准）            │
-│  3. 设计守卫机制（防止跳步、漏步骤、条件未满足就推进）      │
-│  4. 建立状态机（外部记忆，支持断点恢复）                      │
-│  5. 脚本化硬逻辑（状态管理、校验、归档交给脚本）              │
-│  6. 自动化流转（减少人工干预，降低认知负担）                  │
-└─────────────────────────────────────────────────────────────┘
-```
+发现未知问题？
 
-6.2 可迁移到其他场景
+        |
 
-这套范式不仅适用于编码，也适用于：
+        +------ YES
 
-场景	阶段划分	
-文档写作	大纲 → 草稿 → 审校 → 发布 → 归档	
-数据分析	需求 → 探索 → 建模 → 验证 → 交付	
-测试流程	用例设计 → 执行 → 报告 → 归档	
-任何多阶段、多工具协同的 AI 工作流	自定义阶段 + 守卫 + 状态机	
+                  |
 
-6.3 对团队的长远价值
+                  v
 
-层面	意义	
-个人	掌握"组合 Skill"的能力，能根据需求定制工作流，不再依赖单一工具	
-团队	流程固化后，新成员快速上手，减少"个人习惯差异"带来的质量波动	
-组织	知识通过归档机制持续沉淀，形成可复用的组织资产	
+          Firmware Expert Agent
 
----
 
-七、下一步计划
+                  |
 
-阶段	事项	目标	
-短期（1-2周）	在试点项目中试用 Comet，收集反馈	验证流程是否适配团队现状	
-中期（1个月）	根据反馈调整阶段定义和守卫规则	形成适合团队的定制化工作流	
-长期（3个月）	将沉淀的范式推广到文档、测试等场景	建立团队级的 AI 工作流标准	
+                  v
 
----
+             Design完成
 
-八、总结
 
-> Comet 让我们看到：Skill 的组合与编排，比单个 Skill 的能力更重要。
+        |
 
-从"AI 能写代码"到"AI 能规范地写代码"再到"每次都能规范地写代码"，
+        v
 
-关键不在于工具本身，而在于把工作流程固化成可复用的机制。
+Artifact Review
 
----
 
-参考：GitHub [rpamis/comet](https://github.com/rpamis/comet) | npm: `@rpamis/comet`
+        |
 
----
+        v
 
-📎 下载文件：[comet_introduction_final.md](sandbox:///mnt/agents/output/comet_introduction_final.md)
+Build
 
----
 
-优化要点总结：
+        |
 
-维度	优化前	优化后	
-视角	技术文档/产品介绍	职场汇报/实践探索	
-口吻	"Comet 是什么"	"我们遇到了什么问题、怎么解决"	
-结构	功能介绍为主	背景→调研→方案→价值→计划	
-新增	—	下一步计划（短期/中期/长期）	
-语言	偏技术术语	更贴近业务场景，领导易理解	
-目标	介绍工具	推动落地、争取资源支持
+        v
 
-# SSD 固件 AI 辅助编程
+Verify
+9. 人机协作变化
+传统模式：
+工程师:
 
-面向 SSD 固件团队的 AI 辅助编程体系，基于四工具架构：**Graphify**（知识图谱）+ **CodeGraph**（调用图）+ **OpenSpec CLI**（规格驱动）+ **Superpowers**（工程纪律），由 `OpenCode Agent` 统一编排 **KNOW → PLAN → BUILD → FEEDBACK** 闭环。
+需求分析
 
-> ⚠️ 第一次来？先看 [项目导航](docs/navigation.md)（完整文件地图 + 配置索引 + 按角色找入口）
+查资料
 
-## 快速上手（5 分钟）
+设计
 
-```bash
-bash scripts/deploy_tools.sh /path/to/c-source
+编码
 
-# 2. 验证环境
-bash scripts/verify.sh    # 确认 17/17 通过
+Review
 
-# 3. 选一条路径开始（在 OpenCode IDE 中）
-#    路径 A（有设计文档）→ /opsx:propose <change-name>
-#    路径 B（无设计文档）→ codegraph explore <区域>  先生成设计文档
-```
+测试
+AI增强模式：
+AI:
 
-> **工具安装 vs 项目分发**：`deploy_tools.sh` 安装的是有可执行文件的外部工具（Node.js、codegraph、graphify、openspec CLI）。Superpowers / openspec-workflow / sd-firmware-copilot 是项目级 Skill（`.opencode/skills/` 下的 Markdown 文件），随仓库分发，`git clone` 即可用，无需脚本安装。
+代码分析
 
-## 两种使用路径
+知识查询
 
-### 路径 A：设计文档驱动
+设计初稿
 
-已有设计文档（SAD/SDD/ICD），AI 直接理解设计并实现。
+代码实现
 
-```
-KNOW:     graphify query "<关键词>" && codegraph explore <区域>
-PLAN:     /opsx:propose my-change "根据 SDD 第 X 章实现 Y 功能"
-BUILD:    /opsx:apply my-change
-FEEDBACK: /opsx:archive my-change && graphify update .
-```
+自动验证
 
-### 路径 B：代码驱动
 
-无设计文档，AI 先分析代码自动生成设计文档，再按路径 A 执行。
+Human:
 
-```
-KNOW:     codegraph explore <区域> && codegraph where <核心函数>
-          graphify explain "<概念>"
-          → AI 自动生成设计文档
-PLAN → BUILD → FEEDBACK: 同路径 A
-```
+架构决策
 
-## 四工具架构
+风险确认
 
-| 阶段 | 工具 | 部署方式 |
-|------|------|---------|
-| **KNOW** | Graphify + CodeGraph | `bash scripts/deploy_tools.sh` |
-| **PLAN** | OpenSpec CLI v1.4.1 | `npm install -g @fission-ai/openspec` |
-| **BUILD** | Superpowers + sd-firmware-copilot（测试验证） | `.opencode/skills/sd-firmware-copilot/` |
-| **FEEDBACK** | OpenSpec CLI + Graphify | 同 PLAN |
+最终批准
+人工从：
+过程参与者
+转变为：
+关键决策者
+10. 当前主要风险
+10.1 Agent 无限循环
+问题：
+Review FAIL
 
-## 配置（opencode.json）
+↓
 
-`opencode.json` 声明 MCP 服务器、插件和加载的 Skill。其中 `codegraph` MCP 的 `--path` 形参使用 `opencode.json` 不支持注释（JSON 标准不支持），但可用 shell 变量表达式指定目标 SSD 固件源码根：
+修改
 
-```json
-"command": ["codegraph", "serve", "--mcp", "--path", "${FEMU_ROOT:-/home/zsf/AI_Proj/AI_SSD_SIM}"]
-```
+↓
 
-| 环境变量 | 作用 | 默认值 | 必需 |
-|---------|------|-------|------|
-| `FEMU_ROOT` | CodeGraph MCP 服务的目标 SSD 固件源码目录（直接指向，不拼接子路径） | `/home/zsf/AI_Proj/AI_SSD_SIM` | 否（未设则用默认） |
+Review FAIL
 
-调整默认路径的方式：
-- **临时覆盖**：`FEMU_ROOT=/path/to/your/ssd_femu_hw_femu_dir opencode`（当前 shell 启动 Agent 时生效）
-- **永久设置**：`echo 'export FEMU_ROOT=/path/to/your/ssd_femu_hw_femu_dir' >> ~/.bashrc`
+↓
 
-## 推荐阅读
+循环
+解决：
+增加：
+Max Retry
 
-| 序号 | 文档 | 内容 |
-|------|------|------|
-| 1 | [项目导航](docs/navigation.md) | 完整结构地图 + 按角色找文件 + 配置索引 + **AI_Copilot_UFS 与目标代码库关系** |
-| 2 | [方法论概览](AGENTS.md#方法论概览) | 双路径、四阶段闭环、五级门禁、四条铁律 |
-| 3 | [路线图](docs/roadmap.md) | 实施进度与规划 |
-| 4 | [维护者指南](docs/maintainer.md) | 日常操作、FAQ、变更记录 |
+Escalation Human
+10.2 Knowledge 工具职责混乱
+解决：
+建立 Knowledge Gateway：
+CodeGraph
 
-## 核心原则
+负责代码
 
-- **代码优先**：Source Code > Design Docs > Specs > Memory > Prompt
-- **AI 辅助不替代人**：人负责架构决策和风险判断
 
-> 完整原则（小任务原则、CodeGraph 检查、五级门禁、四条铁律）见 [docs/navigation.md §几条重要约定](docs/navigation.md#几条重要约定)。
+Graphify
+
+负责关系
+
+
+OpenViking
+
+负责经验
+
+
+OpenWiki
+
+负责知识
+10.3 Expert Agent 退化成普通聊天机器人
+解决：
+必须定义：
+Role
+
+Knowledge Scope
+
+Tools
+
+Output Format
+
+Workflow Role
+11. 后续重点设计问题
+下一阶段继续研究：
+1.
+OpenCode 中：
+Agent 定义方式
+Agent 调用方式
+Agent 生命周期
+2.
+Comet Classic：
+Workflow 配置
+State 管理
+Artifact 管理
+3.
+OpenSpec / Superpowers：
+如何接入流程
+如何生成标准 Artifact
+4.
+Agent 通信协议：
+定义：
+Main Agent
+
+↓
+
+Expert Agent
+
+↓
+
+Review Agent
+之间的数据格式。
+5.
+Knowledge Plane：
+设计：
+数据来源
+索引方式
+更新机制
+权限控制
+总结
+最终架构：
+                 Human
+
+                   |
+
+              Comet Classic
+
+                   |
+
+               OpenCode
+
+                   |
+
+     ---------------------------------
+
+     |              |                |
+
+ Main Agent   Review Agent   Expert Agent
+
+
+                   |
+
+             Knowledge Plane
+
+
+                   |
+
+ CodeGraph + Graphify + OpenViking + OpenWiki
+
+
+                   |
+
+            UFS Firmware Repo
+核心理念：
+用 AI 模拟一个高级 UFS 固件团队，而不是让 AI 单纯替代程序员写代码。
+角色映射：
+AI组件
+对应角色
+Comet
+项目流程管理
+Main Agent
+固件开发工程师
+Artifact Review Agent
+技术评审
+Firmware Expert Agent
+资深架构专家
+Knowledge Plane
+团队知识库
+Human
+架构负责人
+
+后续我们可以基于这份 `agent总结.md` 继续扩展，例如进入 **V1实施设计文档**：  
+`UFS_Firmware_AI_Agent_Platform_Design_V1.md`，重点设计 OpenCode + Comet Classic + MCP + Agent 配置落地方案。
